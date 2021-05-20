@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
-  project_id SERIAL NOT NULL,
-  user_id SERIAL NOT NULL,
+  project_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
   PRIMARY KEY(project_id,user_id),
   FOREIGN KEY (project_id)
     REFERENCES projects(id)
@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   session_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-  user_id SERIAL NOT NULL,
+  user_id INTEGER NOT NULL,
   FOREIGN KEY (user_id)
     REFERENCES users(id)
     ON UPDATE RESTRICT
