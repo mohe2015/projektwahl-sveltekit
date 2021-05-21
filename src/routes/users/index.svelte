@@ -7,8 +7,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	 * @type {import('@sveltejs/kit').Load}
 	 */
 	export async function load({ page, fetch, session, context }) {
-		console.log("load")
-        const url = `/users.json`;
+		console.log('load');
+		const url = `/users.json`;
 		const res = await fetch(url);
 
 		if (res.ok) {
@@ -25,18 +25,34 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		};
 	}
 </script>
+
 <script lang="ts">
-    export let users;
+	export let users;
 </script>
+
 <svelte:head>
 	<title>Nutzer</title>
 </svelte:head>
 
 <h1 class="text-center">Nutzer</h1>
 
-{#each users as { name, type}}
+<a class="btn btn-primary" href="/users/create" role="button">Nutzer erstellen</a>
 
-{name}
-{type}
-
-{/each}
+<table class="table">
+	<thead>
+		<tr>
+			<th scope="col">#</th>
+			<th scope="col">Name</th>
+			<th scope="col">Typ</th>
+		</tr>
+	</thead>
+	<tbody>
+		{#each users as { name, type }}
+			<tr>
+				<th scope="row">1</th>
+				<td>{name}</td>
+				<td>{type}</td>
+			</tr>
+		{/each}
+	</tbody>
+</table>
