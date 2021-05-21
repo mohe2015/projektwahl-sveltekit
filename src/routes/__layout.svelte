@@ -24,10 +24,12 @@
 					>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link {$page.path === '/users' ? 'active' : ''}" href="/users">Nutzer</a>
+					<a class="nav-link {$page.path.startsWith('/users') ? 'active' : ''}" href="/users"
+						>Nutzer</a
+					>
 				</li>
 				<li class="nav-item">
-					<a class="nav-link {$page.path === '/projects' ? 'active' : ''}" href="/projects"
+					<a class="nav-link {$page.path.startsWith('/projects') ? 'active' : ''}" href="/projects"
 						>Projekte</a
 					>
 				</li>
