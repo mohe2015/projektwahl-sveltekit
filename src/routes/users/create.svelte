@@ -4,13 +4,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	let type = "voter";
+    let feedback: any = {}
 
     async function createUser() {
         let formData = new FormData(document.querySelector("#form-users"))
-        fetch("/users/create.json", {
+        const reponse = await fetch("/users/create.json", {
             method: "POST",
             body: formData
         })
+        feedback = await reponse.json()
     }
 </script>
 
@@ -25,7 +27,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<form on:submit|preventDefault={createUser} id="form-users">
 			<div class="mb-3">
 				<label for="users-name" class="form-label">Name:</label>
-				<input required type="text" class="form-control" name="name" id="users-name" />
+				<input type="text" class="form-control {"name" in feedback ? "is-invalid" : ""}" name="name" id="users-name" aria-describedby="users-name-feedback" />
+                {#if "name" in feedback}
+                <div id="users-name-feedback" class="invalid-feedback">
+                    {feedback.name}
+                  </div>
+                {/if}
 			</div>
 			<div class="mb-3">
 				<label for="users-password" class="form-label">Passwort:</label>
