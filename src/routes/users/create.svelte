@@ -3,24 +3,29 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	let type = "voter";
-    let feedback: Map<string, string> = new Map()
-    let unknownFeedback = []
+	let type = 'voter';
+	let feedback: Map<string, string> = new Map();
+	let unknownFeedback = [];
 
-    async function createUser() {
-        let formData = new FormData(document.querySelector("#form-users"))
-        const reponse = await fetch("/users/create.json", {
-            method: "POST",
-            body: formData
-        })
-        feedback = new Map(Object.entries(await reponse.json()))
-        console.log(feedback)
-    }
+	async function createUser() {
+		let formData = new FormData(document.querySelector('#form-users'));
+		const reponse = await fetch('/users/create.json', {
+			method: 'POST',
+			body: formData
+		});
+		const json = await reponse.json();
+		if ('errors' in json) {
+			feedback = new Map(Object.entries(json.errors));
+		} else {
+			feedback = new Map();
 
-    $: {
-        console.log("update")
-        unknownFeedback = [...feedback.entries()].filter(e => !["name"].includes(e[0]))
-    }
+			console.log(json.result);
+		}
+	}
+
+	$: {
+		unknownFeedback = [...feedback.entries()].filter((e) => !['name'].includes(e[0]));
+	}
 </script>
 
 <svelte:head>
@@ -32,22 +37,28 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
 		<form on:submit|preventDefault={createUser} id="form-users">
-            {#if unknownFeedback.length != 0}
-                <div class="alert alert-danger" role="alert">
-                    {#each unknownFeedback as [attribute, message]}
-                        {attribute}: {message}<br>
-                    {/each}
-                </div>
-            {/if}
+			{#if unknownFeedback.length != 0}
+				<div class="alert alert-danger" role="alert">
+					{#each unknownFeedback as [attribute, message]}
+						{attribute}: {message}<br />
+					{/each}
+				</div>
+			{/if}
 
 			<div class="mb-3">
 				<label for="users-name" class="form-label">Name:</label>
-				<input type="text" class="form-control {feedback.has("name") ? "is-invalid" : ""}" name="name" id="users-name" aria-describedby="users-name-feedback" />
-                {#if feedback.has("name")}
-                <div id="users-name-feedback" class="invalid-feedback">
-                    {feedback.get("name")}
-                  </div>
-                {/if}
+				<input
+					type="text"
+					class="form-control {feedback.has('name') ? 'is-invalid' : ''}"
+					name="name"
+					id="users-name"
+					aria-describedby="users-name-feedback"
+				/>
+				{#if feedback.has('name')}
+					<div id="users-name-feedback" class="invalid-feedback">
+						{feedback.get('name')}
+					</div>
+				{/if}
 			</div>
 			<div class="mb-3">
 				<label for="users-password" class="form-label">Passwort:</label>
@@ -66,9 +77,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					<label for="users-group" class="form-label">Klasse:</label>
 					<input type="text" class="form-control" name="group" id="users-group" />
 				</div>
-                <div class="mb-3">
+				<div class="mb-3">
 					<label for="users-age" class="form-label">Jahrgang:</label>
-					<input type="text" class="form-control" name="age" id="users-age" />
+					<input type="number" class="form-control" name="age" id="users-age" />
 				</div>
 			{/if}
 			<div class="mb-3 form-check">

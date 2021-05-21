@@ -1,25 +1,60 @@
 import { sql } from '$lib/database';
-import { assertBoolean, assertNotEmpty, assertOneOf } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit';
+import { hashPassword } from '$lib/password';
+import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
 import type { ServerRequest } from '@sveltejs/kit/types/endpoint';
 import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
+import type { PostgresError } from 'postgres';
 
 /**
  * @type {import('@sveltejs/kit').RequestHandler}
  */
 export async function post({ body }: ServerRequest<unknown, ReadOnlyFormData>) {
 	const errors = {
-        ...assertNotEmpty(body, "name"),
-        ...assertOneOf(body, "type", ["voter", "helper", "admin"]),
-        ...(body.get("type") === "voter" ? assertNotEmpty(body, "group") : {}),
-        ...(body.get("type") === "voter" ? assertNotEmpty(body, "age") : {}),
-        ...assertBoolean(body, "away")
-    };
+		...assertNotEmpty(body, 'name'),
+		...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
+		...(body.get('type') === 'voter' ? assertNotEmpty(body, 'group') : {}),
+		...(body.get('type') === 'voter' ? assertNumber(body, 'age') : {}),
+		...assertBoolean(body, 'away')
+	};
 
-    // @ts-expect-error
-    console.log([...body])
+	if (Object.keys(errors).length !== 0) {
+		return {
+			body: {
+				errors
+			}
+		};
+	}
 
-    return {
-        body: errors
-    }
+	try {
+		const result =
+			await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${body.get(
+				'name'
+			)}, ${await hashPassword(body.get('password'))}, ${body.get('type')}, ${body.get(
+				'group'
+			)}, ${body.get('age')}, ${body.has('away')});`;
+
+		return {
+			body: {
+				result
+			}
+		};
+	} catch (error: unknown) {
+		if (error instanceof Error && error.name === 'PostgresError') {
+			let postgresError = error as PostgresError;
+			if (postgresError.code === '23505' && postgresError.constraint_name === 'users_name_key') {
+				// unique violation
+				return {
+					body: {
+						errors: {
+							name: 'Nutzer mit diesem Namen existiert bereits!'
+						}
+					}
+				};
+			}
+		}
+		console.log(error);
+		return {
+			status: 500
+		};
+	}
 }

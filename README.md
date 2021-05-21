@@ -3,6 +3,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 
+```bash
+nix shell nixpkgs#nodejs-16_x nixpkgs#postgresql_13 nixpkgs#docker-compose
+docker-compose up -d
+psql -h localhost -U projektwahl
+```
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte);

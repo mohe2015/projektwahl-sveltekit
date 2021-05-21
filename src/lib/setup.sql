@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(64) UNIQUE NOT NULL,
-  password_hash VARCHAR(255),
+  password_hash VARCHAR(512),
   type VARCHAR(16) NOT NULL,
   project_leader_id INTEGER,
   class VARCHAR(8),

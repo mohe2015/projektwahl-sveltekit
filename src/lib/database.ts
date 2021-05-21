@@ -3,8 +3,11 @@
 
 import postgres from 'postgres';
 import { argon2id, hash } from 'argon2';
+import { hashPassword } from './password';
 
-export const sql = postgres('postgres://projektwahl:changeme@localhost/projektwahl');
+export const sql = postgres('postgres://projektwahl:changeme@localhost/projektwahl', {
+	debug: true
+});
 
 export async function setup() {
 	await sql.begin(async (sql) => {
@@ -12,19 +15,9 @@ export async function setup() {
 			cache: false
 		});
 
-		// https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html
-		// https://datatracker.ietf.org/doc/html/draft-irtf-cfrg-argon2-13
-
-		await hash('test', {
-			type: argon2id,
-			timeCost: 3,
-			memoryCost: 64 * 1024, // 64 MiB
-			saltLength: 128, // TODO FIXME check
-			hashLength: 256, // TODO FIXME check
-			parallelism: 4
-		});
-
-		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${'hi'}, 'admin') ON CONFLICT DO NOTHING;`;
+		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
+			'changeme'
+		)}, 'admin') ON CONFLICT DO NOTHING;`;
 	});
 
 	return {};
