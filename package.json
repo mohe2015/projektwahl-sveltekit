@@ -1,6 +1,20 @@
 {
-  "name": "~TODO~",
+  "name": "projektwahl-sveltekit",
   "version": "0.0.1",
+  "license": "AGPL-3.0-or-later",
+  "author": {
+    "name": "Moritz Hedtke",
+    "email": "Moritz.Hedtke@t-online.de"
+  },
+  "bugs": {
+    "url": "https://github.com/mohe2015/projektwahl-sveltekit/issues"
+  },
+  "homepage": "https://github.com/mohe2015/projektwahl-sveltekit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mohe2015/projektwahl-sveltekit.git"
+  },
+  "description": "Software to manage choosing projects and assigning people to projects.",
   "scripts": {
     "dev": "svelte-kit dev",
     "build": "svelte-kit build",
