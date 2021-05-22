@@ -99,7 +99,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <a class="btn btn-primary" href="/users/create" role="button">Nutzer erstellen</a>
 
-<!-- filter (for filtering by name, type, ..) -->
+<!-- filter (for filtering by name, type, ..) <i class="bi-filter" role="img" aria-label="Filter" />
+ -->
 
 <table class="table">
 	<thead>
@@ -121,6 +122,22 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					aria-label="Sort by type"
 				/></th
 			>
+		</tr>
+		<tr>
+			<th scope="col">
+				<input type="number" class="form-control" id="users-filter-id" />
+			</th>
+			<th scope="col">
+				<input type="text" class="form-control" id="users-filter-name" />
+			</th>
+			<th scope="col">
+				<select class="form-select" aria-label="Filter by type">
+					<option selected>Alle</option>
+					<option value="admin">admin</option>
+					<option value="helper">helper</option>
+					<option value="voter">voter</option>
+				</select>
+			</th>
 		</tr>
 	</thead>
 	<tbody>

@@ -25,7 +25,7 @@ export async function get({ query }: ServerRequest<unknown, any>) {
 		orderBy = ' ORDER BY ' + orderByQuery;
 	}
 
-	const queryString = 'SELECT id,name,type FROM users' + orderBy + ';';
+	const queryString = `SELECT id,name,type FROM users${orderBy} WHERE type='admin';`;
 	console.log(queryString);
 	const users = await sql.unsafe(queryString);
 
