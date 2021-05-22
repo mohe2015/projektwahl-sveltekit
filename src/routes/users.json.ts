@@ -21,7 +21,7 @@ export async function get({ query }: ServerRequest<unknown, any>) {
 	if (allowedOrderBy.length > 0) {
 		let orderByQuery = allowedOrderBy
 			.map((e) => (e[1] === 'up' ? `${e[0]} ASC` : `${e[0]} DESC`))
-			.join(' ');
+			.join(',');
 		orderBy = ' ORDER BY ' + orderByQuery;
 	}
 

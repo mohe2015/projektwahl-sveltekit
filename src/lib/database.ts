@@ -7,17 +7,3 @@ import { hashPassword } from './password';
 export const sql = postgres('postgres://projektwahl:changeme@localhost/projektwahl', {
 	debug: true
 });
-
-export async function setup() {
-	await sql.begin(async (sql) => {
-		await sql.file('src/lib/setup.sql', null, {
-			cache: false
-		});
-
-		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
-			'changeme'
-		)}, 'admin') ON CONFLICT DO NOTHING;`;
-	});
-
-	return {};
-}

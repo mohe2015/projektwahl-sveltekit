@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS users (
     ON DELETE RESTRICT
 );
 
+-- EXPLAIN ANALYZE VERBOSE SELECT id,name,type FROM users ORDER BY type ASC,name DESC;
+-- maybe add an index on name and maybe on type (or replace by enum?)
+
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
   project_id INTEGER NOT NULL,

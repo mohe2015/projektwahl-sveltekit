@@ -29,9 +29,9 @@ export async function post({ body }: ServerRequest<unknown, ReadOnlyFormData>) {
 		const result =
 			await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${body.get(
 				'name'
-			)}, ${await hashPassword(body.get('password'))}, ${body.get('type')}, ${body.get(
-				'group'
-			)}, ${body.get('age')}, ${body.has('away')});`;
+			)}, ${await hashPassword(body.get('password'))}, ${body.get('type')}, ${
+				body.get('group') ?? null
+			}, ${body.get('age') ?? null}, ${body.has('away')});`;
 
 		return {
 			body: {

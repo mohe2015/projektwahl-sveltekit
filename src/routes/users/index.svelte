@@ -27,6 +27,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <script lang="ts">
+	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
+	// you wanna sort for type then name
+
 	export let users: ArrayLike<{ id: any; name: any; type: any }>;
 	let priority: number = 0;
 	let sorting: Map<string, { order: string; priority: number }> = new Map([
@@ -75,7 +78,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	async function reloadUsers() {
-		let sorted = [...sorting.entries()].sort((a, b) => b[1].priority - a[1].priority);
+		let sorted = [...sorting.entries()].sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
 		sorted
 			.map((e) => e[0] + ':' + e[1].order)
