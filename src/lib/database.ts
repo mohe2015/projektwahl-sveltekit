@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 import postgres from 'postgres';
-import { argon2id, hash } from 'argon2';
 import { hashPassword } from './password';
 
 export const sql = postgres('postgres://projektwahl:changeme@localhost/projektwahl', {
