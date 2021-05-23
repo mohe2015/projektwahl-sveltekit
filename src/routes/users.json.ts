@@ -5,6 +5,8 @@ export const get: RequestHandler = async function ({ query }) {
 	// TODO pagination
 	// TODO sorting and filtering
 
+	// TODO FIXME validation length and null/undefined
+
 	// AUDIT START
 
 	const sortingQuery = query.getAll('sorting[]');
@@ -31,9 +33,9 @@ export const get: RequestHandler = async function ({ query }) {
 		filterTypeQuery = ' AND (' + filterType.join(' OR ') + ')';
 	}
 
-	const queryString = `SELECT id,name,type FROM users WHERE TRUE ${filterTypeQuery} ${orderBy};`;
+	const queryString = `SELECT id,name,type FROM users WHERE name LIKE $1;`; // ${filterTypeQuery} ${orderBy};`;
 	console.log(queryString);
-	const users = await sql.unsafe(queryString);
+	const users = await sql.unsafe(queryString, [query.get('filter_name') ?? '%']);
 
 	// AUDIT END
 

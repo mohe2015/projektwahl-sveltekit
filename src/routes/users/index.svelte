@@ -31,6 +31,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
+	let initialRender = true;
 	export let users: ArrayLike<{ id: number; name: string; type: string }> = [];
 	let priority = 0;
 	let sorting: Map<string, { order: string; priority: number }> = new Map([
@@ -57,6 +58,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		]
 	]);
 	let filteredTypes: string[] = ['admin', 'helper', 'voter'];
+	let filterName = '';
+	let filterId = '';
 
 	function headerClick(sortType: string) {
 		let newOrder: string;
@@ -80,8 +83,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	async function reloadUsers(
 		sorting: Map<string, { order: string; priority: number }>,
+		filterId: string,
+		filterName: string,
 		filteredTypes: string[]
 	) {
+		// this is a hack as the load function is reponsible for initial load
+		if (initialRender) {
+			initialRender = false;
+			return;
+		}
+
 		let sorted = [...sorting.entries()].sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
 		sorted
@@ -90,6 +101,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				urlSearchParams.append('sorting[]', e);
 			});
 		filteredTypes.forEach((t) => urlSearchParams.append('filter_type[]', t));
+		urlSearchParams.set('filter_name', filterName);
+		urlSearchParams.set('filter_id', filterId);
 		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
 		console.log(url);
 		const res = await fetch(url);
@@ -97,7 +110,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	// TODO FIXME optimize - the initial load makes an additional request
-	$: reloadUsers(sorting, filteredTypes);
+	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
+	$: reloadUsers(sorting, filterId, filterName, filteredTypes);
 </script>
 
 <svelte:head>
@@ -134,10 +148,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</tr>
 		<tr class="align-middle">
 			<th scope="col">
-				<input type="number" class="form-control" id="users-filter-id" />
+				<input bind:value={filterId} type="number" class="form-control" id="users-filter-id" />
 			</th>
 			<th scope="col">
-				<input type="text" class="form-control" id="users-filter-name" />
+				<input bind:value={filterName} type="text" class="form-control" id="users-filter-name" />
 			</th>
 			<th scope="col">
 				<select
