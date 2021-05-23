@@ -1,5 +1,5 @@
 <script>
-	import { getStores, navigating, page, session } from '$app/stores';
+	import { page } from '$app/stores';
 </script>
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow p-3 mb-5">

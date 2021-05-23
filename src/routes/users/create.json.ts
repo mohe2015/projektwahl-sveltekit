@@ -1,14 +1,11 @@
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
-import type { ServerRequest } from '@sveltejs/kit/types/endpoint';
+import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
-/**
- * @type {import('@sveltejs/kit').RequestHandler}
- */
-export async function post({ body }: ServerRequest<unknown, ReadOnlyFormData>) {
+export const post: RequestHandler<unknown, ReadOnlyFormData> = async function({ body }) {
 	const errors = {
 		...assertNotEmpty(body, 'name'),
 		...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
@@ -40,7 +37,7 @@ export async function post({ body }: ServerRequest<unknown, ReadOnlyFormData>) {
 		};
 	} catch (error: unknown) {
 		if (error instanceof Error && error.name === 'PostgresError') {
-			let postgresError = error as PostgresError;
+			const postgresError = error as PostgresError;
 			if (postgresError.code === '23505' && postgresError.constraint_name === 'users_name_key') {
 				// unique violation
 				return {

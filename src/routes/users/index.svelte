@@ -3,10 +3,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts" context="module">
-	/**
-	 * @type {import('@sveltejs/kit').Load}
-	 */
-	export async function load({ page, fetch, session, context }) {
+	import type { Load } from "@sveltejs/kit";
+
+	export const load: Load = async function({ fetch }) {
 		console.log('load');
 		const url = `/users.json`;
 		const res = await fetch(url);
@@ -30,8 +29,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
-	export let users: ArrayLike<{ id: any; name: any; type: any }>;
-	let priority: number = 0;
+	export let users: ArrayLike<{ id: number; name: string; type: string }>;
+	let priority = 0;
 	let sorting: Map<string, { order: string; priority: number }> = new Map([
 		[
 			'id',
@@ -105,17 +104,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <table class="table">
 	<thead>
 		<tr>
-			<th on:click={(e) => headerClick('id')} class="table-cell-hover" scope="col"
+			<th on:click={() => headerClick('id')} class="table-cell-hover" scope="col"
 				>#<i class="bi-arrow-{sorting.get('id').order}" role="img" aria-label="Sort by id" /></th
 			>
-			<th on:click={(e) => headerClick('name')} class="table-cell-hover" scope="col"
+			<th on:click={() => headerClick('name')} class="table-cell-hover" scope="col"
 				>Name<i
 					class="bi-arrow-{sorting.get('name').order}"
 					role="img"
 					aria-label="Sort by name"
 				/></th
 			>
-			<th on:click={(e) => headerClick('type')} class="table-cell-hover" scope="col"
+			<th on:click={() => headerClick('type')} class="table-cell-hover" scope="col"
 				>Typ<i
 					class="bi-arrow-{sorting.get('type').order}"
 					role="img"
