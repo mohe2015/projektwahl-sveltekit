@@ -33,9 +33,13 @@ export const get: RequestHandler = async function ({ query }) {
 		filterTypeQuery = ' AND (' + filterType.join(' OR ') + ')';
 	}
 
-	const queryString = `SELECT id,name,type FROM users WHERE name LIKE $1;`; // ${filterTypeQuery} ${orderBy};`;
+	const queryString = `SELECT id,name,type FROM users WHERE name LIKE $1 AND ($2 OR id = $3) ${filterTypeQuery} ${orderBy};`;
 	console.log(queryString);
-	const users = await sql.unsafe(queryString, [query.get('filter_name') ?? '%']);
+	const users = await sql.unsafe(queryString, [
+		'%' + (query.get('filter_name') ?? '') + '%',
+		!query.has('filter_id'),
+		query.get('filter_id')
+	]);
 
 	// AUDIT END
 

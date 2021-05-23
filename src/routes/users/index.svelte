@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		console.log('load');
 		const url = `${
 			import.meta.env.VITE_BASE_URL
-		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter`;
+		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter&filter_name=`;
 		const res = await fetch(url);
 
 		if (res.ok) {
@@ -102,7 +102,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			});
 		filteredTypes.forEach((t) => urlSearchParams.append('filter_type[]', t));
 		urlSearchParams.set('filter_name', filterName);
-		urlSearchParams.set('filter_id', filterId);
+		if (filterId !== null) {
+			urlSearchParams.set('filter_id', filterId);
+		}
 		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
 		console.log(url);
 		const res = await fetch(url);
