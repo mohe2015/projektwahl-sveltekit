@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		console.log('load');
 		const url = `${
 			import.meta.env.VITE_BASE_URL
-		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter&filter_name=`;
+		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter&filter_name=&pagination_limit=10&pagination_direction=forwards`;
 		const res = await fetch(url);
 
 		if (res.ok) {
@@ -59,6 +59,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let filterId = '';
 
 	let paginationLimit = '10';
+	let paginationDirection: 'forwards' | 'backwards' | null = null;
+	let paginationCursor: number | null = null;
 
 	function headerClick(sortType: 'id' | 'name' | 'type') {
 		let newOrder: string;
@@ -85,7 +87,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		filterId: string,
 		filterName: string,
 		filteredTypes: string[],
-		paginationLimit: string
+		paginationLimit: string,
+		paginationDirection: 'forwards' | 'backwards' | null,
+		paginationCursor: number | null
 	) {
 		// this is a hack as the load function is reponsible for initial load
 		if (initialRender) {
@@ -106,6 +110,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			urlSearchParams.set('filter_id', filterId);
 		}
 		urlSearchParams.set('pagination_limit', paginationLimit);
+		if (paginationDirection !== null) {
+			urlSearchParams.set('pagination_direction', paginationDirection);
+		}
+		if (paginationCursor !== null) {
+			urlSearchParams.set('pagination_cursor', paginationCursor.toString());
+		}
 		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
 		console.log(url);
 		const res = await fetch(url);
@@ -114,7 +124,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
-	$: reloadUsers(sorting, filterId, filterName, filteredTypes, paginationLimit);
+	$: reloadUsers(
+		sorting,
+		filterId,
+		filterName,
+		filteredTypes,
+		paginationLimit,
+		paginationDirection,
+		paginationCursor
+	);
 </script>
 
 <svelte:head>
@@ -188,18 +206,31 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	</tbody>
 </table>
 
-<nav aria-label="Page navigation example">
+<nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
 		<li class="page-item">
-			<a class="page-link" href="/" aria-label="Previous">
+			<a
+				on:click|preventDefault={() => {
+					paginationCursor = response.previousCursor;
+					paginationDirection = 'backwards';
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Nächste Seite"
+			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item"><a class="page-link" href="/">1</a></li>
-		<li class="page-item"><a class="page-link" href="/">2</a></li>
-		<li class="page-item"><a class="page-link" href="/">3</a></li>
 		<li class="page-item">
-			<a class="page-link" href="/" aria-label="Next">
+			<a
+				on:click|preventDefault={() => {
+					paginationCursor = response.nextCursor;
+					paginationDirection = 'forwards';
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Vorherige Seite"
+			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>
 		</li>

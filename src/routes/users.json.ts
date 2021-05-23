@@ -18,8 +18,10 @@ export type MyRequestHandler<
 	Body = unknown
 > = (request: ServerRequest<Locals, Body>) => Promise<MyEndpointOutput<OutputBody>>;
 
+export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
+
 export type UsersResponseBody = {
-	users: Array<{ id: number; name: string; type: string }>; // TODO FIXME is id really returned as number?
+	users: Array<UserType>;
 	previousCursor: number | null;
 	nextCursor: number | null;
 };
@@ -66,7 +68,7 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 	const queryString = `SELECT id,name,type FROM users WHERE (($5 AND id >= $4) OR ($6 AND id < $4) OR ((NOT $5) AND (NOT $6))) AND name LIKE $1 AND ($2 OR id = $3) ${filterTypeQuery} ${orderBy} LIMIT ($7 + 1);`;
 
 	console.log(queryString);
-	const users = await sql.unsafe(queryString, [
+	const users = await sql.unsafe<Array<UserType>>(queryString, [
 		'%' + (query.get('filter_name') ?? '') + '%', // $1
 		!query.has('filter_id'), // $2
 		query.get('filter_id'), // $3 // TODO FIXME if this is "" we 500
@@ -83,12 +85,12 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 		previousCursor = paginationCursor;
 		if (users.length > paginationLimit) {
 			const lastElement = users.pop();
-			nextCursor = lastElement?.id;
+			nextCursor = lastElement?.id ?? null;
 		}
 	} else if (isBackwardsPagination) {
 		if (users.length > paginationLimit) {
 			const firstElement = users.shift();
-			previousCursor = firstElement?.id;
+			previousCursor = firstElement?.id ?? null;
 		}
 		nextCursor = paginationCursor;
 	}
