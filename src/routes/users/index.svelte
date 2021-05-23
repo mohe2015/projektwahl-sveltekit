@@ -3,11 +3,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts" context="module">
-	import type { Load } from "@sveltejs/kit";
+	import type { Load } from '@sveltejs/kit';
 
-	export const load: Load = async function({ fetch }) {
+	export const load: Load = async function ({ fetch }) {
 		console.log('load');
-		const url = `/users.json`;
+		const url = `${
+			import.meta.env.VITE_BASE_URL
+		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter`;
 		const res = await fetch(url);
 
 		if (res.ok) {
@@ -22,14 +24,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			status: res.status,
 			error: new Error(`Could not load ${url}`)
 		};
-	}
+	};
 </script>
 
 <script lang="ts">
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
-	export let users: ArrayLike<{ id: number; name: string; type: string }>;
+	export let users: ArrayLike<{ id: number; name: string; type: string }> = [];
 	let priority = 0;
 	let sorting: Map<string, { order: string; priority: number }> = new Map([
 		[
@@ -54,6 +56,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			}
 		]
 	]);
+	let filteredTypes: string[] = ['admin', 'helper', 'voter'];
 
 	function headerClick(sortType: string) {
 		let newOrder: string;
@@ -73,10 +76,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		});
 		sorting = sorting;
 		priority += 1;
-		reloadUsers();
 	}
 
-	async function reloadUsers() {
+	async function reloadUsers(
+		sorting: Map<string, { order: string; priority: number }>,
+		filteredTypes: string[]
+	) {
 		let sorted = [...sorting.entries()].sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
 		sorted
@@ -84,10 +89,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			.forEach((e) => {
 				urlSearchParams.append('sorting[]', e);
 			});
-		const url = `/users.json?${urlSearchParams}`;
+		filteredTypes.forEach((t) => urlSearchParams.append('filter_type[]', t));
+		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
+		console.log(url);
 		const res = await fetch(url);
 		users = await res.json();
 	}
+
+	// TODO FIXME optimize - the initial load makes an additional request
+	$: reloadUsers(sorting, filteredTypes);
 </script>
 
 <svelte:head>
@@ -122,7 +132,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				/></th
 			>
 		</tr>
-		<tr>
+		<tr class="align-middle">
 			<th scope="col">
 				<input type="number" class="form-control" id="users-filter-id" />
 			</th>
@@ -130,8 +140,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<input type="text" class="form-control" id="users-filter-name" />
 			</th>
 			<th scope="col">
-				<select class="form-select" aria-label="Filter by type">
-					<option selected>Alle</option>
+				<select
+					bind:value={filteredTypes}
+					class="form-select form-select-sm"
+					multiple
+					size="3"
+					aria-label="Filter by type"
+				>
 					<option value="admin">admin</option>
 					<option value="helper">helper</option>
 					<option value="voter">voter</option>

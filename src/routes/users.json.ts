@@ -1,7 +1,7 @@
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
 
-export const get: RequestHandler = async function({ query }) {
+export const get: RequestHandler = async function ({ query }) {
 	// TODO pagination
 	// TODO sorting and filtering
 
@@ -22,7 +22,16 @@ export const get: RequestHandler = async function({ query }) {
 		orderBy = ' ORDER BY ' + orderByQuery;
 	}
 
-	const queryString = `SELECT id,name,type FROM users${orderBy} WHERE type='admin';`;
+	const filterType = query
+		.getAll('filter_type[]')
+		.filter((t) => ['admin', 'helper', 'voter'].includes(t))
+		.map((t) => `type='${t}'`);
+	let filterTypeQuery = '';
+	if (filterType.length > 0) {
+		filterTypeQuery = ' AND (' + filterType.join(' OR ') + ')';
+	}
+
+	const queryString = `SELECT id,name,type FROM users WHERE TRUE ${filterTypeQuery} ${orderBy};`;
 	console.log(queryString);
 	const users = await sql.unsafe(queryString);
 
@@ -31,4 +40,4 @@ export const get: RequestHandler = async function({ query }) {
 	return {
 		body: users
 	};
-}
+};

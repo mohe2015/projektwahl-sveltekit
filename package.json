@@ -45,7 +45,7 @@
 		"postgres": "^2.0.0-beta.5"
 	},
 	"lint-staged": {
-		"*.js": "eslint --cache --fix",
-		"*.{js,css,md}": "prettier --write"
+		"*.{ts,svelte}": "eslint --cache --fix",
+		"*.{ts,svelte,css,md}": "prettier --write"
 	}
 }
