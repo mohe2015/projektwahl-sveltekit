@@ -102,7 +102,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			});
 		filteredTypes.forEach((t) => urlSearchParams.append('filter_type[]', t));
 		urlSearchParams.set('filter_name', filterName);
-		if (filterId !== null) {
+		if (filterId.length != 0) {
 			urlSearchParams.set('filter_id', filterId);
 		}
 		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
@@ -122,10 +122,24 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">Nutzer</h1>
 
-<a class="btn btn-primary" href="/users/create" role="button">Nutzer erstellen</a>
+<div class="row justify-content-between">
+	<div class="col-auto">
+		<a class="btn btn-primary" href="/users/create" role="button">Nutzer erstellen</a>
+	</div>
 
-<!-- filter (for filtering by name, type, ..) <i class="bi-filter" role="img" aria-label="Filter" />
- -->
+	<!-- filter (for filtering by name, type, ..) <i class="bi-filter" role="img" aria-label="Filter" />
+	-->
+
+	<div class="col-3">
+		<select class="form-select" aria-label="Default select example">
+			<option selected>Einträge pro Seite</option>
+			<option value="10">10</option>
+			<option value="25">25</option>
+			<option value="50">50</option>
+			<option value="100">100</option>
+		</select>
+	</div>
+</div>
 
 <table class="table">
 	<thead>
@@ -180,6 +194,24 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{/each}
 	</tbody>
 </table>
+
+<nav aria-label="Page navigation example">
+	<ul class="pagination justify-content-center">
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Previous">
+				<span aria-hidden="true">&laquo;</span>
+			</a>
+		</li>
+		<li class="page-item"><a class="page-link" href="#">1</a></li>
+		<li class="page-item"><a class="page-link" href="#">2</a></li>
+		<li class="page-item"><a class="page-link" href="#">3</a></li>
+		<li class="page-item">
+			<a class="page-link" href="#" aria-label="Next">
+				<span aria-hidden="true">&raquo;</span>
+			</a>
+		</li>
+	</ul>
+</nav>
 
 <style>
 	.table-cell-hover:hover {
