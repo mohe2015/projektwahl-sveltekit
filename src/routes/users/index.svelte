@@ -15,7 +15,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (res.ok) {
 			return {
 				props: {
-					users: await res.json()
+					response: await res.json()
 				}
 			};
 		}
@@ -28,42 +28,41 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <script lang="ts">
+	import type { UsersResponseBody } from '../users.json';
+
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
 	let initialRender = true;
-	export let users: ArrayLike<{ id: number; name: string; type: string }> = [];
+	export let response: UsersResponseBody = {
+		users: [],
+		previousCursor: null,
+		nextCursor: null
+	};
 	let priority = 0;
-	let sorting: Map<string, { order: string; priority: number }> = new Map([
-		[
-			'id',
-			{
-				order: 'down-up',
-				priority
-			}
-		],
-		[
-			'name',
-			{
-				order: 'down-up',
-				priority
-			}
-		],
-		[
-			'type',
-			{
-				order: 'down-up',
-				priority
-			}
-		]
-	]);
+	let sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } } = {
+		id: {
+			order: 'down-up',
+			priority
+		},
+		name: {
+			order: 'down-up',
+			priority
+		},
+		type: {
+			order: 'down-up',
+			priority
+		}
+	};
 	let filteredTypes: string[] = ['admin', 'helper', 'voter'];
 	let filterName = '';
 	let filterId = '';
 
-	function headerClick(sortType: string) {
+	let paginationLimit = '10';
+
+	function headerClick(sortType: 'id' | 'name' | 'type') {
 		let newOrder: string;
-		switch (sorting.get(sortType).order) {
+		switch (sorting[sortType].order) {
 			case 'down-up':
 				newOrder = 'up';
 				break;
@@ -73,19 +72,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			default:
 				newOrder = 'down-up';
 		}
-		sorting.set(sortType, {
+		sorting[sortType] = {
 			order: newOrder,
 			priority
-		});
+		};
 		sorting = sorting;
 		priority += 1;
 	}
 
 	async function reloadUsers(
-		sorting: Map<string, { order: string; priority: number }>,
+		sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } },
 		filterId: string,
 		filterName: string,
-		filteredTypes: string[]
+		filteredTypes: string[],
+		paginationLimit: string
 	) {
 		// this is a hack as the load function is reponsible for initial load
 		if (initialRender) {
@@ -93,7 +93,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			return;
 		}
 
-		let sorted = [...sorting.entries()].sort((a, b) => a[1].priority - b[1].priority);
+		let sorted = Object.entries(sorting).sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
 		sorted
 			.map((e) => e[0] + ':' + e[1].order)
@@ -105,15 +105,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (filterId.length != 0) {
 			urlSearchParams.set('filter_id', filterId);
 		}
+		urlSearchParams.set('pagination_limit', paginationLimit);
 		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
 		console.log(url);
 		const res = await fetch(url);
-		users = await res.json();
+		response = await res.json();
 	}
 
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
-	$: reloadUsers(sorting, filterId, filterName, filteredTypes);
+	$: reloadUsers(sorting, filterId, filterName, filteredTypes, paginationLimit);
 </script>
 
 <svelte:head>
@@ -131,7 +132,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	-->
 
 	<div class="col-3">
-		<select class="form-select" aria-label="Default select example">
+		<select bind:value={paginationLimit} class="form-select" aria-label="Default select example">
 			<option selected>Einträge pro Seite</option>
 			<option value="10">10</option>
 			<option value="25">25</option>
@@ -145,21 +146,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<thead>
 		<tr>
 			<th on:click={() => headerClick('id')} class="table-cell-hover" scope="col"
-				>#<i class="bi-arrow-{sorting.get('id').order}" role="img" aria-label="Sort by id" /></th
+				>#<i class="bi-arrow-{sorting['id'].order}" role="img" aria-label="Sort by id" /></th
 			>
 			<th on:click={() => headerClick('name')} class="table-cell-hover" scope="col"
-				>Name<i
-					class="bi-arrow-{sorting.get('name').order}"
-					role="img"
-					aria-label="Sort by name"
-				/></th
+				>Name<i class="bi-arrow-{sorting['name'].order}" role="img" aria-label="Sort by name" /></th
 			>
 			<th on:click={() => headerClick('type')} class="table-cell-hover" scope="col"
-				>Typ<i
-					class="bi-arrow-{sorting.get('type').order}"
-					role="img"
-					aria-label="Sort by type"
-				/></th
+				>Typ<i class="bi-arrow-{sorting['type'].order}" role="img" aria-label="Sort by type" /></th
 			>
 		</tr>
 		<tr class="align-middle">
@@ -185,7 +178,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</tr>
 	</thead>
 	<tbody>
-		{#each users as { id, name, type } (id)}
+		{#each response.users as { id, name, type } (id)}
 			<tr>
 				<th scope="row">{id}</th>
 				<td>{name}</td>
@@ -198,15 +191,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <nav aria-label="Page navigation example">
 	<ul class="pagination justify-content-center">
 		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Previous">
+			<a class="page-link" href="/" aria-label="Previous">
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item"><a class="page-link" href="#">1</a></li>
-		<li class="page-item"><a class="page-link" href="#">2</a></li>
-		<li class="page-item"><a class="page-link" href="#">3</a></li>
+		<li class="page-item"><a class="page-link" href="/">1</a></li>
+		<li class="page-item"><a class="page-link" href="/">2</a></li>
+		<li class="page-item"><a class="page-link" href="/">3</a></li>
 		<li class="page-item">
-			<a class="page-link" href="#" aria-label="Next">
+			<a class="page-link" href="/" aria-label="Next">
 				<span aria-hidden="true">&raquo;</span>
 			</a>
 		</li>
