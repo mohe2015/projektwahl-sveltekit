@@ -32,6 +32,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto, invalidate, prefetch, prefetchRoutes } from '$app/navigation';
 	import { getStores, navigating, page, session } from '$app/stores';
 	import { browser } from '$app/env';
+	import { query } from '$lib/writable_url';
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -154,12 +155,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<div class="col-3">
 		<!-- svelte-ignore a11y-no-onchange -->
 		<select
-			on:change={(e) => {
-				let query = new URLSearchParams($page.query);
-				query.set('pagination_limit', e.currentTarget.value);
-				goto('?' + query, { replaceState: true });
-			}}
-			value={$page.query.get('pagination_limit') ?? '25'}
+			bind:value={$query.pagination_limit}
 			class="form-select"
 			aria-label="Default select example"
 		>
