@@ -8,9 +8,10 @@ import { get } from 'svelte/store';
 
 declare type Invalidator<T> = (value?: T) => void;
 
-const location2query = (value?: Location): Record<string, string> => {
+const location2query = (value: Location): Record<string, string> => {
+	console.log(value.query.toString());
 	const currentQuery: Record<string, string> = {};
-	value?.query.forEach((value, key) => {
+	value.query.forEach((value, key) => {
 		currentQuery[key] = value; // TODO FIXME append
 	});
 	return currentQuery;
@@ -27,10 +28,18 @@ export const query: Writable<Record<string, string>> = {
 		invalidate?: Invalidator<Record<string, string>>
 	): Unsubscriber {
 		return page.subscribe(
-			(value) => run(location2query(value)),
+			(value) => {
+				console.log('subscribe.run');
+				if (value) {
+					run(location2query(value));
+				}
+			},
 			invalidate
 				? (value) => {
-						invalidate(location2query(value));
+						console.log('subscribe.invalidate');
+						if (value) {
+							invalidate(location2query(value));
+						}
 				  }
 				: undefined
 		);
@@ -40,6 +49,7 @@ export const query: Writable<Record<string, string>> = {
 	 * @param value to set
 	 */
 	set(value: Record<string, string>): void {
+		console.log('set');
 		const urlSearchParams = new URLSearchParams(value);
 		goto(`?${urlSearchParams.toString()}`, { replaceState: true });
 	},
@@ -48,6 +58,7 @@ export const query: Writable<Record<string, string>> = {
 	 * @param updater callback
 	 */
 	update(updater: Updater<Record<string, string>>): void {
+		console.log('set');
 		updater(location2query(get(page)));
 	}
 };

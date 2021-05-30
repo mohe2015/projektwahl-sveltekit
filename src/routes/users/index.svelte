@@ -3,10 +3,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts" context="module">
-	import type { Load } from '@sveltejs/kit';
+	/*import type { Load } from '@sveltejs/kit';
 
 	export const load: Load = async function ({ fetch }) {
 		console.log('load');
+		// TODO FIXME create the url based on the current url parameters otherwise this doesnt work
 		const url = `${
 			import.meta.env.VITE_BASE_URL
 		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter&filter_name=&pagination_limit=10&pagination_direction=forwards`;
@@ -24,7 +25,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			status: res.status,
 			error: new Error(`Could not load ${url}`)
 		};
-	};
+	};*/
 </script>
 
 <script lang="ts">
@@ -95,10 +96,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		paginationCursor: number | null
 	) {
 		// this is a hack as the load function is reponsible for initial load
-		if (initialRender) {
-			initialRender = false;
-			return;
-		}
+		//if (initialRender) {
+		//	initialRender = false;
+		//	return;
+		//}
 
 		let sorted = Object.entries(sorting).sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
