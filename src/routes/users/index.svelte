@@ -29,6 +29,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
+	import { goto, invalidate, prefetch, prefetchRoutes } from '$app/navigation';
+	import { getStores, navigating, page, session } from '$app/stores';
+	import { browser } from '$app/env';
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -58,7 +61,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let filterName = '';
 	let filterId = '';
 
-	let paginationLimit = '10';
 	let paginationDirection: 'forwards' | 'backwards' | null = null;
 	let paginationCursor: number | null = null;
 
@@ -129,7 +131,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		filterId,
 		filterName,
 		filteredTypes,
-		paginationLimit,
+		$page.query.get('pagination_limit') ?? '10',
 		paginationDirection,
 		paginationCursor
 	);
@@ -150,12 +152,21 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	-->
 
 	<div class="col-3">
-		<select bind:value={paginationLimit} class="form-select" aria-label="Default select example">
-			<option selected>Einträge pro Seite</option>
-			<option value="10">10</option>
-			<option value="25">25</option>
-			<option value="50">50</option>
-			<option value="100">100</option>
+		<!-- svelte-ignore a11y-no-onchange -->
+		<select
+			on:change={(e) => {
+				let query = new URLSearchParams($page.query);
+				query.set('pagination_limit', e.currentTarget.value);
+				goto('?' + query, { replaceState: true });
+			}}
+			value={$page.query.get('pagination_limit') ?? '25'}
+			class="form-select"
+			aria-label="Default select example"
+		>
+			<option value="10">10 pro Seite</option>
+			<option value="25">25 pro Seite</option>
+			<option value="50">50 pro Seite</option>
+			<option value="100">100 pro Seite</option>
 		</select>
 	</div>
 </div>
