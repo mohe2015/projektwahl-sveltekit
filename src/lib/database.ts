@@ -3,6 +3,6 @@
 
 import postgres from 'postgres';
 
-export const sql = postgres('postgres://projektwahl:changeme@localhost/projektwahl', {
+export const sql = postgres('postgres://projektwahl:changeme@localhost:54321/projektwahl', {
 	debug: true
 });

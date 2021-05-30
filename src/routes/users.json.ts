@@ -1,12 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type {
-	EndpointOutput,
-	JSONValue,
-	RequestHandler,
-	ServerRequest
-} from '@sveltejs/kit/types/endpoint';
+import type { JSONValue, ServerRequest } from '@sveltejs/kit/types/endpoint';
 
 export type MyEndpointOutput<Body extends string | Uint8Array | JSONValue> = {
 	status?: number;
@@ -54,7 +49,7 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 		allowedOrderBy = [['id', 'up']];
 	}
 
-	// TODO FIXME orderBy needs to be reversed for backwards pagination
+	// orderBy needs to be reversed for backwards pagination
 	if (isBackwardsPagination) {
 		allowedOrderBy = allowedOrderBy.map((e) => [e[0], e[1] === 'up' ? 'down' : 'up']);
 	}
@@ -100,8 +95,8 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 	} else if (isBackwardsPagination) {
 		users = users.reverse(); // fixup as we needed to switch up orders above
 		if (users.length > paginationLimit) {
-			const firstElement = users.shift();
-			previousCursor = firstElement?.id ?? null;
+			users.shift();
+			previousCursor = users[0].id ?? null;
 		}
 		nextCursor = paginationCursor;
 	}

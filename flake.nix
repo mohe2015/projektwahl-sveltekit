@@ -23,7 +23,6 @@
 
             shellHook = ''
               docker-compose up -d
-              VITE_BASE_URL=http://localhost:3000/ npm run dev
             '';
           };
         }
