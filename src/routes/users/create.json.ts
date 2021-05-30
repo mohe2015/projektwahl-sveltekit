@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
@@ -5,7 +7,7 @@ import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
-export const post: RequestHandler<unknown, ReadOnlyFormData> = async function({ body }) {
+export const post: RequestHandler<unknown, ReadOnlyFormData> = async function ({ body }) {
 	const errors = {
 		...assertNotEmpty(body, 'name'),
 		...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
@@ -54,4 +56,4 @@ export const post: RequestHandler<unknown, ReadOnlyFormData> = async function({ 
 			status: 500
 		};
 	}
-}
+};

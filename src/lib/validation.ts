@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
 
 export function assertHas(data: ReadOnlyFormData, field: string): { [index: string]: string } {

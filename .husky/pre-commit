@@ -1,4 +1,12 @@
 #!/bin/sh
+# SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 . "$(dirname "$0")/_/husky.sh"
 
 npx lint-staged
+
+nixpkgs-fmt flake.nix
+nix flake update
+
+reuse lint

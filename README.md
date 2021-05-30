@@ -4,9 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 
 ```bash
-nix shell nixpkgs#nodejs-16_x nixpkgs#postgresql_13 nixpkgs#docker-compose
-docker-compose up -d
-VITE_BASE_URL=http://localhost:3000/ npm run dev
+nix develop
 psql -h localhost -U projektwahl
 ```
 
