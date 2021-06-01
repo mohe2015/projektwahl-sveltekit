@@ -30,9 +30,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
-	import { goto, invalidate, prefetch, prefetchRoutes } from '$app/navigation';
-	import { getStores, navigating, page, session } from '$app/stores';
-	import { browser } from '$app/env';
+	import { page } from '$app/stores';
 	import { query } from '$lib/writable_url';
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -59,7 +57,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			priority
 		}
 	};
-	let filteredTypes: string[] = ['admin', 'helper', 'voter'];
 
 	let paginationDirection: 'forwards' | 'backwards' | null = null;
 	let paginationCursor: number | null = null;
@@ -88,7 +85,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } },
 		filterId: string,
 		filterName: string,
-		filteredTypes: string[],
+		filteredTypes: string,
 		paginationLimit: string,
 		paginationDirection: 'forwards' | 'backwards' | null,
 		paginationCursor: number | null
@@ -106,7 +103,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			.forEach((e) => {
 				urlSearchParams.append('sorting[]', e);
 			});
-		filteredTypes.forEach((t) => urlSearchParams.append('filter_type[]', t));
+		urlSearchParams.append('filter_type[]', filteredTypes);
 		urlSearchParams.set('filter_name', filterName);
 		if (filterId.length != 0) {
 			urlSearchParams.set('filter_id', filterId);
@@ -130,7 +127,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		sorting,
 		$query.filter_id ?? '',
 		$query.filter_name ?? '',
-		filteredTypes,
+		$query.filter_types,
 		$page.query.get('pagination_limit') ?? '10',
 		paginationDirection,
 		paginationCursor
@@ -198,7 +195,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</th>
 			<th scope="col">
 				<select
-					bind:value={filteredTypes}
+					bind:value={$query.filter_types}
 					class="form-select form-select-sm"
 					multiple
 					size="3"

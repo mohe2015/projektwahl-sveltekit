@@ -12,6 +12,7 @@ const location2query = (value: Location): Record<string, string> => {
 	console.log(value.query.toString());
 	const currentQuery: Record<string, string> = {};
 	value.query.forEach((value, key) => {
+		console.log(value + ' -> ' + key);
 		currentQuery[key] = value; // TODO FIXME append
 	});
 	return currentQuery;
@@ -49,7 +50,7 @@ export const query: Writable<Record<string, string>> = {
 	 * @param value to set
 	 */
 	set(value: Record<string, string>): void {
-		console.log('set');
+		console.log('set', value);
 		for (const k in value) {
 			if (value[k] == null) {
 				delete value[k];
