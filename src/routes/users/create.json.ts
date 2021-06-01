@@ -3,8 +3,8 @@
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
-import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
+import type { RequestHandler } from '@mohe2015/kit/types/endpoint';
+import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
 export const post: RequestHandler<unknown, ReadOnlyFormData> = async function ({ body }) {

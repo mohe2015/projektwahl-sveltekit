@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts" context="module">
-	/*import type { Load } from '@sveltejs/kit';
+	/*import type { Load } from '@mohe2015/kit';
 
 	export const load: Load = async function ({ fetch }) {
 		console.log('load');

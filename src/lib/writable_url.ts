@@ -3,7 +3,7 @@
 import { goto } from '$app/navigation';
 import type { Subscriber, Unsubscriber, Updater, Writable } from 'svelte/store';
 import { page } from '$app/stores';
-import type { Location } from '@sveltejs/kit/types/helper';
+import type { Location } from '@mohe2015/kit/types/helper';
 import { get } from 'svelte/store';
 
 declare type Invalidator<T> = (value?: T) => void;

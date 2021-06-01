@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { RequestHandler } from '@sveltejs/kit';
+import type { RequestHandler } from '@mohe2015/kit';
 
-export const get: RequestHandler = async function() {
+export const get: RequestHandler = async function () {
 	await sql.begin(async (sql) => {
 		await sql.file('src/lib/setup.sql', null, {
 			cache: false
@@ -24,4 +24,4 @@ export const get: RequestHandler = async function() {
 	return {
 		body: {}
 	};
-}
+};
