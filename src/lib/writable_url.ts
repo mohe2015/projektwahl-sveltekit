@@ -50,15 +50,22 @@ export const query: Writable<Record<string, string>> = {
 	 */
 	set(value: Record<string, string>): void {
 		console.log('set');
+		for (const k in value) {
+			if (value[k] == null) {
+				delete value[k];
+			}
+		}
 		const urlSearchParams = new URLSearchParams(value);
-		goto(`?${urlSearchParams.toString()}`, { replaceState: true });
+
+		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
+		goto(`?${urlSearchParams.toString()}`, { replaceState: true, noscroll: true });
 	},
 	/**
 	 * Update value using callback and inform subscribers.
 	 * @param updater callback
 	 */
 	update(updater: Updater<Record<string, string>>): void {
-		console.log('set');
-		updater(location2query(get(page)));
+		console.log('update');
+		query.set(updater(location2query(get(page))));
 	}
 };

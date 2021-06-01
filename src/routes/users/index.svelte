@@ -60,8 +60,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		}
 	};
 	let filteredTypes: string[] = ['admin', 'helper', 'voter'];
-	let filterName = '';
-	let filterId = '';
 
 	let paginationDirection: 'forwards' | 'backwards' | null = null;
 	let paginationCursor: number | null = null;
@@ -130,8 +128,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 	$: reloadUsers(
 		sorting,
-		filterId,
-		filterName,
+		$query.filter_id ?? '',
+		$query.filter_name ?? '',
 		filteredTypes,
 		$page.query.get('pagination_limit') ?? '10',
 		paginationDirection,
@@ -183,10 +181,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</tr>
 		<tr class="align-middle">
 			<th scope="col">
-				<input bind:value={filterId} type="number" class="form-control" id="users-filter-id" />
+				<input
+					bind:value={$query.filter_id}
+					type="number"
+					class="form-control"
+					id="users-filter-id"
+				/>
 			</th>
 			<th scope="col">
-				<input bind:value={filterName} type="text" class="form-control" id="users-filter-name" />
+				<input
+					bind:value={$query.filter_name}
+					type="text"
+					class="form-control"
+					id="users-filter-name"
+				/>
 			</th>
 			<th scope="col">
 				<select
