@@ -11,9 +11,13 @@ declare type Invalidator<T> = (value?: T) => void;
 const location2query = (value: Location): Record<string, string> => {
 	console.log(value.query.toString());
 	const currentQuery: Record<string, string> = {};
-	value.query.forEach((value, key) => {
-		console.log(value + ' -> ' + key);
-		currentQuery[key] = value; // TODO FIXME append
+	value.query.forEach((_, key) => {
+		console.log(key + ' -> ' + _);
+		if (key.endsWith('[]')) {
+			currentQuery[key] = value.query.getAll(key) as unknown as string; // TODO FIXME hack
+		} else {
+			currentQuery[key] = _;
+		}
 	});
 	return currentQuery;
 };
@@ -52,12 +56,19 @@ export const query = (defaultValue: Record<string, string>): Writable<Record<str
 	const set = (value: Record<string, string>): void => {
 		const actualValue: Record<string, string> = { ...defaultValue, ...value };
 		console.log('set', actualValue);
+		const urlSearchParams = new URLSearchParams();
 		for (const k in actualValue) {
-			if (actualValue[k] == null) {
-				delete actualValue[k];
+			if (actualValue[k] != null) {
+				if (Array.isArray(actualValue[k])) {
+					// TODO FIXME replace with k endswith []
+					for (const e of actualValue[k]) {
+						urlSearchParams.append(k, e);
+					}
+				} else {
+					urlSearchParams.append(k, actualValue[k]);
+				}
 			}
 		}
-		const urlSearchParams = new URLSearchParams(actualValue);
 
 		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
 		goto(`?${urlSearchParams.toString()}`, { replaceState: true, noscroll: true });

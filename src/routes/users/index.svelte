@@ -34,7 +34,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { query as query2 } from '$lib/writable_url';
 
 	let query = query2({
-		filter_types: 'admin,helper,voter'
+		'filter_types[]': ['admin', 'helper', 'voter'] as unknown as string, // HACK
+		pagination_limit: '10'
 	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -88,7 +89,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } },
 		filterId: string,
 		filterName: string,
-		filteredTypes: string,
+		filteredTypes: string[],
 		paginationLimit: string,
 		paginationDirection: 'forwards' | 'backwards' | null,
 		paginationCursor: number | null
@@ -106,9 +107,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			.forEach((e) => {
 				urlSearchParams.append('sorting[]', e);
 			});
-		urlSearchParams.append('filter_type[]', filteredTypes);
-		urlSearchParams.set('filter_name', filterName);
-		if (filterId.length != 0) {
+		filteredTypes.forEach((e) => urlSearchParams.append('filter_type[]', e));
+		if (filterName) {
+			urlSearchParams.set('filter_name', filterName);
+		}
+		if (filterId) {
 			urlSearchParams.set('filter_id', filterId);
 		}
 		urlSearchParams.set('pagination_limit', paginationLimit);
@@ -128,10 +131,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 	$: reloadUsers(
 		sorting,
-		$query.filter_id ?? '',
-		$query.filter_name ?? '',
-		$query.filter_types,
-		$page.query.get('pagination_limit') ?? '10',
+		$query.filter_id,
+		$query.filter_name,
+		$query['filter_types[]'] as unknown as string[],
+		$query.pagination_limit,
 		paginationDirection,
 		paginationCursor
 	);
@@ -198,7 +201,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</th>
 			<th scope="col">
 				<select
-					bind:value={$query.filter_types}
+					bind:value={$query['filter_types[]']}
 					class="form-select form-select-sm"
 					multiple
 					size="3"
