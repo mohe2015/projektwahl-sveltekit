@@ -31,12 +31,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
 	import { page } from '$app/stores';
-	import { query } from '$lib/writable_url';
+	import { query as query2 } from '$lib/writable_url';
+
+	let query = query2({
+		filter_types: 'admin,helper,voter'
+	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
-	let initialRender = true;
 	export let response: UsersResponseBody = {
 		users: [],
 		previousCursor: null,

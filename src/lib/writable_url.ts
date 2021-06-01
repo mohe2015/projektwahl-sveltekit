@@ -18,55 +18,61 @@ const location2query = (value: Location): Record<string, string> => {
 	return currentQuery;
 };
 
-export const query: Writable<Record<string, string>> = {
+export const query = (defaultValue: Record<string, string>): Writable<Record<string, string>> => {
 	/**
 	 * Subscribe on value changes.
 	 * @param run subscription callback
 	 * @param invalidate cleanup callback
 	 */
-	subscribe(
+	const subscribe = (
 		run: Subscriber<Record<string, string>>,
 		invalidate?: Invalidator<Record<string, string>>
-	): Unsubscriber {
+	): Unsubscriber => {
 		return page.subscribe(
 			(value) => {
 				console.log('subscribe.run');
 				if (value) {
-					run(location2query(value));
+					run({ ...defaultValue, ...location2query(value) });
 				}
 			},
 			invalidate
 				? (value) => {
 						console.log('subscribe.invalidate');
 						if (value) {
-							invalidate(location2query(value));
+							invalidate({ ...defaultValue, ...location2query(value) });
 						}
 				  }
 				: undefined
 		);
-	},
+	};
 	/**
 	 * Set value and inform subscribers.
 	 * @param value to set
 	 */
-	set(value: Record<string, string>): void {
-		console.log('set', value);
-		for (const k in value) {
-			if (value[k] == null) {
-				delete value[k];
+	const set = (value: Record<string, string>): void => {
+		const actualValue: Record<string, string> = { ...defaultValue, ...value };
+		console.log('set', actualValue);
+		for (const k in actualValue) {
+			if (actualValue[k] == null) {
+				delete actualValue[k];
 			}
 		}
-		const urlSearchParams = new URLSearchParams(value);
+		const urlSearchParams = new URLSearchParams(actualValue);
 
 		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
 		goto(`?${urlSearchParams.toString()}`, { replaceState: true, noscroll: true });
-	},
+	};
 	/**
 	 * Update value using callback and inform subscribers.
 	 * @param updater callback
 	 */
-	update(updater: Updater<Record<string, string>>): void {
+	const update = (updater: Updater<Record<string, string>>): void => {
 		console.log('update');
-		query.set(updater(location2query(get(page))));
-	}
+		set(updater({ ...defaultValue, ...location2query(get(page)) }));
+	};
+	return {
+		subscribe,
+		set,
+		update
+	};
 };
