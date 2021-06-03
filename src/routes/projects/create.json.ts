@@ -14,7 +14,7 @@ type CreateResponse = {
 export const post: MyRequestHandler<CreateResponse, Record<string, any>, ReadOnlyFormData> =
 	async function ({ body }) {
 		const errors = {
-			...assertNotEmpty(body, 'name'),
+			...assertNotEmpty(body, 'title'),
 			...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
 			...(body.get('type') === 'voter' ? assertNotEmpty(body, 'group') : {}),
 			...(body.get('type') === 'voter' ? assertNumber(body, 'age') : {}),

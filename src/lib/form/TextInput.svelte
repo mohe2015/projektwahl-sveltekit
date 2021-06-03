@@ -6,13 +6,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let feedback: Map<string, string> = new Map();
 	export let label: string;
 	export let name: string;
-	let randomId: string = '_' + Math.random().toString();
+	export let type = 'text';
+	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 </script>
 
 <div class="mb-3">
 	<label for="{randomId}-{name}" class="form-label">{label}:</label>
 	<input
-		type="text"
+		{type}
 		class="form-control {feedback.has(name) ? 'is-invalid' : ''}"
 		{name}
 		id="{randomId}-{name}"

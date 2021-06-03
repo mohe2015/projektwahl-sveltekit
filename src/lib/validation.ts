@@ -14,7 +14,7 @@ export function assertHas(data: ReadOnlyFormData, field: string): { [index: stri
 export function assertNotEmpty(data: ReadOnlyFormData, field: string): { [index: string]: string } {
 	return {
 		...assertHas(data, field),
-		...(data.get(field).trim().length == 0
+		...(data.has(field) && data.get(field).trim().length == 0
 			? {
 					[field]: `${field} ist leer!`
 			  }
