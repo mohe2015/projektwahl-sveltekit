@@ -1,20 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type { JSONValue } from '@mohe2015/kit/types/endpoint';
-import type { ServerRequest } from '@mohe2015/kit/types/hooks';
-
-export type MyEndpointOutput<Body extends string | Uint8Array | JSONValue> = {
-	status?: number;
-	headers?: Partial<Headers>;
-	body?: Body;
-};
-
-export type MyRequestHandler<
-	OutputBody extends string | Uint8Array | JSONValue,
-	Locals = Record<string, any>,
-	Body = unknown
-> = (request: ServerRequest<Locals, Body>) => Promise<MyEndpointOutput<OutputBody>>;
+import type { MyRequestHandler } from '$lib/request_helpers';
 
 export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
 
