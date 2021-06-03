@@ -2,40 +2,14 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script lang="ts" context="module">
-	/*import type { Load } from '@mohe2015/kit';
-
-	export const load: Load = async function ({ fetch }) {
-		console.log('load');
-		// TODO FIXME create the url based on the current url parameters otherwise this doesnt work
-		const url = `${
-			import.meta.env.VITE_BASE_URL
-		}users.json?sorting[]=id:down-up,name:down-up,type:down-up&filter_type[]=admin,helper,voter&filter_name=&pagination_limit=10&pagination_direction=forwards`;
-		const res = await fetch(url);
-
-		if (res.ok) {
-			return {
-				props: {
-					response: await res.json()
-				}
-			};
-		}
-
-		return {
-			status: res.status,
-			error: new Error(`Could not load ${url}`)
-		};
-	};*/
-</script>
-
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
-	import { page } from '$app/stores';
 	import { query as query2 } from '$lib/writable_url';
 
 	let query = query2({
 		'filter_types[]': ['admin', 'helper', 'voter'] as unknown as string, // HACK
-		pagination_limit: '10'
+		pagination_limit: '10',
+		'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up'] as unknown as string
 	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -46,47 +20,36 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		previousCursor: null,
 		nextCursor: null
 	};
-	let priority = 0;
-	let sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } } = {
-		id: {
-			order: 'down-up',
-			priority
-		},
-		name: {
-			order: 'down-up',
-			priority
-		},
-		type: {
-			order: 'down-up',
-			priority
-		}
-	};
 
 	let paginationDirection: 'forwards' | 'backwards' | null = null;
 	let paginationCursor: number | null = null;
 
 	function headerClick(sortType: 'id' | 'name' | 'type') {
-		let newOrder: string;
-		switch (sorting[sortType].order) {
+		let oldElementIndex = ($query['sorting[]'] as never as string[]).findIndex((e) =>
+			e.startsWith(sortType + ':')
+		);
+		let oldElement = ($query['sorting[]'] as never as string[]).splice(oldElementIndex, 1)[0];
+
+		let newElement: string;
+		switch (oldElement.split(':')[1]) {
 			case 'down-up':
-				newOrder = 'up';
+				newElement = 'up';
 				break;
 			case 'up':
-				newOrder = 'down';
+				newElement = 'down';
 				break;
 			default:
-				newOrder = 'down-up';
+				newElement = 'down-up';
 		}
-		sorting[sortType] = {
-			order: newOrder,
-			priority
-		};
-		sorting = sorting;
-		priority += 1;
+
+		$query['sorting[]'] = [
+			...$query['sorting[]'],
+			oldElement.split(':')[0] + ':' + newElement
+		] as never as string;
 	}
 
 	async function reloadUsers(
-		sorting: { [key in 'id' | 'name' | 'type']: { order: string; priority: number } },
+		sorting: string[],
 		filterId: string,
 		filterName: string,
 		filteredTypes: string[],
@@ -99,14 +62,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		//	initialRender = false;
 		//	return;
 		//}
-
-		let sorted = Object.entries(sorting).sort((a, b) => a[1].priority - b[1].priority);
 		const urlSearchParams = new URLSearchParams();
-		sorted
-			.map((e) => e[0] + ':' + e[1].order)
-			.forEach((e) => {
-				urlSearchParams.append('sorting[]', e);
-			});
+		sorting.forEach((e) => urlSearchParams.append('sorting[]', e));
 		filteredTypes.forEach((e) => urlSearchParams.append('filter_type[]', e));
 		if (filterName) {
 			urlSearchParams.set('filter_name', filterName);
@@ -130,7 +87,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 	$: reloadUsers(
-		sorting,
+		$query['sorting[]'] as unknown as string[],
 		$query.filter_id,
 		$query.filter_name,
 		$query['filter_types[]'] as unknown as string[],
@@ -138,6 +95,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		paginationDirection,
 		paginationCursor
 	);
+
+	function currentSortValue(sorting: any, sortingType: string) {
+		return (sorting as unknown as string[])
+			.find((e) => e.startsWith(sortingType + ':'))!
+			.split(':')[1];
+	}
 </script>
 
 <svelte:head>
@@ -173,13 +136,25 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<thead>
 		<tr>
 			<th on:click={() => headerClick('id')} class="table-cell-hover" scope="col"
-				>#<i class="bi-arrow-{sorting['id'].order}" role="img" aria-label="Sort by id" /></th
+				>#<i
+					class="bi-arrow-{currentSortValue($query['sorting[]'], 'id')}"
+					role="img"
+					aria-label="Sort by id"
+				/></th
 			>
 			<th on:click={() => headerClick('name')} class="table-cell-hover" scope="col"
-				>Name<i class="bi-arrow-{sorting['name'].order}" role="img" aria-label="Sort by name" /></th
+				>Name<i
+					class="bi-arrow-{currentSortValue($query['sorting[]'], 'name')}"
+					role="img"
+					aria-label="Sort by name"
+				/></th
 			>
 			<th on:click={() => headerClick('type')} class="table-cell-hover" scope="col"
-				>Typ<i class="bi-arrow-{sorting['type'].order}" role="img" aria-label="Sort by type" /></th
+				>Typ<i
+					class="bi-arrow-{currentSortValue($query['sorting[]'], 'type')}"
+					role="img"
+					aria-label="Sort by type"
+				/></th
 			>
 		</tr>
 		<tr class="align-middle">
