@@ -5,11 +5,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
 	import { query as query2 } from '$lib/writable_url';
+	import type { Writable } from 'svelte/store';
 
-	let query = query2({
-		'filter_types[]': ['admin', 'helper', 'voter'] as unknown as string, // HACK
+	type UsersQueryParameters = {
+		'filter_types[]': string[];
+		pagination_limit: string;
+		'sorting[]': string[];
+		filter_id?: string;
+		filter_name?: string;
+	};
+
+	let query: Writable<UsersQueryParameters> = query2<UsersQueryParameters>({
+		'filter_types[]': ['admin', 'helper', 'voter'],
 		pagination_limit: '10',
-		'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up'] as unknown as string
+		'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
 	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -25,10 +34,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationCursor: number | null = null;
 
 	function headerClick(sortType: 'id' | 'name' | 'type') {
-		let oldElementIndex = ($query['sorting[]'] as never as string[]).findIndex((e) =>
-			e.startsWith(sortType + ':')
-		);
-		let oldElement = ($query['sorting[]'] as never as string[]).splice(oldElementIndex, 1)[0];
+		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
+		let oldElement = $query['sorting[]'].splice(oldElementIndex, 1)[0];
 
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
@@ -42,16 +49,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				newElement = 'down-up';
 		}
 
-		$query['sorting[]'] = [
-			...$query['sorting[]'],
-			oldElement.split(':')[0] + ':' + newElement
-		] as never as string;
+		$query['sorting[]'] = [...$query['sorting[]'], oldElement.split(':')[0] + ':' + newElement];
 	}
 
 	async function reloadUsers(
 		sorting: string[],
-		filterId: string,
-		filterName: string,
+		filterId: string | undefined,
+		filterName: string | undefined,
 		filteredTypes: string[],
 		paginationLimit: string,
 		paginationDirection: 'forwards' | 'backwards' | null,

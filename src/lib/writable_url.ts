@@ -8,30 +8,29 @@ import { get } from 'svelte/store';
 
 declare type Invalidator<T> = (value?: T) => void;
 
-const location2query = (value: Location): Record<string, string> => {
+const location2query = <T extends Record<string, string | string[]>>(value: Location): T => {
+	// the type casts here are needes as this can't be proven correctly.
 	console.log(value.query.toString());
-	const currentQuery: Record<string, string> = {};
+	const currentQuery: T = {} as T;
 	value.query.forEach((_, key) => {
-		console.log(key + ' -> ' + _);
 		if (key.endsWith('[]')) {
-			currentQuery[key] = value.query.getAll(key) as unknown as string; // TODO FIXME hack
+			currentQuery[key as keyof T] = value.query.getAll(key) as T[keyof T];
 		} else {
-			currentQuery[key] = _;
+			currentQuery[key as keyof T] = _ as T[keyof T];
 		}
 	});
 	return currentQuery;
 };
 
-export const query = (defaultValue: Record<string, string>): Writable<Record<string, string>> => {
+export const query = <T extends Record<string, string | string[]>>(
+	defaultValue: T
+): Writable<T> => {
 	/**
 	 * Subscribe on value changes.
 	 * @param run subscription callback
 	 * @param invalidate cleanup callback
 	 */
-	const subscribe = (
-		run: Subscriber<Record<string, string>>,
-		invalidate?: Invalidator<Record<string, string>>
-	): Unsubscriber => {
+	const subscribe = (run: Subscriber<T>, invalidate?: Invalidator<T>): Unsubscriber => {
 		return page.subscribe(
 			(value) => {
 				console.log('subscribe.run');
@@ -53,19 +52,18 @@ export const query = (defaultValue: Record<string, string>): Writable<Record<str
 	 * Set value and inform subscribers.
 	 * @param value to set
 	 */
-	const set = (value: Record<string, string>): void => {
-		const actualValue: Record<string, string> = { ...defaultValue, ...value };
+	const set = (value: T): void => {
+		const actualValue: T = { ...defaultValue, ...value };
 		console.log('set', actualValue);
 		const urlSearchParams = new URLSearchParams();
 		for (const k in actualValue) {
 			if (actualValue[k] != null) {
-				if (Array.isArray(actualValue[k])) {
-					// TODO FIXME replace with k endswith []
+				if (k.endsWith('[]')) {
 					for (const e of actualValue[k]) {
 						urlSearchParams.append(k, e);
 					}
 				} else {
-					urlSearchParams.append(k, actualValue[k]);
+					urlSearchParams.append(k, actualValue[k] as string);
 				}
 			}
 		}
@@ -77,7 +75,7 @@ export const query = (defaultValue: Record<string, string>): Writable<Record<str
 	 * Update value using callback and inform subscribers.
 	 * @param updater callback
 	 */
-	const update = (updater: Updater<Record<string, string>>): void => {
+	const update = (updater: Updater<T>): void => {
 		console.log('update');
 		set(updater({ ...defaultValue, ...location2query(get(page)) }));
 	};
