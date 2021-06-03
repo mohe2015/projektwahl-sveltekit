@@ -15,10 +15,16 @@ export const post: MyRequestHandler<CreateResponse, Record<string, any>, ReadOnl
 	async function ({ body }) {
 		const errors = {
 			...assertNotEmpty(body, 'title'),
-			...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
-			...(body.get('type') === 'voter' ? assertNotEmpty(body, 'group') : {}),
-			...(body.get('type') === 'voter' ? assertNumber(body, 'age') : {}),
-			...assertBoolean(body, 'away')
+			...assertNotEmpty(body, 'info'),
+			...assertNotEmpty(body, 'place'),
+			...assertNumber(body, 'costs'),
+			...assertNumber(body, 'min_age'),
+			...assertNumber(body, 'max_age'),
+			...assertNumber(body, 'min_participants'),
+			...assertNumber(body, 'max_participants'),
+			...assertNotEmpty(body, 'presentation_type'),
+			...assertNotEmpty(body, 'requirements'),
+			...assertBoolean(body, 'random_assignments')
 		};
 
 		if (Object.keys(errors).length !== 0) {
@@ -32,11 +38,15 @@ export const post: MyRequestHandler<CreateResponse, Record<string, any>, ReadOnl
 
 		try {
 			const result =
-				await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${body.get(
-					'name'
-				)}, ${await hashPassword(body.get('password'))}, ${body.get('type')}, ${
-					body.get('group') ?? null
-				}, ${body.get('age') ?? null}, ${body.has('away')});`;
+				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${body.get(
+					'title'
+				)}, ${body.get('info')}, ${body.get('place')}, ${body.get('costs')}, ${body.get(
+					'min_age'
+				)}, ${body.get('max_age')}, ${body.get('min_participants')}, ${body.get(
+					'max_participants'
+				)}, ${body.get('presentation_type')}, ${body.get('requirements')}, ${body.has(
+					'random_assignments'
+				)});`;
 
 			const response: MyEndpointOutput<CreateResponse> = {
 				body: {

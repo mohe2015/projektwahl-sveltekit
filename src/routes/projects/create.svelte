@@ -34,4 +34,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<TextInput name="max_participants" label="Maximale Teilnehmeranzahl" type="number" {feedback} />
 	<TextInput name="presentation_type" label="Präsentationsart" {feedback} />
 	<TextInput name="requirements" label="Voraussetzungen" {feedback} />
+	<div class="mb-3 form-check">
+		<input type="checkbox" class="form-check-input" name="away" id="users-away" />
+		<label class="form-check-label" for="users-away">Abwesend</label>
+	</div>
 </CreateForm>

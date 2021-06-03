@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 ```bash
 nix develop
 VITE_BASE_URL=http://localhost:3000/ npm run dev
-psql -h localhost -U projektwahl
+psql -p 54321 -h localhost -U projektwahl
 ```
 
 # create-svelte

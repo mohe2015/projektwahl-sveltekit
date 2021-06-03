@@ -12,19 +12,33 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	async function create() {
 		let formData = new FormData(document.querySelector<HTMLFormElement>(`#${randomId}-form`)!);
-		const reponse = await fetch(url, {
-			method: 'POST',
-			body: formData
-		});
-		const json = await reponse.json();
-		if ('errors' in json) {
-			feedback = new Map(Object.entries(json.errors));
-		} else {
-			feedback = new Map();
 
-			console.log(json.result);
+		let json;
+		try {
+			const response = await fetch(url, {
+				method: 'POST',
+				body: formData
+			});
+			if (!response.ok) {
+				feedback = new Map();
+				feedback.set(
+					'network_error',
+					'Serverfehler: ' + response.status + ' ' + response.statusText
+				);
+			} else {
+				json = await response.json();
+				if ('errors' in json) {
+					feedback = new Map(Object.entries(json.errors));
+				} else {
+					feedback = new Map();
+				}
+			}
+		} catch (error) {
+			feedback = new Map();
+			feedback.set('unknown_error', 'Unbekannter Fehler: ' + error);
 		}
 		unknownFeedback = [...feedback.entries()].filter((e) => !keys.includes(e[0]));
+		// TODO FIXME scroll up
 	}
 
 	console.log($$props.$$slots);
