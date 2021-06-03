@@ -60,7 +60,7 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 	const orderBy = ' ORDER BY ' + orderByQuery;
 
 	const filterType = query
-		.getAll('filter_type[]')
+		.getAll('filter_types[]')
 		.filter((t) => ['admin', 'helper', 'voter'].includes(t))
 		.map((t) => `type='${t}'`);
 	let filterTypeQuery = '';

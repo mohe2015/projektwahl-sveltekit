@@ -8,7 +8,7 @@ import { get } from 'svelte/store';
 
 declare type Invalidator<T> = (value?: T) => void;
 
-const location2query = <T extends Record<string, string | string[]>>(value: Location): T => {
+export const location2query = <T extends Record<string, string | string[]>>(value: Location): T => {
 	// the type casts here are needes as this can't be proven correctly.
 	console.log(value.query.toString());
 	const currentQuery: T = {} as T;
@@ -20,6 +20,22 @@ const location2query = <T extends Record<string, string | string[]>>(value: Loca
 		}
 	});
 	return currentQuery;
+};
+
+export const query2location = <T extends Record<string, string | string[]>>(actualValue: T) => {
+	const urlSearchParams = new URLSearchParams();
+	for (const k in actualValue) {
+		if (actualValue[k] != null) {
+			if (k.endsWith('[]')) {
+				for (const e of actualValue[k]) {
+					urlSearchParams.append(k, e);
+				}
+			} else {
+				urlSearchParams.append(k, actualValue[k] as string);
+			}
+		}
+	}
+	return urlSearchParams;
 };
 
 export const query = <T extends Record<string, string | string[]>>(
@@ -55,21 +71,8 @@ export const query = <T extends Record<string, string | string[]>>(
 	const set = (value: T): void => {
 		const actualValue: T = { ...defaultValue, ...value };
 		console.log('set', actualValue);
-		const urlSearchParams = new URLSearchParams();
-		for (const k in actualValue) {
-			if (actualValue[k] != null) {
-				if (k.endsWith('[]')) {
-					for (const e of actualValue[k]) {
-						urlSearchParams.append(k, e);
-					}
-				} else {
-					urlSearchParams.append(k, actualValue[k] as string);
-				}
-			}
-		}
-
 		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
-		goto(`?${urlSearchParams.toString()}`, { replaceState: true, noscroll: true });
+		goto(`?${query2location(actualValue).toString()}`, { replaceState: true, noscroll: true });
 	};
 	/**
 	 * Update value using callback and inform subscribers.

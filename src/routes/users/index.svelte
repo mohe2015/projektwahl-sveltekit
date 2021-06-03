@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { UsersResponseBody } from '../users.json';
-	import { query as query2 } from '$lib/writable_url';
+	import { query as query2, query2location } from '$lib/writable_url';
 	import type { Writable } from 'svelte/store';
 
 	type UsersQueryParameters = {
@@ -53,29 +53,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	async function reloadUsers(
-		sorting: string[],
-		filterId: string | undefined,
-		filterName: string | undefined,
-		filteredTypes: string[],
-		paginationLimit: string,
+		query: UsersQueryParameters,
 		paginationDirection: 'forwards' | 'backwards' | null,
 		paginationCursor: number | null
 	) {
-		// this is a hack as the load function is reponsible for initial load
-		//if (initialRender) {
-		//	initialRender = false;
-		//	return;
-		//}
-		const urlSearchParams = new URLSearchParams();
-		sorting.forEach((e) => urlSearchParams.append('sorting[]', e));
-		filteredTypes.forEach((e) => urlSearchParams.append('filter_type[]', e));
-		if (filterName) {
-			urlSearchParams.set('filter_name', filterName);
-		}
-		if (filterId) {
-			urlSearchParams.set('filter_id', filterId);
-		}
-		urlSearchParams.set('pagination_limit', paginationLimit);
+		const urlSearchParams = new URLSearchParams(query2location(query));
 		if (paginationDirection !== null) {
 			urlSearchParams.set('pagination_direction', paginationDirection);
 		}
@@ -90,15 +72,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
-	$: reloadUsers(
-		$query['sorting[]'] as unknown as string[],
-		$query.filter_id,
-		$query.filter_name,
-		$query['filter_types[]'] as unknown as string[],
-		$query.pagination_limit,
-		paginationDirection,
-		paginationCursor
-	);
+	$: reloadUsers($query, paginationDirection, paginationCursor);
 
 	function currentSortValue(sorting: any, sortingType: string) {
 		return (sorting as unknown as string[])
