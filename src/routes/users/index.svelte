@@ -30,7 +30,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		nextCursor: null
 	};
 
-	let paginationDirection: 'forwards' | 'backwards' | null = null;
+	let paginationDirection: 'forwards' | 'backwards' | null = 'forwards';
 	let paginationCursor: number | null = null;
 
 	function headerClick(sortType: 'id' | 'name' | 'type') {
@@ -180,7 +180,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<li class="page-item">
+		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
 					paginationCursor = response.previousCursor;
@@ -188,12 +188,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				}}
 				class="page-link"
 				href="/"
-				aria-label="Nächste Seite"
+				aria-label="Vorherige Seite"
+				tabindex={response.previousCursor ? undefined : -1}
+				aria-disabled={!response.previousCursor}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item">
+		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
 					paginationCursor = response.nextCursor;
@@ -201,7 +203,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				}}
 				class="page-link"
 				href="/"
-				aria-label="Vorherige Seite"
+				aria-label="Nächste Seite"
+				tabindex={response.nextCursor ? undefined : -1}
+				aria-disabled={!response.nextCursor}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>

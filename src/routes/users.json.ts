@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type { JSONValue, ServerRequest } from '@mohe2015/kit/types/endpoint';
+import type { JSONValue } from '@mohe2015/kit/types/endpoint';
+import type { ServerRequest } from '@mohe2015/kit/types/hooks';
 
 export type MyEndpointOutput<Body extends string | Uint8Array | JSONValue> = {
 	status?: number;
