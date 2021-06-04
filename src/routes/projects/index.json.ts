@@ -3,15 +3,18 @@
 import { sql } from '$lib/database';
 import type { MyRequestHandler } from '$lib/request_helpers';
 
-export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
+// CHANGED
+export type ProjectType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
 
-export type UsersResponseBody = {
-	users: Array<UserType>;
+// CHANGED
+export type ProjectResponseBody = {
+	users: Array<ProjectType>;
 	previousCursor: number | null;
 	nextCursor: number | null;
 };
 
-export const get: MyRequestHandler<UsersResponseBody> = async function ({ query }) {
+// CHANGED
+export const get: MyRequestHandler<ProjectResponseBody> = async function ({ query }) {
 	// TODO pagination
 	// TODO sorting and filtering
 
@@ -29,7 +32,19 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 
 	let allowedOrderBy = sortingQuery
 		.map((e) => e.split(':'))
-		.filter((e) => ['id', 'name', 'type'].includes(e[0]))
+		.filter((e) =>
+			[
+				'id',
+				'title',
+				'place',
+				'costs',
+				'min_age',
+				'max_age',
+				'min_participants',
+				'max_participants',
+				'random_assignments'
+			].includes(e[0])
+		) // CHANGED
 		.filter((e) => ['up', 'down'].includes(e[1]));
 
 	// https://www.postgresql.org/docs/current/queries-limit.html order by is more or less required for limit
@@ -47,30 +62,28 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 		.join(',');
 	const orderBy = ' ORDER BY ' + orderByQuery;
 
-	// TODO FIXME try this with an array includes in sql?
-	const filterType = query
-		.getAll('filter_types[]')
-		.filter((t) => ['admin', 'helper', 'voter'].includes(t))
-		.map((t) => `type='${t}'`);
-	let filterTypeQuery = '';
-	if (filterType.length > 0) {
-		filterTypeQuery = ' AND (' + filterType.join(' OR ') + ')';
-	}
+	// CHANGED (removed lines)
 
-	const queryString = `SELECT id,name,type FROM users WHERE (($2 AND id >= $1) OR ($3 AND id < $1) OR ((NOT $2) AND (NOT $3))) AND name LIKE $5 AND ($6 OR id = $7) ${filterTypeQuery} ${orderBy} LIMIT ($4 + 1);`;
+	// obv changed
+	const queryString =
+		`SELECT id,title,info,place,costs,min_age,max_age,min_participants,max_participants,presentation_type,requirements,random_assignments` +
+		`FROM projects WHERE (($2 AND id >= $1) OR ($3 AND id < $1) OR ((NOT $2) AND (NOT $3))) AND title LIKE $5 AND ($6 OR id = $7) ${orderBy} LIMIT ($4 + 1);`;
 
 	console.log(queryString);
+	// TODO FIXME change
+	// TODO FIXME move the pagination parameters to the start so it's easier to add other parameters.
+	// filter: id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments
 	const sqlParams = [
 		paginationCursor, // $1
 		isForwardsPagination, // $2
 		isBackwardsPagination, // $3
 		paginationLimit, // $4
-		'%' + (query.get('filter_name') ?? '') + '%', // $5
+		'%' + (query.get('filter_title') ?? '') + '%', // $5
 		!query.has('filter_id'), // $6
 		query.get('filter_id') // $7 // TODO FIXME if this is "" we 500
 	];
 	console.log(sqlParams);
-	let users: Array<UserType> = await sql.unsafe<Array<UserType>>(queryString, sqlParams);
+	let users: Array<ProjectType> = await sql.unsafe<Array<ProjectType>>(queryString, sqlParams);
 
 	// e.g http://localhost:3000/users.json?pagination_direction=forwards
 	let nextCursor: number | null = null;
