@@ -9,6 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
+	let submitPromise: Promise<void>;
 
 	async function create() {
 		let formData = new FormData(document.querySelector<HTMLFormElement>(`#${randomId}-form`)!);
@@ -52,7 +53,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
-		<form on:submit|preventDefault={create} id="{randomId}-form">
+		<form on:submit|preventDefault={() => (submitPromise = create())} id="{randomId}-form">
 			{#if unknownFeedback.length != 0}
 				<div class="alert alert-danger" role="alert">
 					{#each unknownFeedback as [attribute, message]}
@@ -63,7 +64,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 			<slot {feedback} />
 
-			<button type="submit" class="btn btn-primary">{label} erstellen</button>
+			{#await submitPromise}
+				<button type="submit" class="btn btn-primary disabled">{label} wird erstellt...</button>
+			{:then result}
+				<button type="submit" class="btn btn-primary">{label} erstellen</button>
+			{:catch error}
+				<div class="alert alert-danger" role="alert">
+					{error.message}
+				</div>
+			{/await}
 		</form>
 	</div>
 </div>
