@@ -4,11 +4,11 @@ import { sql } from '$lib/database';
 import type { MyRequestHandler } from '$lib/request_helpers';
 
 // CHANGED
-export type ProjectType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
+export type ProjectType = { id: number; title: string }; // TODO FIXME is id really returned as number?
 
 // CHANGED
 export type ProjectResponseBody = {
-	users: Array<ProjectType>;
+	projects: Array<ProjectType>;
 	previousCursor: number | null;
 	nextCursor: number | null;
 };
@@ -67,12 +67,13 @@ export const get: MyRequestHandler<ProjectResponseBody> = async function ({ quer
 	// obv changed
 	const queryString =
 		`SELECT id,title,info,place,costs,min_age,max_age,min_participants,max_participants,presentation_type,requirements,random_assignments` +
-		`FROM projects WHERE (($2 AND id >= $1) OR ($3 AND id < $1) OR ((NOT $2) AND (NOT $3))) AND title LIKE $5 AND ($6 OR id = $7) ${orderBy} LIMIT ($4 + 1);`;
+		` FROM projects WHERE (($2 AND id >= $1) OR ($3 AND id < $1) OR ((NOT $2) AND (NOT $3)))` +
+		` AND title LIKE $5 AND ($6 OR id = $7) AND info LIKE $8 AND place LIKE $9 AND presentation_type LIKE $10 AND requirements LIKE $11 ${orderBy} LIMIT ($4 + 1);`;
 
 	console.log(queryString);
 	// TODO FIXME change
-	// TODO FIXME move the pagination parameters to the start so it's easier to add other parameters.
-	// filter: id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments
+	// implement min_age as < and max_age as >
+	// TODO FIXME implement filter: costs, min_age, max_age, min_participants, max_participants, random_assignments
 	const sqlParams = [
 		paginationCursor, // $1
 		isForwardsPagination, // $2
@@ -80,25 +81,29 @@ export const get: MyRequestHandler<ProjectResponseBody> = async function ({ quer
 		paginationLimit, // $4
 		'%' + (query.get('filter_title') ?? '') + '%', // $5
 		!query.has('filter_id'), // $6
-		query.get('filter_id') // $7 // TODO FIXME if this is "" we 500
+		query.get('filter_id'), // $7 // TODO FIXME if this is "" we 500
+		'%' + (query.get('filter_info') ?? '') + '%', // $8
+		'%' + (query.get('filter_place') ?? '') + '%', // $9
+		'%' + (query.get('filter_presentation_type') ?? '') + '%', // $10
+		'%' + (query.get('filter_requirements') ?? '') + '%' // $11
 	];
 	console.log(sqlParams);
-	let users: Array<ProjectType> = await sql.unsafe<Array<ProjectType>>(queryString, sqlParams);
+	let projects: Array<ProjectType> = await sql.unsafe<Array<ProjectType>>(queryString, sqlParams);
 
 	// e.g http://localhost:3000/users.json?pagination_direction=forwards
 	let nextCursor: number | null = null;
 	let previousCursor: number | null = null;
 	if (isForwardsPagination) {
 		previousCursor = paginationCursor;
-		if (users.length > paginationLimit) {
-			const lastElement = users.pop();
+		if (projects.length > paginationLimit) {
+			const lastElement = projects.pop();
 			nextCursor = lastElement?.id ?? null;
 		}
 	} else if (isBackwardsPagination) {
-		users = users.reverse(); // fixup as we needed to switch up orders above
-		if (users.length > paginationLimit) {
-			users.shift();
-			previousCursor = users[0].id ?? null;
+		projects = projects.reverse(); // fixup as we needed to switch up orders above
+		if (projects.length > paginationLimit) {
+			projects.shift();
+			previousCursor = projects[0].id ?? null;
 		}
 		nextCursor = paginationCursor;
 	}
@@ -107,7 +112,7 @@ export const get: MyRequestHandler<ProjectResponseBody> = async function ({ quer
 
 	return {
 		body: {
-			users,
+			projects, // TODO rename to entities
 			nextCursor,
 			previousCursor
 		}

@@ -3,29 +3,27 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { UsersResponseBody } from '../users/index.json';
+	import type { ProjectResponseBody } from '../projects/index.json';
 	import { query as query2, query2location } from '$lib/writable_url';
 	import type { Writable } from 'svelte/store';
 
-	type UsersQueryParameters = {
-		'filter_types[]': string[];
+	type ProjectsQueryParameters = {
 		pagination_limit: string;
 		'sorting[]': string[];
 		filter_id?: string;
-		filter_name?: string;
+		filter_title?: string;
 	};
 
-	let query: Writable<UsersQueryParameters> = query2<UsersQueryParameters>({
-		'filter_types[]': ['admin', 'helper', 'voter'],
+	let query: Writable<ProjectsQueryParameters> = query2<ProjectsQueryParameters>({
 		pagination_limit: '10',
-		'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
+		'sorting[]': ['id:down-up', 'title:down-up']
 	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
-	export let response: UsersResponseBody = {
-		users: [],
+	export let response: ProjectResponseBody = {
+		projects: [],
 		previousCursor: null,
 		nextCursor: null
 	};
@@ -33,7 +31,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationDirection: 'forwards' | 'backwards' | null = 'forwards';
 	let paginationCursor: number | null = null;
 
-	function headerClick(sortType: 'id' | 'name' | 'type') {
+	function headerClick(sortType: 'id' | 'title') {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
 		let oldElement = $query['sorting[]'].splice(oldElementIndex, 1)[0];
 
@@ -53,7 +51,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	async function reloadUsers(
-		query: UsersQueryParameters,
+		query: ProjectsQueryParameters,
 		paginationDirection: 'forwards' | 'backwards' | null,
 		paginationCursor: number | null
 	) {
@@ -64,7 +62,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (paginationCursor !== null) {
 			urlSearchParams.set('pagination_cursor', paginationCursor.toString());
 		}
-		const url = `${import.meta.env.VITE_BASE_URL}users.json?${urlSearchParams}`;
+		const url = `${import.meta.env.VITE_BASE_URL}projects.json?${urlSearchParams}`;
 		console.log(url);
 		const res = await fetch(url);
 		response = await res.json();
@@ -82,14 +80,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <svelte:head>
-	<title>Nutzer</title>
+	<title>Projekte</title>
 </svelte:head>
 
-<h1 class="text-center">Nutzer</h1>
+<h1 class="text-center">Projekte</h1>
 
 <div class="row justify-content-between">
 	<div class="col-auto">
-		<a class="btn btn-primary" href="/users/create" role="button">Nutzer erstellen</a>
+		<a class="btn btn-primary" href="/projects/create" role="button">Projekt erstellen</a>
 	</div>
 
 	<!-- filter (for filtering by name, type, ..) <i class="bi-filter" role="img" aria-label="Filter" />
@@ -120,18 +118,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					aria-label="Sort by id"
 				/></th
 			>
-			<th on:click={() => headerClick('name')} class="table-cell-hover" scope="col"
-				>Name<i
-					class="bi-arrow-{currentSortValue($query['sorting[]'], 'name')}"
+			<th on:click={() => headerClick('title')} class="table-cell-hover" scope="col"
+				>Titel<i
+					class="bi-arrow-{currentSortValue($query['sorting[]'], 'title')}"
 					role="img"
-					aria-label="Sort by name"
-				/></th
-			>
-			<th on:click={() => headerClick('type')} class="table-cell-hover" scope="col"
-				>Typ<i
-					class="bi-arrow-{currentSortValue($query['sorting[]'], 'type')}"
-					role="img"
-					aria-label="Sort by type"
+					aria-label="Sort by title"
 				/></th
 			>
 		</tr>
@@ -141,38 +132,24 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					bind:value={$query.filter_id}
 					type="number"
 					class="form-control"
-					id="users-filter-id"
+					id="projects-filter-id"
 				/>
 			</th>
 			<th scope="col">
 				<input
-					bind:value={$query.filter_name}
+					bind:value={$query.filter_title}
 					type="text"
 					class="form-control"
-					id="users-filter-name"
+					id="projects-filter-title"
 				/>
-			</th>
-			<th scope="col">
-				<select
-					bind:value={$query['filter_types[]']}
-					class="form-select form-select-sm"
-					multiple
-					size="3"
-					aria-label="Filter by type"
-				>
-					<option value="admin">admin</option>
-					<option value="helper">helper</option>
-					<option value="voter">voter</option>
-				</select>
 			</th>
 		</tr>
 	</thead>
 	<tbody>
-		{#each response.users as { id, name, type } (id)}
+		{#each response.projects as { id, title } (id)}
 			<tr>
 				<th scope="row">{id}</th>
-				<td>{name}</td>
-				<td>{type}</td>
+				<td>{title}</td>
 			</tr>
 		{/each}
 	</tbody>
