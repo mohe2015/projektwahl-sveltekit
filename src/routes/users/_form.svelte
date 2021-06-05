@@ -7,18 +7,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import TextInput from '$lib/form/TextInput.svelte';
 
 	export let entity: any = {};
-
-	$: {
-		console.log(entity);
-	}
 </script>
 
-{JSON.stringify(entity)}
+{'_form: ' + JSON.stringify(entity)}
 
 <CreateForm
 	label="Nutzer"
 	url="/users/create-or-update.json"
 	let:feedback
+	bind:entity
 	keys={['name', 'password', 'group', 'age']}
 >
 	<TextInput name="name" label="Name" bind:the_value={entity.name} {feedback} />
@@ -39,8 +36,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</select>
 	</div>
 	{#if entity.type === 'voter'}
-		<TextInput name="group" label="Klasse" bind:value={entity.group} {feedback} />
-		<TextInput name="age" label="Jahrgang" type="number" bind:value={entity.age} {feedback} />
+		<TextInput name="group" label="Klasse" bind:the_value={entity.group} {feedback} />
+		<TextInput name="age" label="Jahrgang" type="number" bind:the_value={entity.age} {feedback} />
 	{/if}
 	<div class="mb-3 form-check">
 		<input
@@ -48,7 +45,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			class="form-check-input"
 			name="away"
 			id="users-away"
-			bind:value={entity.away}
+			bind:checked={entity.away}
 		/>
 		<label class="form-check-label" for="users-away">Abwesend</label>
 	</div>

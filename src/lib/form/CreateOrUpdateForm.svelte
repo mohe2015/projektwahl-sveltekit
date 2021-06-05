@@ -10,12 +10,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
-	export let entity2: any = {};
+	export let entity: any = {};
 
 	// https://github.com/sveltejs/svelte/issues/3617
 
 	$: {
-		console.log(entity2);
+		console.log(entity);
 	}
 
 	async function create() {
@@ -23,7 +23,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify(entity2),
+				body: JSON.stringify(entity),
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -59,7 +59,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">{label} erstellen</h1>
 
-{JSON.stringify(entity2)}
+{JSON.stringify(entity)}
 
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
@@ -73,7 +73,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</div>
 			{/if}
 
-			<slot {feedback} />
+			<slot {feedback} {entity} />
 
 			{#await submitPromise}
 				<button type="submit" class="btn btn-primary disabled">{label} wird erstellt...</button>
