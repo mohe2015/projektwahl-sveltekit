@@ -8,7 +8,7 @@ export type ProjectType = { id: number; title: string }; // TODO FIXME is id rea
 
 // CHANGED
 export type ProjectResponseBody = {
-	projects: Array<ProjectType>;
+	entities: Array<ProjectType>;
 	previousCursor: number | null;
 	nextCursor: number | null;
 };
@@ -112,7 +112,7 @@ export const get: MyRequestHandler<ProjectResponseBody> = async function ({ quer
 
 	return {
 		body: {
-			projects, // TODO rename to entities
+			entities: projects, // TODO rename to entities
 			nextCursor,
 			previousCursor
 		}
