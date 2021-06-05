@@ -3,6 +3,7 @@
 import { sql } from '$lib/database';
 import { buildGet } from '$lib/list-entities';
 import type { MyRequestHandler } from '$lib/request_helpers';
+import { concTT, fakeTT } from '$lib/tagged-templates';
 
 export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
 
@@ -14,13 +15,13 @@ export type UsersResponseBody = {
 
 export const get = buildGet(
 	['id', 'name', 'type'],
-	'id,name,type',
+	['id', 'name', 'type'],
 	'users',
-	'name LIKE $5 AND ($6 OR id = $7) ' /*AND type in ($8::varchar[])'*/,
-	(query) => [
-		'%' + (query.get('filter_name') ?? '') + '%', // $5
-		!query.has('filter_id'), // $6
-		query.get('filter_id') // $7 // TODO FIXME if this is "" we 500]);
-		//query.getAll('filter_types[]').filter((t) => ['admin', 'helper', 'voter'].includes(t)) // $8
-	]
+	(query) =>
+		fakeTT`name LIKE ${'%' + (query.get('filter_name') ?? '') + '%'} AND (${!query.has(
+			'filter_id'
+		)} OR id = ${query.get('filter_id')}) ` /*AND type in ($8::varchar[])'*/
+	//query.getAll('filter_types[]').filter((t) => ['admin', 'helper', 'voter'].includes(t)) // $8
 );
+
+console.log(concTT(fakeTT`hi ${1}`, fakeTT`hi ${1}`));

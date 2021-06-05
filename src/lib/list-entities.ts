@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import type { MyRequestHandler } from '$lib/request_helpers';
+import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 
 export type EntityType = { id: number }; // TODO FIXME is id really returned as number?
 
@@ -13,10 +14,9 @@ export type EntityResponseBody = {
 
 export const buildGet = (
 	allowedFilters: string[],
-	fieldsToSelect: string,
+	fieldsToSelect: string[],
 	table: string,
-	filterCriteria: string,
-	params: (query: URLSearchParams) => any[]
+	params: (query: URLSearchParams) => [TemplateStringsArray, any[]]
 ) => {
 	const get: MyRequestHandler<EntityResponseBody> = async function ({ query }) {
 		// TODO pagination
@@ -55,24 +55,23 @@ export const buildGet = (
 		const orderBy = ' ORDER BY ' + orderByQuery;
 
 		// obv changed
-		const queryString =
-			`SELECT ${fieldsToSelect}` +
-			` FROM ${table} WHERE (($2 AND id >= $1) OR ($3 AND id < $1) OR ((NOT $2) AND (NOT $3)))` +
-			` AND ${filterCriteria} ${orderBy} LIMIT ($4 + 1);`;
+		const queryStringPart1 = fakeTT`SELECT ${sql(fieldsToSelect)} FROM ${sql(
+			table
+		)} WHERE ((${isForwardsPagination} AND id >= ${paginationCursor}) OR (${isBackwardsPagination} AND id < ${paginationCursor}) OR ((NOT ${isForwardsPagination}) AND (NOT ${isBackwardsPagination}))) AND `;
+		const queryStringPart2 = params(query); // this should be a safe part
+		const queryStringPart3 = fakeLiteralTT(orderBy);
+		const queryStringPart4 = fakeTT` LIMIT (${paginationLimit} + 1);`;
+		const queryStringParts12 = concTT(queryStringPart1, queryStringPart2);
+		const queryStringParts34 = concTT(queryStringPart3, queryStringPart4);
+		const queryString = toTT(concTT(queryStringParts12, queryStringParts34));
 
 		console.log(queryString);
+		console.log(TTToString(...queryString));
 		// TODO FIXME change
 		// implement min_age as < and max_age as >
 		// TODO FIXME implement filter: costs, min_age, max_age, min_participants, max_participants, random_assignments
-		const sqlParams = [
-			paginationCursor, // $1
-			isForwardsPagination, // $2
-			isBackwardsPagination, // $3
-			paginationLimit, // $4
-			...params(query)
-		];
-		console.log(sqlParams);
-		let entities: Array<EntityType> = await sql.unsafe<Array<EntityType>>(queryString, sqlParams);
+
+		let entities: Array<EntityType> = await sql<Array<EntityType>>(...queryString);
 
 		// e.g http://localhost:3000/users.json?pagination_direction=forwards
 		let nextCursor: number | null = null;
