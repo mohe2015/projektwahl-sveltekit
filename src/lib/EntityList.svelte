@@ -5,6 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="typescript" context="module">
 	export type BaseQueryType = {
 		'sorting[]': string[];
+		pagination_limit: string;
 		[x: string]: any;
 	};
 </script>

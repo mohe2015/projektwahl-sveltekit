@@ -6,7 +6,7 @@ import type { MyRequestHandler } from '$lib/request_helpers';
 export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
 
 export type UsersResponseBody = {
-	users: Array<UserType>;
+	entities: Array<UserType>;
 	previousCursor: number | null;
 	nextCursor: number | null;
 };
@@ -94,7 +94,7 @@ export const get: MyRequestHandler<UsersResponseBody> = async function ({ query 
 
 	return {
 		body: {
-			users,
+			entities: users,
 			nextCursor,
 			previousCursor
 		}
