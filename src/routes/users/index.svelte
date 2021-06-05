@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
+	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -36,7 +37,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<tr class="align-middle">
 			<Filtering name="id" type="number" {query} />
 			<Filtering name="name" type="text" {query} />
-			<!--<Filtering name="types[]" type="text" {query} />-->
+			<ListFiltering name="types[]" options={['admin', 'helper', 'voter']} {query} />
 		</tr>
 	</thead>
 	<tbody slot="response" let:response>
@@ -49,19 +50,3 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{/each}
 	</tbody>
 </EntityList>
-
-<!--
-<th scope="col">
-	<select
-		bind:value={$query['filter_types[]']}
-		class="form-select form-select-sm"
-		multiple
-		size="3"
-		aria-label="Filter by type"
-	>
-		<option value="admin">admin</option>
-		<option value="helper">helper</option>
-		<option value="voter">voter</option>
-	</select>
-</th>
--->

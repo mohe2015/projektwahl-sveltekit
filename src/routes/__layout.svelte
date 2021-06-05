@@ -2,9 +2,29 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script>
+<script lang="ts">
+	import { browser } from '$app/env';
 	import { page } from '$app/stores';
+	import type { Collapse } from 'bootstrap';
+
+	let bootstrap: Promise<any>;
+	if (browser) {
+		bootstrap = import('bootstrap');
+	}
+
+	const handleNavigationEnd = async () => {
+		let navbar: Collapse = new (await bootstrap).Collapse(
+			document.querySelector('#navbarSupportedContent')!,
+			{
+				toggle: false
+			}
+		);
+		console.log(navbar);
+		navbar.hide();
+	};
 </script>
+
+<svelte:window on:sveltekit:navigation-end={handleNavigationEnd} />
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light shadow p-3 mb-5">
 	<div class="container-fluid">

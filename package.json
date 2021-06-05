@@ -25,6 +25,7 @@
 	},
 	"devDependencies": {
 		"@mohe2015/kit": "^1.0.0-next.111",
+		"@types/bootstrap": "^5.0.15",
 		"@typescript-eslint/eslint-plugin": "^4.26.0",
 		"@typescript-eslint/parser": "^4.26.0",
 		"eslint": "^7.27.0",
@@ -42,6 +43,7 @@
 	"type": "module",
 	"dependencies": {
 		"argon2": "^0.27.2",
+		"bootstrap": "^5.0.1",
 		"postgres": "^2.0.0-beta.5"
 	},
 	"lint-staged": {

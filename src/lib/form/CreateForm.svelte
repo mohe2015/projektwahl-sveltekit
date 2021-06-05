@@ -43,7 +43,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			feedback.set('unknown_error', 'Unbekannter Fehler: ' + error);
 		}
 		unknownFeedback = [...feedback.entries()].filter((e) => !keys.includes(e[0]));
-		// TODO FIXME scroll up
+		if (feedback.size > 0 || unknownFeedback.length > 0) {
+			window.scrollTo(0, 0);
+		}
 	}
 
 	console.log($$props.$$slots);
@@ -58,8 +60,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
 		<form on:submit|preventDefault={() => (submitPromise = create())} id="{randomId}-form">
-			{#if unknownFeedback.length != 0}
+			{#if unknownFeedback.length != 0 || feedback.size != 0}
 				<div class="alert alert-danger" role="alert">
+					Einige Eingaben sind nicht gültig.
 					{#each unknownFeedback as [attribute, message]}
 						{attribute}: {message}<br />
 					{/each}
