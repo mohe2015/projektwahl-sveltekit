@@ -20,3 +20,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		aria-label="Nach {title} sortieren"
 	/></th
 >
+
+<style>
+	.table-cell-hover:hover {
+		--bs-table-accent-bg: var(--bs-table-hover-bg);
+		color: var(--bs-table-hover-color);
+	}
+</style>

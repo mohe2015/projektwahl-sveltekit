@@ -10,6 +10,7 @@ type CreateResponse = {
 	errors: { [x: string]: string };
 };
 
+// generalization currently probably not really worth it.
 export const post: MyRequestHandler<CreateResponse, Record<string, any>, ReadOnlyFormData> =
 	async function ({ body }) {
 		const errors = {

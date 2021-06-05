@@ -35,8 +35,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<tr class="align-middle">
 			<Filtering name="id" type="number" {query} />
 			<Filtering name="name" type="text" {query} />
-			<Filtering name="types[]" type="text" {query} />
-			<!-- TODO FIXME -->
+			<!--<Filtering name="types[]" type="text" {query} />-->
 		</tr>
 	</thead>
 	<tbody slot="response" let:response>
@@ -65,9 +64,3 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	</select>
 </th>
 -->
-<style>
-	.table-cell-hover:hover {
-		--bs-table-accent-bg: var(--bs-table-hover-bg);
-		color: var(--bs-table-hover-color);
-	}
-</style>
