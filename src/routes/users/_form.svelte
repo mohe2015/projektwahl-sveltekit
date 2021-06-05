@@ -6,11 +6,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 
-	export let entity: any;
+	export let entity: any = {};
+
+	$: {
+		console.log(entity);
+	}
 </script>
 
+{JSON.stringify(entity)}
+
 <CreateForm
-	{entity}
 	label="Nutzer"
 	url="/users/create-or-update.json"
 	let:feedback

@@ -6,4 +6,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Form from './_form.svelte';
 </script>
 
-<Form entity={{}} />
+<Form />

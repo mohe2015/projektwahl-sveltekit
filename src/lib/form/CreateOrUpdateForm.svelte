@@ -10,14 +10,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
-	export let entity: any;
+	export let entity2: any = {};
+
+	// https://github.com/sveltejs/svelte/issues/3617
+
+	$: {
+		console.log(entity2);
+	}
 
 	async function create() {
 		let json;
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
-				body: JSON.stringify(entity),
+				body: JSON.stringify(entity2),
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -53,6 +59,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">{label} erstellen</h1>
 
+{JSON.stringify(entity2)}
+
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
 		<form on:submit|preventDefault={() => (submitPromise = create())} id="{randomId}-form">
@@ -65,7 +73,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</div>
 			{/if}
 
-			<slot {feedback} {entity} />
+			<slot {feedback} />
 
 			{#await submitPromise}
 				<button type="submit" class="btn btn-primary disabled">{label} wird erstellt...</button>
