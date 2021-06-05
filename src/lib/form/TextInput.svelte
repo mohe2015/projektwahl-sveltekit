@@ -18,7 +18,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{name}
 		id="{randomId}-{name}"
 		aria-describedby="{randomId}-{name}-feedback"
+		{...$$restProps}
 	/>
+	<!-- $$restProps can't be optimized well -->
 	{#if feedback.has(name)}
 		<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 			{feedback.get(name)}

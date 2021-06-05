@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
-import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
+import { assertBoolean, assertNotEmpty, assertNumber } from '$lib/validation';
 import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
@@ -63,6 +62,17 @@ export const post: MyRequestHandler<CreateResponse, Record<string, any>, ReadOnl
 						body: {
 							errors: {
 								name: 'Nutzer mit diesem Namen existiert bereits!'
+							}
+						}
+					};
+					return response;
+				}
+				if (postgresError.code === '22003') {
+					// numeric_value_out_of_range
+					const response: MyEndpointOutput<CreateResponse> = {
+						body: {
+							errors: {
+								costs: 'Die Kosten sind zu hoch!'
 							}
 						}
 					};

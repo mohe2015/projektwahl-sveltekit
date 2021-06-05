@@ -60,3 +60,13 @@ export function assertNumber(data: ReadOnlyFormData, field: string): { [index: s
 			: {})
 	};
 }
+
+export function assertMoney(data: ReadOnlyFormData, field: string): { [index: string]: string } {
+	return {
+		...(!data.has(field) || /^\d+([.,]\d\d)?$/.test(data.get(field))
+			? {
+					[field]: `${field} ist kein Eurobetrag (mit Cent)!`
+			  }
+			: {})
+	};
+}
