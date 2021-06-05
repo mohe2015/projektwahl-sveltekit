@@ -33,11 +33,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 			<Sorting name="name" title="Name" {headerClick} {currentSortValue} {query} />
 			<Sorting name="type" title="Typ" {headerClick} {currentSortValue} {query} />
+			<th>Aktionen</th>
 		</tr>
 		<tr class="align-middle">
 			<Filtering name="id" type="number" {query} />
 			<Filtering name="name" type="text" {query} />
 			<ListFiltering name="types[]" options={['admin', 'helper', 'voter']} {query} />
+			<th scope="col" />
 		</tr>
 	</thead>
 	<tbody slot="response" let:response>
@@ -46,6 +48,37 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<th scope="row">{entity.id}</th>
 				<td>{entity.name}</td>
 				<td>{entity.type}</td>
+				<td>
+					<!--
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-eye"></i>
+				   </button>
+				   -->
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-pen" />
+					</button>
+					<!--
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-key"></i>
+				   	</button>
+					-->
+					<!--
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-person-check"></i>
+				   	</button>
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-person-x"></i>
+				   	</button>
+					-->
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-box-arrow-in-right" />
+					</button>
+					<!--
+					<button class="btn btn-secondary" type="button">
+						<i class="bi bi-trash"></i>
+				   	</button>
+					-->
+				</td>
 			</tr>
 		{/each}
 	</tbody>

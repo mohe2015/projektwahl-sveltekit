@@ -47,8 +47,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			window.scrollTo(0, 0);
 		}
 	}
-
-	console.log($$props.$$slots);
 </script>
 
 <svelte:head>
