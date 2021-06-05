@@ -54,8 +54,6 @@ export const buildGet = (
 			.join(',');
 		const orderBy = ' ORDER BY ' + orderByQuery;
 
-		// CHANGED (removed lines)
-
 		// obv changed
 		const queryString =
 			`SELECT ${fieldsToSelect}` +
