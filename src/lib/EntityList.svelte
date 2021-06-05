@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export type BaseQueryType = {
 		'sorting[]': string[];
 		pagination_limit: string;
-		[x: string]: any;
+		[x: string]: string | string[];
 	};
 </script>
 
@@ -16,7 +16,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	type BaseEntityType = {
 		id: string;
-		[x: string]: any;
+		[x: string]: unknown;
 	};
 
 	type EntityResponseBody = {
@@ -44,7 +44,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationDirection: 'forwards' | 'backwards' | null = 'forwards';
 	let paginationCursor: number | null = null;
 
-	export const headerClick = (sortType: string) => {
+	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
 		let oldElement = $query['sorting[]'].splice(oldElementIndex, 1)[0];
 
@@ -85,10 +85,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 	$: reloadEntities($query, paginationDirection, paginationCursor);
 
-	export const currentSortValue = (sorting: any, sortingType: string) => {
-		return (sorting as unknown as string[])
-			.find((e) => e.startsWith(sortingType + ':'))!
-			.split(':')[1];
+	export const currentSortValue = (sorting: string[], sortingType: string): string => {
+		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};
 </script>
 

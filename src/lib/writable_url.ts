@@ -22,7 +22,9 @@ export const location2query = <T extends Record<string, string | string[]>>(valu
 	return currentQuery;
 };
 
-export const query2location = <T extends Record<string, string | string[]>>(actualValue: T) => {
+export const query2location = <T extends Record<string, string | string[]>>(
+	actualValue: T
+): URLSearchParams => {
 	const urlSearchParams = new URLSearchParams();
 	for (const k in actualValue) {
 		if (actualValue[k] != null) {

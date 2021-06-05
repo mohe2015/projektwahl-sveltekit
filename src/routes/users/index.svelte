@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
-
+	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
 		pagination_limit: string;
@@ -14,6 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		filter_id?: string;
 		filter_name?: string;
 	};
+*/
 </script>
 
 <EntityList

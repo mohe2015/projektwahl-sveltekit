@@ -12,7 +12,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let submitPromise: Promise<void>;
 
 	async function create() {
-		let formData = new FormData(document.querySelector<HTMLFormElement>(`#${randomId}-form`)!);
+		let form = document.querySelector<HTMLFormElement>(`#${randomId}-form`);
+		if (!form) {
+			throw new Error('Could not find form!');
+		}
+		let formData = new FormData(form);
 
 		let json;
 		try {
@@ -70,7 +74,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<button type="submit" class="btn btn-primary">{label} erstellen</button>
 			{:catch error}
 				<div class="alert alert-danger" role="alert">
-					{error.message}
+					Unbekannter Fehler: {error.message}
 				</div>
 			{/await}
 		</form>

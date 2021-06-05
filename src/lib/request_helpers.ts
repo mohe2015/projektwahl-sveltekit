@@ -11,6 +11,6 @@ export type MyEndpointOutput<Body extends string | Uint8Array | JSONValue> = {
 
 export type MyRequestHandler<
 	OutputBody extends string | Uint8Array | JSONValue,
-	Locals = Record<string, any>,
+	Locals = unknown,
 	Body = unknown
 > = (request: ServerRequest<Locals, Body>) => Promise<MyEndpointOutput<OutputBody>>;

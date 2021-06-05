@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let title: string;
 	export let name: string;
 	export let headerClick: (sortType: string) => void;
-	export let currentSortValue: (sorting: any, sortingType: string) => string;
+	export let currentSortValue: (sorting: string[], sortingType: string) => string;
 	export let query: Writable<BaseQueryType>;
 </script>
 
