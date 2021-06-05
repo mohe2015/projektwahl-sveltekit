@@ -3,15 +3,16 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import CreateForm from '$lib/form/CreateForm.svelte';
+	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 
 	export let entity: any;
 </script>
 
 <CreateForm
+	{entity}
 	label="Nutzer"
-	url="/users/create.json"
+	url="/users/create-or-update.json"
 	let:feedback
 	keys={['name', 'password', 'group', 'age']}
 >

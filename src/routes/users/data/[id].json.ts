@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/list-entities';
 import type { MyRequestHandler } from '$lib/request_helpers';
 
 export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?

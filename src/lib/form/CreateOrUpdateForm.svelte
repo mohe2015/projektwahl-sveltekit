@@ -10,19 +10,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
+	export let entity: any;
 
 	async function create() {
-		let form = document.querySelector<HTMLFormElement>(`#${randomId}-form`);
-		if (!form) {
-			throw new Error('Could not find form!');
-		}
-		let formData = new FormData(form);
-
 		let json;
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
-				body: formData
+				body: JSON.stringify(entity),
+				headers: {
+					'Content-Type': 'application/json'
+				}
 			});
 			if (!response.ok) {
 				feedback = new Map();
@@ -67,7 +65,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</div>
 			{/if}
 
-			<slot {feedback} />
+			<slot {feedback} {entity} />
 
 			{#await submitPromise}
 				<button type="submit" class="btn btn-primary disabled">{label} wird erstellt...</button>
