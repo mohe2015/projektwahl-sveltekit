@@ -21,12 +21,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let:feedback
 	keys={['name', 'password', 'group', 'age']}
 >
-	<TextInput name="name" label="Name" bind:value={entity.name} {feedback} />
+	<TextInput name="name" label="Name" bind:the_value={entity.name} {feedback} />
 	<TextInput
 		name="password"
 		label="Passwort"
 		type="password"
-		bind:value={entity.password}
+		bind:the_value={entity.password}
 		{feedback}
 	/>
 

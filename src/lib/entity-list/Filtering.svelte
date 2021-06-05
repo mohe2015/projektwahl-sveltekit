@@ -11,6 +11,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let type: 'text' | 'number' = 'text';
 </script>
 
+<!-- because of a limitation of svelte (binding with dynamic type not possible) we need to duplicate the code here -->
 {#if type === 'text'}
 	<th scope="col">
 		<input
