@@ -66,11 +66,19 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 	}
 
 	try {
-		await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
-			user.name
-		}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
-			user.age ?? null
-		}, ${user.away});`;
+		if ('id' in user) {
+			await sql`UPDATE users SET name = ${user.name}, password_hash = ${await hashPassword(
+				user.password
+			)}, type = ${user.type}, class = ${user.group ?? null}, age = ${user.age ?? null}, away = ${
+				user.away
+			} WHERE id = ${user.id!};`;
+		} else {
+			await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
+				user.name
+			}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
+				user.age ?? null
+			}, ${user.away});`;
+		}
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {

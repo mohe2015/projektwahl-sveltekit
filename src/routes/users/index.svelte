@@ -7,6 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
+	import type { Modal } from 'bootstrap';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -16,7 +17,71 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		filter_name?: string;
 	};
 */
+
+	let modalUser: string | null = null;
+	let modalUserId: string | null = null;
+	let modalDelete: Promise<void>;
+	let modal: Modal;
+
+	async function test(id: string, name: string) {
+		modalUserId = id;
+		modalUser = name;
+		// TODO FIXME don't load bootstrap like this - if it fails it will be funny
+		modal = new (await import('bootstrap')).Modal(document.getElementById('exampleModal')!, {});
+		modal.show();
+	}
+
+	async function deleteUser() {
+		let json;
+		const response = await fetch(`/users/delete/${modalUserId}.json`, {
+			method: 'POST',
+			body: null,
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		});
+		if (!response.ok) {
+			throw new Error(response.status + ' ' + response.statusText);
+		} else {
+			json = await response.json();
+			modal.hide();
+			// TODO FIXME reload data
+		}
+	}
 </script>
+
+<div
+	class="modal fade"
+	id="exampleModal"
+	tabindex="-1"
+	aria-labelledby="exampleModalLabel"
+	aria-hidden="true"
+>
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">{modalUser} löschen?</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
+			</div>
+			<div class="modal-body">
+				Möchtest du {modalUser} wirklich löschen?
+
+				<!-- svelte-ignore empty-block -->
+				{#await modalDelete}{:catch error}
+					<div class="alert alert-danger" role="alert">
+						Löschen fehlgeschlagen: {error}
+					</div>
+				{/await}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-danger" on:click={() => (modalDelete = deleteUser())}
+					>{#await modalDelete}Wird gelöscht...{:then}Löschen{:catch}Löschen{/await}</button
+				>
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+			</div>
+		</div>
+	</div>
+</div>
 
 <EntityList
 	initialQuery={{
@@ -54,9 +119,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						<i class="bi bi-eye"></i>
 				   </button>
 				   -->
-					<button class="btn btn-secondary" type="button">
+					<a class="btn btn-secondary" href="/users/edit/{entity.id}" role="button">
 						<i class="bi bi-pen" />
-					</button>
+					</a>
 					<!--
 					<button class="btn btn-secondary" type="button">
 						<i class="bi bi-key"></i>
@@ -70,14 +135,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						<i class="bi bi-person-x"></i>
 				   	</button>
 					-->
+
 					<button class="btn btn-secondary" type="button">
 						<i class="bi bi-box-arrow-in-right" />
 					</button>
-					<!--
-					<button class="btn btn-secondary" type="button">
-						<i class="bi bi-trash"></i>
-				   	</button>
-					-->
+
+					<button
+						on:click={() => test(entity.id, entity.name)}
+						class="btn btn-secondary"
+						type="button"
+					>
+						<i class="bi bi-trash" />
+					</button>
 				</td>
 			</tr>
 		{/each}

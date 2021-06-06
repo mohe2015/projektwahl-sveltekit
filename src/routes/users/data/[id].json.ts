@@ -13,8 +13,9 @@ export type UsersResponseBody = {
 export const get: RequestHandler<unknown, JSONValue> = async function ({
 	params
 }): Promise<MyEndpointOutput<UsersResponseBody>> {
+	// TODO FIXME same database column names like attributes so this doesn't happen again
 	const [entity]: [UserType?] =
-		await sql`SELECT id, name, type, class, age, away FROM users WHERE id = ${params.id} LIMIT 1`;
+		await sql`SELECT id, name, type, class AS group, age, away FROM users WHERE id = ${params.id} LIMIT 1`;
 
 	return {
 		body: {
