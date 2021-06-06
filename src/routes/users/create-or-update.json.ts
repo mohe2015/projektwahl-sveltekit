@@ -3,8 +3,15 @@
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
-import type { UserType } from '$lib/types';
-import { assertBoolean, assertNotEmpty, assertNumber, assertOneOf } from '$lib/validation';
+import type { PartialUser, UserType } from '$lib/types';
+import {
+	assertBoolean,
+	assertNotEmpty,
+	assertNumber,
+	assertOneOf,
+	hasProperty
+} from '$lib/validation';
+import type { JSONValue } from '@mohe2015/kit/types/endpoint';
 import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
@@ -12,7 +19,14 @@ type CreateResponse = {
 	errors: { [x: string]: string };
 };
 
-export const post: MyRequestHandler<CreateResponse, unknown, unknown> = async function ({ body }) {
+export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async function ({
+	body
+}) {
+	if (typeof body === 'object') {
+		const user1 = hasProperty<JSONValue, 'id'>(body, 'id');
+		const user2 = hasProperty(user1, 'name');
+	}
+
 	const errors = {
 		...assertNotEmpty(body, 'name'),
 		...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),

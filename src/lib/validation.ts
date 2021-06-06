@@ -2,6 +2,19 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 
+export function hasProperty<T, K extends string>(
+	data: T,
+	field: K
+): T &
+	{
+		[k in K]: unknown;
+	} {
+	if (field in data) {
+		return data as any;
+	}
+	throw new Error('fail');
+}
+
 export function assertHas<T>(data: T, field: keyof T): { [index: string]: string } {
 	if (!(field in data)) {
 		return {
