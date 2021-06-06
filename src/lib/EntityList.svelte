@@ -85,6 +85,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 	$: reloadEntities($query, paginationDirection, paginationCursor);
 
+	export async function refresh() {
+		await reloadEntities($query, paginationDirection, paginationCursor);
+	}
+
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
 		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};

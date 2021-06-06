@@ -8,6 +8,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import type { Modal } from 'bootstrap';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -18,16 +20,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 */
 
+	let list: EntityList;
+
 	let modalUser: string | null = null;
 	let modalUserId: string | null = null;
 	let modalDelete: Promise<void>;
 	let modal: Modal;
 
-	async function test(id: string, name: string) {
+	async function test(id: string, name: unknown) {
 		modalUserId = id;
-		modalUser = name;
+		modalUser = name as string;
 		// TODO FIXME don't load bootstrap like this - if it fails it will be funny
 		modal = new (await import('bootstrap')).Modal(document.getElementById('exampleModal')!, {});
+		// potentially reimplement this natively in svelte so hot-reloading etc. work and it doesn't break unexpectedly
 		modal.show();
 	}
 
@@ -44,6 +49,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			throw new Error(response.status + ' ' + response.statusText);
 		} else {
 			json = await response.json();
+			await list.refresh();
 			modal.hide();
 			// TODO FIXME reload data
 		}
@@ -84,6 +90,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </div>
 
 <EntityList
+	bind:this={list}
 	initialQuery={{
 		'filter_types[]': ['admin', 'helper', 'voter'],
 		pagination_limit: '10',
