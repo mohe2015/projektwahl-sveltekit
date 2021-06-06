@@ -2,19 +2,21 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
+import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
-import type { JSONValue } from '@mohe2015/kit/types/endpoint';
+import type { JSONValue, RequestHandler } from '@mohe2015/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
 
 type CreateResponse = {
 	errors: { [x: string]: string };
 };
 
-export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async function ({
+export const post: RequestHandler<unknown, JSONValue> = async function ({
 	body
-}) {
+}): Promise<MyEndpointOutput<CreateResponse>> {
+	// TODO FIXME when implementing update don't accidentially destroy the password
+
 	let user: UserType;
 	let errors: { [index: string]: string } = {};
 	if (typeof body === 'object') {

@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
+import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
-import type { JSONValue } from '@mohe2015/kit/types/endpoint';
+import type { JSONValue, RequestHandler } from '@mohe2015/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
 
 type CreateResponse = {
@@ -12,9 +12,9 @@ type CreateResponse = {
 };
 
 // generalization currently probably not really worth it.
-export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async function ({
+export const post: RequestHandler<unknown, JSONValue> = async function ({
 	body
-}) {
+}): Promise<MyEndpointOutput<CreateResponse>> {
 	let errors: { [index: string]: string } = {};
 	if (typeof body !== 'object') {
 		throw new Error('wrong request format');

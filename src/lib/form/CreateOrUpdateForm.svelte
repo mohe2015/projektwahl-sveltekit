@@ -10,7 +10,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
-	export let entity: any;
+	export let entity: {
+		id?: number;
+		[key: string]: any;
+	};
+	2;
 
 	async function create() {
 		let json;
@@ -48,10 +52,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <svelte:head>
-	<title>{label} erstellen</title>
+	<title>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</title>
 </svelte:head>
 
-<h1 class="text-center">{label} erstellen</h1>
+<h1 class="text-center">{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</h1>
 
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
@@ -68,9 +72,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			<slot {feedback} {entity} />
 
 			{#await submitPromise}
-				<button type="submit" class="btn btn-primary disabled">{label} wird erstellt...</button>
+				<button type="submit" class="btn btn-primary disabled"
+					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
+				>
 			{:then result}
-				<button type="submit" class="btn btn-primary">{label} erstellen</button>
+				<button type="submit" class="btn btn-primary"
+					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button
+				>
 			{:catch error}
 				<div class="alert alert-danger" role="alert">
 					Unbekannter Fehler: {error.message}

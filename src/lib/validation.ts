@@ -8,6 +8,8 @@ function hasKeys<T, K extends string | number | symbol>(obj: T, keys: K[]): obj 
     return obj !== null && keys.every(k => k in obj);
 }*/
 
+// TODO FIXME take case of null more (maybe also use null as default value in the original type then?)
+
 export function hasPropertyType<T, K extends string, Y>(
 	object: T,
 	keys: K[],
@@ -20,7 +22,7 @@ export function hasPropertyType<T, K extends string, Y>(
 	{ [index: string]: string }
 ] {
 	const errors: { [index: string]: string } = {};
-	const a = keys.filter((k) => !(k in object));
+	const a = keys.filter((k) => !(k in object) || object[k as unknown as keyof T] === null);
 	a.forEach((element) => {
 		errors[element] = `${element} fehlt!`;
 	});
@@ -43,7 +45,7 @@ export function hasEnumProperty<T, K extends string, Y extends string>(
 	{ [index: string]: string }
 ] {
 	const errors: { [index: string]: string } = {};
-	const a = keys.filter((k) => !(k in object));
+	const a = keys.filter((k) => !(k in object) || object[k as unknown as keyof T] === null);
 	a.forEach((element) => {
 		errors[element] = `${element} fehlt!`;
 	});

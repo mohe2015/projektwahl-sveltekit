@@ -16,8 +16,8 @@ export type UserHelperAdminType = {
 	name: string;
 	password: string;
 	type: 'helper' | 'admin';
-	group: undefined;
-	age: undefined;
+	group: never;
+	age: never;
 	away: boolean;
 };
 
