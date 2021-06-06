@@ -2,17 +2,45 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 
-export function hasProperty<T, K extends string>(
-	data: T,
-	field: K
+// https://github.com/Microsoft/TypeScript/issues/21732
+/*
+function hasKeys<T, K extends string | number | symbol>(obj: T, keys: K[]): obj is T & { [P in K]: unknown } {
+    return obj !== null && keys.every(k => k in obj);
+}*/
+
+export function hasPropertyType<T, K extends string, Y>(
+	object: T,
+	keys: K[],
+	type: Y
 ): T &
 	{
-		[k in K]: unknown;
+		[k in K]: Y;
 	} {
-	if (field in data) {
-		return data as any;
+	if (
+		keys.filter((k) => k in object && typeof object[k as unknown as keyof T] === typeof type)
+			.length > 0
+	) {
+		throw new Error('fail'); // TODO in the future return errors instead
 	}
-	throw new Error('fail');
+	return object as any;
+}
+
+export function hasEnumProperty<T, K extends string, Y extends string>(
+	object: T,
+	keys: K[],
+	enums: Readonly<Y[]>
+): T &
+	{
+		[k in K]: Y;
+	} {
+	if (
+		keys.filter(
+			(k) => k in object && enums.includes(object[k as unknown as keyof T] as unknown as Y)
+		).length > 0
+	) {
+		throw new Error('fail'); // TODO in the future return errors instead
+	}
+	return object as any;
 }
 
 export function assertHas<T>(data: T, field: keyof T): { [index: string]: string } {

@@ -3,16 +3,9 @@
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
-import type { PartialUser, UserType } from '$lib/types';
-import {
-	assertBoolean,
-	assertNotEmpty,
-	assertNumber,
-	assertOneOf,
-	hasProperty
-} from '$lib/validation';
+import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
+import { hasEnumProperty, hasPropertyType } from '$lib/validation';
 import type { JSONValue } from '@mohe2015/kit/types/endpoint';
-import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 import type { PostgresError } from 'postgres';
 
 type CreateResponse = {
@@ -22,18 +15,34 @@ type CreateResponse = {
 export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async function ({
 	body
 }) {
+	let user: UserType;
 	if (typeof body === 'object') {
-		const user1 = hasProperty<JSONValue, 'id'>(body, 'id');
-		const user2 = hasProperty(user1, 'name');
+		const user1 = body;
+		const user2 = hasPropertyType(user1, ['name', 'password'], ''); // TODO name nonempty
+		const user3 = hasPropertyType(user2, ['id'], 0);
+		const user3_1 = hasPropertyType(user3, ['away'], true);
+		const test = ['voter' as const, 'helper' as const, 'admin' as const];
+		const user4 = hasEnumProperty<typeof user3_1, 'type', 'voter' | 'helper' | 'admin'>(
+			user3_1,
+			['type'],
+			test
+		);
+		if (user4.type === 'voter') {
+			const user3_5 = hasPropertyType(user4, ['group'], ''); // TODO nonempty
+			const user4_5 = hasPropertyType(user3_5, ['age'], 0);
+			const user3_2: UserVoterType = user4_5 as UserVoterType;
+			user = user3_2;
+		} else if (user4.type === 'helper' || user4.type === 'admin') {
+			const user3_5: UserHelperAdminType = user4 as unknown as UserHelperAdminType;
+			user = user3_5;
+		} else {
+			throw new Error('unreachable');
+		}
+	} else {
+		throw new Error('wrong request format');
 	}
 
-	const errors = {
-		...assertNotEmpty(body, 'name'),
-		...assertOneOf(body, 'type', ['voter', 'helper', 'admin']),
-		...(body.get('type') === 'voter' ? assertNotEmpty(body, 'group') : {}),
-		...(body.get('type') === 'voter' ? assertNumber(body, 'age') : {}),
-		...assertBoolean(body, 'away')
-	};
+	const errors = {};
 
 	if (Object.keys(errors).length !== 0) {
 		const response: MyEndpointOutput<CreateResponse> = {
@@ -47,9 +56,9 @@ export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async 
 	try {
 		await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${body.get(
 			'name'
-		)}, ${await hashPassword(body.get('password'))}, ${body.get('type')}, ${
-			body.get('group') ?? null
-		}, ${body.get('age') ?? null}, ${body.has('away')});`;
+		)}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
+			user.age ?? null
+		}, ${'away' in user});`;
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {
