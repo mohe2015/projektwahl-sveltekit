@@ -49,6 +49,10 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 		};
 	}
 
+	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
+
+	// TODO FIXME CSRF
+
 	// TODO set session
 
 	return {
