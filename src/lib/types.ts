@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 export type UserVoterType = {
-	id: number;
+	id?: number;
 	name: string;
 	password: string;
 	type: 'voter';
@@ -12,7 +12,7 @@ export type UserVoterType = {
 };
 
 export type UserHelperAdminType = {
-	id: number;
+	id?: number;
 	name: string;
 	password: string;
 	type: 'helper' | 'admin';

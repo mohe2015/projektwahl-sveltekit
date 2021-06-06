@@ -16,33 +16,43 @@ export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async 
 	body
 }) {
 	let user: UserType;
+	let errors: { [index: string]: string } = {};
 	if (typeof body === 'object') {
 		const user1 = body;
-		const user2 = hasPropertyType(user1, ['name', 'password'], ''); // TODO name nonempty
-		const user3 = hasPropertyType(user2, ['id'], 0);
-		const user3_1 = hasPropertyType(user3, ['away'], true);
-		const test = ['voter' as const, 'helper' as const, 'admin' as const];
-		const user4 = hasEnumProperty<typeof user3_1, 'type', 'voter' | 'helper' | 'admin'>(
-			user3_1,
+		const [user2, errors2] = hasPropertyType(user1, ['name', 'password'], ''); // TODO name nonempty
+		//const user3 = hasPropertyType(user2, ['id'], 0); // TODO FIXME
+		const [user3, errors3] = hasPropertyType(user2, ['away'], true);
+		const types = ['voter' as const, 'helper' as const, 'admin' as const];
+		const [user4, errors4] = hasEnumProperty<typeof user3, 'type', 'voter' | 'helper' | 'admin'>(
+			user3,
 			['type'],
-			test
+			types
 		);
 		if (user4.type === 'voter') {
-			const user3_5 = hasPropertyType(user4, ['group'], ''); // TODO nonempty
-			const user4_5 = hasPropertyType(user3_5, ['age'], 0);
-			const user3_2: UserVoterType = user4_5 as UserVoterType;
-			user = user3_2;
+			const [user5, errors5] = hasPropertyType(user4, ['group'], ''); // TODO nonempty
+			const [user6, errors6] = hasPropertyType(user5, ['age'], 0);
+			const user7: UserVoterType = user6 as unknown as UserVoterType;
+			user = user7;
+			errors = {
+				...errors,
+				...errors5,
+				...errors6
+			};
 		} else if (user4.type === 'helper' || user4.type === 'admin') {
-			const user3_5: UserHelperAdminType = user4 as unknown as UserHelperAdminType;
-			user = user3_5;
+			const user5: UserHelperAdminType = user4 as unknown as UserHelperAdminType;
+			user = user5;
 		} else {
 			throw new Error('unreachable');
 		}
+		errors = {
+			...errors,
+			...errors2,
+			...errors3,
+			...errors4
+		};
 	} else {
 		throw new Error('wrong request format');
 	}
-
-	const errors = {};
 
 	if (Object.keys(errors).length !== 0) {
 		const response: MyEndpointOutput<CreateResponse> = {
@@ -54,9 +64,9 @@ export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async 
 	}
 
 	try {
-		await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${body.get(
-			'name'
-		)}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
+		await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
+			user.name
+		}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
 			user.age ?? null
 		}, ${'away' in user});`;
 
