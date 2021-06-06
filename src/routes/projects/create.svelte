@@ -5,12 +5,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
+	import type { ProjectType } from '$lib/types';
 
-	export let entity: any;
+	export let entity: Partial<ProjectType> = {
+		costs: 0,
+		min_age: 5,
+		max_age: 13,
+		min_participants: 5,
+		max_participants: 15,
+		random_assignments: false
+	};
 </script>
 
 <CreateForm
-	{entity}
+	bind:entity
 	label="Projekt"
 	url="/projects/create.json"
 	let:feedback
@@ -27,30 +35,67 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		'requirements'
 	]}
 >
-	<TextInput name="title" label="Titel" {feedback} />
-	<TextInput name="info" label="Info" {feedback} />
-	<TextInput name="place" label="Ort" {feedback} />
-	<TextInput name="costs" label="Kosten" type="number" value="0" step="0.01" {feedback} />
-	<TextInput name="min_age" label="Mindestalter" type="number" value="5" {feedback} />
-	<TextInput name="max_age" label="Höchstalter" type="number" value="13" {feedback} />
+	<TextInput name="title" label="Titel" bind:the_value={entity.title} {feedback} />
+	<TextInput name="info" label="Info" bind:the_value={entity.info} {feedback} />
+	<TextInput name="place" label="Ort" bind:the_value={entity.place} {feedback} />
+	<TextInput
+		name="costs"
+		label="Kosten"
+		type="number"
+		bind:the_value={entity.costs}
+		step="0.01"
+		{feedback}
+	/>
+	<TextInput
+		name="min_age"
+		label="Mindestalter"
+		type="number"
+		bind:the_value={entity.min_age}
+		{feedback}
+	/>
+	<TextInput
+		name="max_age"
+		label="Höchstalter"
+		type="number"
+		bind:the_value={entity.max_age}
+		{feedback}
+	/>
 	<TextInput
 		name="min_participants"
 		label="Minimale Teilnehmeranzahl"
 		type="number"
-		value="5"
+		bind:the_value={entity.min_participants}
 		{feedback}
 	/>
 	<TextInput
 		name="max_participants"
 		label="Maximale Teilnehmeranzahl"
 		type="number"
-		value="15"
+		bind:the_value={entity.max_participants}
 		{feedback}
 	/>
-	<TextInput name="presentation_type" label="Präsentationsart" {feedback} />
-	<TextInput name="requirements" label="Voraussetzungen" {feedback} />
+	<TextInput
+		name="presentation_type"
+		label="Präsentationsart"
+		bind:the_value={entity.presentation_type}
+		{feedback}
+	/>
+	<TextInput
+		name="requirements"
+		label="Voraussetzungen"
+		bind:the_value={entity.requirements}
+		{feedback}
+	/>
 	<div class="mb-3 form-check">
-		<input type="checkbox" class="form-check-input" name="away" id="users-away" />
-		<label class="form-check-label" for="users-away">Abwesend</label>
+		<input
+			bind:checked={entity.random_assignments}
+			type="checkbox"
+			class="form-check-input"
+			name="random-assignments"
+			id="projects-random-assignments"
+		/>
+		<label class="form-check-label" for="projects-random-assignments"
+			>Zufällige Projektzuweisungen erlaubt</label
+		>
 	</div>
 </CreateForm>

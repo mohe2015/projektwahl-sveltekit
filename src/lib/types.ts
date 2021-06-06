@@ -24,3 +24,18 @@ export type UserHelperAdminType = {
 export type UserType = UserVoterType | UserHelperAdminType;
 
 export type PartialUser = Partial<UserType>;
+
+export type ProjectType = {
+	id?: number;
+	title: string;
+	info: string;
+	place: string;
+	costs: number;
+	min_age: number;
+	max_age: number;
+	min_participants: number;
+	max_participants: number;
+	presentation_type: string;
+	requirements: string;
+	random_assignments: boolean;
+};

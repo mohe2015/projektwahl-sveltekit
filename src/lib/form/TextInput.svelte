@@ -6,8 +6,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let feedback: Map<string, string> = new Map();
 	export let label: string;
 	export let name: string;
-	export let type = 'text';
+	export let type: 'text' | 'number' | 'password' = 'text';
 	export let the_value: string | number | string[] | null | undefined;
+	export let step: string | undefined = undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 </script>
 
@@ -38,6 +39,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
+			{step}
 			bind:value={the_value}
 		/>
 		{#if feedback.has(name)}

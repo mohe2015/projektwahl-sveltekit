@@ -68,7 +68,7 @@ export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async 
 			user.name
 		}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
 			user.age ?? null
-		}, ${'away' in user});`;
+		}, ${user.away});`;
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {

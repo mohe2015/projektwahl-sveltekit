@@ -2,8 +2,9 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import type { MyEndpointOutput, MyRequestHandler } from '$lib/request_helpers';
-import { assertBoolean, assertNotEmpty, assertNumber } from '$lib/validation';
-import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
+import type { ProjectType } from '$lib/types';
+import { hasPropertyType } from '$lib/validation';
+import type { JSONValue } from '@mohe2015/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
 
 type CreateResponse = {
@@ -11,21 +12,31 @@ type CreateResponse = {
 };
 
 // generalization currently probably not really worth it.
-export const post: MyRequestHandler<CreateResponse, unknown, ReadOnlyFormData> = async function ({
+export const post: MyRequestHandler<CreateResponse, unknown, JSONValue> = async function ({
 	body
 }) {
-	const errors = {
-		...assertNotEmpty(body, 'title'),
-		...assertNotEmpty(body, 'info'),
-		...assertNotEmpty(body, 'place'),
-		...assertNumber(body, 'costs'),
-		...assertNumber(body, 'min_age'),
-		...assertNumber(body, 'max_age'),
-		...assertNumber(body, 'min_participants'),
-		...assertNumber(body, 'max_participants'),
-		...assertNotEmpty(body, 'presentation_type'),
-		...assertNotEmpty(body, 'requirements'),
-		...assertBoolean(body, 'random_assignments')
+	let errors: { [index: string]: string } = {};
+	if (typeof body !== 'object') {
+		throw new Error('wrong request format');
+	}
+	const project1 = body;
+	const [project2, errors2] = hasPropertyType(
+		project1,
+		['title', 'info', 'place', 'presentation_type', 'requirements'],
+		''
+	);
+	const [project3, errors3] = hasPropertyType(
+		project2,
+		['costs', 'min_age', 'max_age', 'min_participants', 'max_participants'],
+		0
+	);
+	const [project4, errors4] = hasPropertyType(project3, ['random_assignments'], true);
+	const project: ProjectType = project4;
+	errors = {
+		...errors,
+		...errors2,
+		...errors3,
+		...errors4
 	};
 
 	if (Object.keys(errors).length !== 0) {
@@ -38,15 +49,7 @@ export const post: MyRequestHandler<CreateResponse, unknown, ReadOnlyFormData> =
 	}
 
 	try {
-		await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${body.get(
-			'title'
-		)}, ${body.get('info')}, ${body.get('place')}, ${body.get('costs')}, ${body.get(
-			'min_age'
-		)}, ${body.get('max_age')}, ${body.get('min_participants')}, ${body.get(
-			'max_participants'
-		)}, ${body.get('presentation_type')}, ${body.get('requirements')}, ${body.has(
-			'random_assignments'
-		)});`;
+		await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${project.title}, ${project.info}, ${project.place}, ${project.costs}, ${project.min_age}, ${project.max_age}, ${project.min_participants}, ${project.max_participants}, ${project.presentation_type}, ${project.requirements}, ${project.random_assignments});`;
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {
