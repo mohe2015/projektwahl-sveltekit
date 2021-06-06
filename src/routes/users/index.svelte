@@ -8,8 +8,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import type { Modal } from 'bootstrap';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -73,7 +71,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				Möchtest du {modalUser} wirklich löschen?
 
 				<!-- svelte-ignore empty-block -->
-				{#await modalDelete}{:catch error}
+				{#await modalDelete}<div />{:then}<div />{:catch error}
 					<div class="alert alert-danger" role="alert">
 						Löschen fehlgeschlagen: {error}
 					</div>
