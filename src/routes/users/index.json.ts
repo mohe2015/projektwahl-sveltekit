@@ -2,9 +2,8 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
+import type { UserType } from '$lib/types';
 import type { SerializableParameter } from 'postgres';
-
-export type UserType = { id: number; name: string; type: string }; // TODO FIXME is id really returned as number?
 
 export type UsersResponseBody = {
 	entities: Array<UserType>;

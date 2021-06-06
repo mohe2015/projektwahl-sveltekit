@@ -77,6 +77,7 @@ export const buildGet = (
 		// e.g http://localhost:3000/users.json?pagination_direction=forwards
 		let nextCursor: number | null = null;
 		let previousCursor: number | null = null;
+		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
 		if (isForwardsPagination) {
 			previousCursor = paginationCursor;
 			if (entities.length > paginationLimit) {

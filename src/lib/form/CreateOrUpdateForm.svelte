@@ -10,13 +10,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
-	export let entity: any = {};
-
-	// https://github.com/sveltejs/svelte/issues/3617
-
-	$: {
-		console.log(entity);
-	}
+	export let entity: any;
 
 	async function create() {
 		let json;
@@ -58,8 +52,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </svelte:head>
 
 <h1 class="text-center">{label} erstellen</h1>
-
-{JSON.stringify(entity)}
 
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">

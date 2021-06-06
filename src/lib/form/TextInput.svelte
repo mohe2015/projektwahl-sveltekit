@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let label: string;
 	export let name: string;
 	export let type = 'text';
-	export let the_value: string;
+	export let the_value: string | number | string[] | null | undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 </script>
 
@@ -22,9 +22,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
-			{...$$restProps}
 		/>
-		<!-- $$restProps can't be optimized well -->
 		{#if feedback.has(name)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{feedback.get(name)}
@@ -41,9 +39,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
-			{...$$restProps}
 		/>
-		<!-- $$restProps can't be optimized well -->
 		{#if feedback.has(name)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{feedback.get(name)}
@@ -60,9 +56,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
-			{...$$restProps}
 		/>
-		<!-- $$restProps can't be optimized well -->
 		{#if feedback.has(name)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{feedback.get(name)}

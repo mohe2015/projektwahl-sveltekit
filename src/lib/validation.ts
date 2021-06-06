@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ReadOnlyFormData } from '@mohe2015/kit/types/helper';
 
-export function assertHas(data: ReadOnlyFormData, field: string): { [index: string]: string } {
-	if (!data.has(field)) {
+export function assertHas<T>(data: T, field: keyof T): { [index: string]: string } {
+	if (!(field in data)) {
 		return {
 			[field]: `${field} fehlt!`
 		};
@@ -11,10 +11,13 @@ export function assertHas(data: ReadOnlyFormData, field: string): { [index: stri
 	return {};
 }
 
-export function assertNotEmpty(data: ReadOnlyFormData, field: string): { [index: string]: string } {
+export function assertNotEmpty<T, K extends keyof T>(
+	data: T,
+	field: K
+): { [index: string]: string } {
 	return {
 		...assertHas(data, field),
-		...(data.has(field) && data.get(field).trim().length == 0
+		...(field in data && typeof data[field] === 'string' && data[field].trim().length == 0
 			? {
 					[field]: `${field} ist leer!`
 			  }

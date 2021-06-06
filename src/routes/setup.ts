@@ -6,7 +6,7 @@ import type { RequestHandler } from '@mohe2015/kit';
 
 export const get: RequestHandler = async function () {
 	await sql.begin(async (sql) => {
-		await sql.file('src/lib/setup.sql', null, {
+		await sql.file('src/lib/setup.sql', [], {
 			cache: false
 		});
 
