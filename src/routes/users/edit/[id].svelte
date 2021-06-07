@@ -23,7 +23,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import type { UserType } from '$lib/types';
 
-	import type { Load } from '@mohe2015/kit';
+	import type { Load } from '@sveltejs/kit';
 	import Form from '../_form.svelte';
 
 	export let entity: UserType;

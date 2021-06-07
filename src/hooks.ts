@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import type { GetSession, Handle } from '@mohe2015/kit';
+import type { GetSession, Handle } from '@sveltejs/kit';
 /*
 export const handle: Handle = async ({ request, resolve }) => {
     // locals seem to only be available server side

@@ -3,7 +3,7 @@
 import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
-import type { JSONValue, RequestHandler } from '@mohe2015/kit/types/endpoint';
+import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
 
 export type ProjectsResponseBody = {
 	entity: ProjectType | null;

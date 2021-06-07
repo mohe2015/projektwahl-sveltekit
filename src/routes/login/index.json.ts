@@ -5,8 +5,8 @@ import { checkPassword } from '$lib/password';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
-import type { RequestHandler } from '@mohe2015/kit';
-import type { JSONValue } from '@mohe2015/kit/types/endpoint';
+import type { RequestHandler } from '@sveltejs/kit';
+import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };

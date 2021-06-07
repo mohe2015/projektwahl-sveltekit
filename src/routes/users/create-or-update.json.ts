@@ -5,7 +5,7 @@ import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
-import type { JSONValue, RequestHandler } from '@mohe2015/kit/types/endpoint';
+import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
 
 type CreateResponse = {

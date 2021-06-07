@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
-import type { RequestHandler } from '@mohe2015/kit';
-import type { JSONValue } from '@mohe2015/kit/types/endpoint';
+import type { RequestHandler } from '@sveltejs/kit';
+import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 
 export const post: RequestHandler<unknown, JSONValue> = async function ({
 	params
