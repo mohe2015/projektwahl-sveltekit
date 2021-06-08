@@ -60,11 +60,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<form on:submit|preventDefault={() => (loginPromise = login())}>
 			<div class="mb-3">
 				<label for="login-name" class="form-label">Name:</label>
-				<input type="name" class="form-control" id="login-name" bind:value={user.name} />
+				<input
+					autocomplete="username"
+					type="text"
+					class="form-control"
+					id="login-name"
+					bind:value={user.name}
+				/>
 			</div>
 			<div class="mb-3">
 				<label for="login-password" class="form-label">Passwort:</label>
 				<input
+					autocomplete="current-password"
 					type="password"
 					class="form-control"
 					id="login-password"

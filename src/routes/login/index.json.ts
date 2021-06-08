@@ -10,6 +10,7 @@ import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };
+	session?: any;
 };
 
 export const post: RequestHandler<unknown, JSONValue> = async function ({
@@ -49,6 +50,9 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 		};
 	}
 
+	const [session] =
+		await sql`INSERT INTO sessions (user_id) VALUES (${entity.id!}) RETURNING session_id`;
+
 	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
 
 	// TODO FIXME CSRF
@@ -57,7 +61,16 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 
 	return {
 		body: {
-			errors: {}
+			errors: {},
+			session
+		},
+		headers: {
+			'Set-Cookie': [
+				`strict_id=${session.session_id}; Max-Age=${
+					48 * 60 * 60
+				}; Secure; HttpOnly; SameSite=Strict`,
+				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
+			] as unknown as string
 		}
 	};
 };

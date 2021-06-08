@@ -6,7 +6,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 
 export const get: RequestHandler = async function () {
 	await sql.begin(async (sql) => {
-		await sql.file('src/lib/setup.sql', [], {
+		await sql.file('src/lib/setup.sql', undefined!, {
 			cache: false
 		});
 
