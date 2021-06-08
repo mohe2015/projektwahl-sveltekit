@@ -1,9 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
+import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 
-export const handle: Handle = async ({ request, resolve }) => {
+export type MyLocals = {
+	user: UserType;
+};
+
+export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	let session_id = null;
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
@@ -24,8 +29,9 @@ export const handle: Handle = async ({ request, resolve }) => {
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
-	const [session] =
-		await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+	const [session] = await sql<
+		UserType[]
+	>`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 	// locals seem to only be available server side
 	request.locals.user = session;
