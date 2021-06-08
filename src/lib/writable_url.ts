@@ -74,7 +74,11 @@ export const query = <T extends Record<string, string | string[]>>(
 		const actualValue: T = { ...defaultValue, ...value };
 		console.log('set', actualValue);
 		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
-		goto(`?${query2location(actualValue).toString()}`, { replaceState: true, noscroll: true });
+		goto(`?${query2location(actualValue).toString()}`, {
+			replaceState: true,
+			noscroll: true,
+			keepfocus: true
+		});
 	};
 	/**
 	 * Update value using callback and inform subscribers.
