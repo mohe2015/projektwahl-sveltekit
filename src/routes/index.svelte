@@ -34,4 +34,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">Willkommen</h1>
 
-Hallo {user.name}!
+{#if user}
+	Hallo {user.name}!
+{:else}
+	Noch nicht angemeldet.
+{/if}
