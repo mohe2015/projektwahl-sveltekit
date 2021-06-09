@@ -13,9 +13,9 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function ({
 	return {
 		body: {
 			user: {
-				id: locals.user.id,
-				name: locals.user.name,
-				type: locals.user.type
+				id: locals.user?.id,
+				name: locals.user?.name,
+				type: locals.user?.type
 			}
 		}
 	};

@@ -7,8 +7,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
-	import type { Modal } from 'bootstrap';
 	import type { UserDeleteResponse } from './delete/[id].json';
+	import {
+		Button,
+		Modal,
+		ModalBody,
+		ModalFooter,
+		ModalHeader,
+		Collapse,
+		Navbar,
+		NavbarToggler,
+		NavbarBrand
+	} from 'sveltestrap';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -24,16 +34,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let modalUser: string | null = null;
 	let modalUserId: string | null = null;
 	let modalDelete: Promise<void>;
-	let modal: Modal;
+	let deleteModalOpen = false;
 
 	async function test(id: string, name: unknown) {
 		modalUserId = id;
 		modalUser = name as string;
 		modalDelete = Promise.resolve();
-		// TODO FIXME don't load bootstrap like this - if it fails it will be funny
-		modal = new (await import('bootstrap')).Modal(document.getElementById('exampleModal')!, {});
-		// potentially reimplement this natively in svelte so hot-reloading etc. work and it doesn't break unexpectedly
-		modal.show();
+		deleteModalOpen = true;
 	}
 
 	async function deleteUser() {
@@ -57,44 +64,30 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				);
 			}
 			await list.refresh();
-			modal.hide();
-			// TODO FIXME reload data
+			deleteModalOpen = false;
 		}
 	}
 </script>
 
-<div
-	class="modal fade"
-	id="exampleModal"
-	tabindex="-1"
-	aria-labelledby="exampleModalLabel"
-	aria-hidden="true"
->
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">{modalUser} löschen?</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" />
-			</div>
-			<div class="modal-body">
-				Möchtest du {modalUser} wirklich löschen?
+<Modal isOpen={deleteModalOpen} toggle={() => (deleteModalOpen = false)}>
+	<ModalHeader>{modalUser} löschen?</ModalHeader>
+	<ModalBody>
+		Möchtest du {modalUser} wirklich löschen?
 
-				<!-- svelte-ignore empty-block -->
-				{#await modalDelete}<div />{:then}<div />{:catch error}
-					<div class="alert alert-danger" role="alert">
-						Löschen fehlgeschlagen: {error}
-					</div>
-				{/await}
+		<!-- svelte-ignore empty-block -->
+		{#await modalDelete}<div />{:then}<div />{:catch error}
+			<div class="alert alert-danger" role="alert">
+				Löschen fehlgeschlagen: {error}
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-danger" on:click={() => (modalDelete = deleteUser())}
-					>{#await modalDelete}Wird gelöscht...{:then}Löschen{:catch}Löschen{/await}</button
-				>
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-			</div>
-		</div>
-	</div>
-</div>
+		{/await}
+	</ModalBody>
+	<ModalFooter>
+		<Button color="danger" on:click={() => (modalDelete = deleteUser())}
+			>{#await modalDelete}Wird gelöscht...{:then}Löschen{:catch}Löschen{/await}</Button
+		>
+		<Button color="secondary" on:click={() => (deleteModalOpen = false)}>Abbrechen</Button>
+	</ModalFooter>
+</Modal>
 
 <EntityList
 	bind:this={list}
