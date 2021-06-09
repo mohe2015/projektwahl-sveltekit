@@ -44,7 +44,8 @@
 	"dependencies": {
 		"argon2": "^0.28.1",
 		"bootstrap": "^5.0.1",
-		"postgres": "^2.0.0-beta.5"
+		"postgres": "^2.0.0-beta.5",
+		"sveltestrap": "^5.1.1"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": "eslint --cache --fix",
