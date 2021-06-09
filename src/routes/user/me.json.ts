@@ -11,6 +11,12 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function ({
 	locals
 }): Promise<MyEndpointOutput<any>> {
 	return {
-		body: { text: `Hallo ${locals.user.name}!` }
+		body: {
+			user: {
+				id: locals.user.id,
+				name: locals.user.name,
+				type: locals.user.type
+			}
+		}
 	};
 };

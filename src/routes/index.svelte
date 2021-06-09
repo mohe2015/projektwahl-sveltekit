@@ -6,7 +6,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { Load } from '@sveltejs/kit/types/page';
 
 	export const load: Load = async function ({ page, fetch, session, context }) {
-		const res = await fetch('/welcome.json');
+		let url = '/user/me.json';
+		const res = await fetch(url);
 
 		if (res.ok) {
 			return {
@@ -16,13 +17,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 		return {
 			status: res.status,
-			error: new Error(`Could not load /welcome.json`)
+			error: new Error(`Could not load ${url}`)
 		};
 	};
 </script>
 
 <script lang="ts">
-	export let text: string;
+	import type { UserType } from '$lib/types';
+
+	export let user: UserType;
 </script>
 
 <svelte:head>
@@ -31,4 +34,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">Willkommen</h1>
 
-{text}
+Hallo {user.name}!

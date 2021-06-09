@@ -2,10 +2,33 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
+<script lang="ts" context="module">
+	import type { Load } from '@sveltejs/kit/types/page';
+
+	export const load: Load = async function ({ page, fetch, session, context }) {
+		let url = '/user/me.json';
+		const res = await fetch(url);
+
+		if (res.ok) {
+			return {
+				props: await res.json()
+			};
+		}
+
+		return {
+			status: res.status,
+			error: new Error(`Could not load ${url}`)
+		};
+	};
+</script>
+
 <script lang="ts">
 	import { browser } from '$app/env';
 	import { page } from '$app/stores';
 	import type { Collapse } from 'bootstrap';
+	import type { UserType } from '$lib/types';
+
+	export let user: UserType | undefined = undefined;
 
 	let bootstrap: Promise<any>;
 	if (browser) {
@@ -57,10 +80,21 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					>
 				</li>
 			</ul>
-			<form class="d-flex">
-				<input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" />
-				<button class="btn btn-outline-success" type="submit">Search</button>
-			</form>
+			<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+				{#if user}
+					<li class="nav-item">
+						<a class="nav-link {$page.path.startsWith('/logout') ? 'active' : ''}" href="/logout"
+							>{user.name} abmelden</a
+						>
+					</li>
+				{:else}
+					<li class="nav-item">
+						<a class="nav-link {$page.path.startsWith('/login') ? 'active' : ''}" href="/login"
+							>Anmelden</a
+						>
+					</li>
+				{/if}
+			</ul>
 		</div>
 	</div>
 </nav>
