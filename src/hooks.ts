@@ -5,8 +5,8 @@ import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 
 export type MyLocals = {
-	session_id: string;
-	user: UserType;
+	session_id: string | null;
+	user: UserType | null;
 };
 
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
@@ -30,13 +30,12 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
-	const [session] = await sql<
-		UserType[]
-	>`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+	const [session]: [UserType?] =
+		await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 	// locals seem to only be available server side
-	request.locals.session_id = session_id;
-	request.locals.user = session;
+	request.locals.session_id = session_id!;
+	request.locals.user = session ?? null;
 
 	console.log(request.locals);
 
@@ -44,18 +43,19 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 	return response;
 };
-/*
-export const getSession: GetSession = (request) => {
-    // session seems to also be available client-side
+
+export const getSession: GetSession = ({ locals }) => {
+	// session seems to also be available client-side
+	if (locals.user) {
+		return {
+			user: {
+				id: locals.user.id,
+				name: locals.user.name,
+				type: locals.user.type
+			}
+		};
+	}
 	return {
-		user: {
-			// only include properties needed client-side —
-			// exclude anything else attached to the user
-			// like access tokens etc
-			name: request.locals.user?.name,
-			email: request.locals.user?.email,
-			avatar: request.locals.user?.avatar
-		}
+		user: null
 	};
-}
-*/
+};

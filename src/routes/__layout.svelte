@@ -2,29 +2,8 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script lang="ts" context="module">
-	import type { Load } from '@sveltejs/kit/types/page';
-
-	export const load: Load = async function ({ page, fetch, session, context }) {
-		let url = '/user/me.json';
-		const res = await fetch(url);
-
-		if (res.ok) {
-			return {
-				props: await res.json()
-			};
-		}
-
-		return {
-			status: res.status,
-			error: new Error(`Could not load ${url}`)
-		};
-	};
-</script>
-
 <script lang="ts">
-	import { page } from '$app/stores';
-	import type { UserType } from '$lib/types';
+	import { page, session } from '$app/stores';
 	import {
 		Button,
 		Modal,
@@ -38,7 +17,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	} from 'sveltestrap';
 	let logoutModalOpen = false;
 
-	export let user: UserType | undefined = undefined;
 	let isNavbarOpen = false; // TODO FIXME why does this hide the navbar on loading
 
 	const handleNavigationEnd = () => {
@@ -69,6 +47,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						.join('\n')
 				);
 			}
+			$session.user = undefined;
 			logoutModalOpen = false;
 		}
 	};
@@ -107,7 +86,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</li>
 		</ul>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-			{#if user}
+			{#if $session && $session.user}
 				<li class="nav-item">
 					<a
 						class="nav-link"
@@ -115,7 +94,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						on:click={(e) => {
 							e.preventDefault();
 							logoutModalOpen = true;
-						}}>{user.name} abmelden</a
+						}}>{$session.user.name} abmelden</a
 					>
 				</li>
 			{:else}

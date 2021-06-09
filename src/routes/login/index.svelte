@@ -4,6 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { LoginResponse } from './index.json';
+	import { session } from '$app/stores';
 
 	let user: {
 		name: string | null;
@@ -27,7 +28,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (!response.ok) {
 			throw new Error(response.status + ' ' + response.statusText);
 		} else {
-			return await response.json();
+			let json = await response.json();
+			// TODO FIXME use server provided data (also id etc)
+			$session.user = {
+				name: user.name
+			};
+			return json;
 		}
 	}
 </script>
