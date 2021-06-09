@@ -8,6 +8,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import type { Modal } from 'bootstrap';
+	import type { UserDeleteResponse } from './delete/[id].json';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -28,6 +29,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	async function test(id: string, name: unknown) {
 		modalUserId = id;
 		modalUser = name as string;
+		modalDelete = Promise.resolve();
 		// TODO FIXME don't load bootstrap like this - if it fails it will be funny
 		modal = new (await import('bootstrap')).Modal(document.getElementById('exampleModal')!, {});
 		// potentially reimplement this natively in svelte so hot-reloading etc. work and it doesn't break unexpectedly
@@ -35,7 +37,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	async function deleteUser() {
-		let json;
+		let json: UserDeleteResponse;
 		const response = await fetch(`/users/delete/${modalUserId}.json`, {
 			method: 'POST',
 			body: null,
@@ -47,6 +49,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			throw new Error(response.status + ' ' + response.statusText);
 		} else {
 			json = await response.json();
+			if (Object.entries(json.errors).length > 0) {
+				throw new Error(
+					Object.entries(json.errors)
+						.map((e) => e[1])
+						.join('\n')
+				);
+			}
 			await list.refresh();
 			modal.hide();
 			// TODO FIXME reload data

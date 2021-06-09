@@ -12,7 +12,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	let session_id = null;
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
-			.split('; ')
+			?.split('; ')
 			.map((c) => c.split('='))
 			.find((c) => c[0] == 'lax_id');
 		if (cookie) {
@@ -20,7 +20,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		}
 	} else if (request.method === 'POST') {
 		const cookie = request.headers.cookie
-			.split('; ')
+			?.split('; ')
 			.map((c) => c.split('='))
 			.find((c) => c[0] == 'strict_id');
 		if (cookie) {
