@@ -21,6 +21,12 @@ export const get: RequestHandler = async function () {
 		}, NULL, 'voter') ON CONFLICT DO NOTHING;`;
 	}
 
+	for (let i = 0; i < 1000; i++) {
+		await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${
+			'project' + i
+		}, '', '', 0, 5, 13, 5, 20, '', '', FALSE) ON CONFLICT DO NOTHING;`;
+	}
+
 	return {
 		body: {}
 	};

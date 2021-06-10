@@ -84,6 +84,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					>Projekte</a
 				>
 			</li>
+			<li class="nav-item">
+				<a class="nav-link {$page.path.startsWith('/election') ? 'active' : ''}" href="/election"
+					>Wahl</a
+				>
+			</li>
 		</ul>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
 			{#if $session.user !== null}
