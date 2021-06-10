@@ -14,7 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		Navbar,
 		NavbarToggler,
 		NavbarBrand
-	} from 'sveltestrap';
+	} from 'sveltestrap/src';
 	let logoutModalOpen = false;
 
 	let isNavbarOpen = false; // TODO FIXME why does this hide the navbar on loading
@@ -86,7 +86,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</li>
 		</ul>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-			{#if $session && $session.user}
+			{#if $session.user !== null}
 				<li class="nav-item">
 					<a
 						class="nav-link"

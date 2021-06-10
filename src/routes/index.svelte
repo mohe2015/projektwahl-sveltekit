@@ -12,7 +12,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <h1 class="text-center">Willkommen</h1>
 
-{#if $session && $session.user}
+{#if $session.user !== null}
 	Hallo {$session.user.name}!
 {:else}
 	Noch nicht angemeldet.

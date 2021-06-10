@@ -8,17 +8,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import type { UserDeleteResponse } from './delete/[id].json';
-	import {
-		Button,
-		Modal,
-		ModalBody,
-		ModalFooter,
-		ModalHeader,
-		Collapse,
-		Navbar,
-		NavbarToggler,
-		NavbarBrand
-	} from 'sveltestrap';
+	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
