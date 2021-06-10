@@ -11,7 +11,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <EntityList
 	initialQuery={{
 		pagination_limit: '50',
-		'sorting[]': ['id:down-up', 'title:down-up']
+		'sorting[]': ['rank:up', 'id:down-up', 'title:down-up']
 	}}
 	title="Wahl"
 	url="election.json"
@@ -35,6 +35,65 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<td>{entity.rank ?? '-'}</td>
 				<th scope="row">{entity.id}</th>
 				<td>{entity.title}</td>
+				<td>
+					<!-- https://getbootstrap.com/docs/5.0/components/button-group/ -->
+					<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradio1"
+							autocomplete="off"
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradio1">1</label>
+
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradio2"
+							autocomplete="off"
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradio2">2</label>
+
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradio3"
+							autocomplete="off"
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradio3">3</label>
+
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradio4"
+							autocomplete="off"
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradio4">4</label>
+
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradio5"
+							autocomplete="off"
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradio5">5</label>
+
+						<input
+							type="radio"
+							class="btn-check"
+							name="{entity.id}btnradio"
+							id="{entity.id}btnradiox"
+							autocomplete="off"
+							checked
+						/>
+						<label class="btn btn-outline-primary" for="{entity.id}btnradiox">X</label>
+					</div>
+				</td>
 			</tr>
 		{/each}
 	</tbody>

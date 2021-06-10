@@ -16,7 +16,8 @@ export const get = buildGet(
 		'max_age',
 		'min_participants',
 		'max_participants',
-		'random_assignments'
+		'random_assignments',
+		'rank'
 	],
 	fakeTT<SerializableParameter>`SELECT * FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id)`,
 	(query) =>
