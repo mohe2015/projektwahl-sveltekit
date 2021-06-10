@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { sql } from '$lib/database';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { SerializableParameter } from 'postgres';
@@ -16,7 +17,7 @@ export const get = buildGet(
 		'max_participants',
 		'random_assignments'
 	],
-	[
+	fakeTT<SerializableParameter>`SELECT ${sql([
 		'id',
 		'title',
 		'info',
@@ -29,8 +30,7 @@ export const get = buildGet(
 		'presentation_type',
 		'requirements',
 		'random_assignments'
-	],
-	'projects',
+	])} FROM ${sql('projects')}`,
 	(query) =>
 		fakeTT<SerializableParameter>`title LIKE ${
 			'%' + (query.get('filter_title') ?? '') + '%'

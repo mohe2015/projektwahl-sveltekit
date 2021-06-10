@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { sql } from '$lib/database';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { UserType } from '$lib/types';
@@ -13,8 +14,7 @@ export type UsersResponseBody = {
 
 export const get = buildGet(
 	['id', 'name', 'type'],
-	['id', 'name', 'type'],
-	'users',
+	fakeTT<SerializableParameter>`SELECT ${sql(['id', 'name', 'type'])} FROM ${sql('users')}`,
 	(query) =>
 		fakeTT<SerializableParameter>`name LIKE ${
 			'%' + (query.get('filter_name') ?? '') + '%'

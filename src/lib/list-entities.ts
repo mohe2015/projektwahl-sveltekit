@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import type { MyRequestHandler } from '$lib/request_helpers';
+import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
+import type { MyLocals } from 'src/hooks';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 
 export type EntityType = { id: number }; // TODO FIXME is id really returned as number?
@@ -15,11 +16,10 @@ export type EntityResponseBody = {
 
 export const buildGet = (
 	allowedFilters: string[],
-	fieldsToSelect: string[],
-	table: string,
+	select: [TemplateStringsArray, SerializableParameter[]],
 	params: (query: URLSearchParams) => [TemplateStringsArray, SerializableParameter[]]
-): MyRequestHandler<EntityResponseBody> => {
-	const get: MyRequestHandler<EntityResponseBody> = async function ({ query }) {
+): RequestHandler<MyLocals, EntityResponseBody> => {
+	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
 		// TODO pagination
 		// TODO sorting and filtering
 
@@ -56,15 +56,16 @@ export const buildGet = (
 		const orderBy = ' ORDER BY ' + orderByQuery;
 
 		// obv changed
-		const queryStringPart1 = fakeTT<SerializableParameter>`SELECT ${sql(fieldsToSelect)} FROM ${sql(
-			table
-		)} WHERE ((${isForwardsPagination} AND id >= ${paginationCursor}) OR (${isBackwardsPagination} AND id < ${paginationCursor}) OR ((NOT ${isForwardsPagination}) AND (NOT ${isBackwardsPagination}))) AND `;
+		const queryStringPart0 = select;
+		const queryStringPart1 = fakeTT<SerializableParameter>` WHERE ((${isForwardsPagination} AND id >= ${paginationCursor}) OR (${isBackwardsPagination} AND id < ${paginationCursor}) OR ((NOT ${isForwardsPagination}) AND (NOT ${isBackwardsPagination}))) AND `;
 		const queryStringPart2 = params(query); // this should be a safe part
 		const queryStringPart3 = fakeLiteralTT(orderBy);
 		const queryStringPart4 = fakeTT<SerializableParameter>` LIMIT (${paginationLimit} + 1);`;
 		const queryStringParts12 = concTT(queryStringPart1, queryStringPart2);
 		const queryStringParts34 = concTT(queryStringPart3, queryStringPart4);
-		const queryString = toTT(concTT(queryStringParts12, queryStringParts34));
+		const queryStringParts1234 = concTT(queryStringParts12, queryStringParts34);
+		const queryStringParts01234 = concTT(queryStringPart0, queryStringParts1234);
+		const queryString = toTT(queryStringParts01234);
 
 		console.log(queryString);
 		console.log(TTToString(...queryString));
