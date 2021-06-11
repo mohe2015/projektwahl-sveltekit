@@ -5,6 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import type { LoginResponse } from './index.json';
 	import { session } from '$app/stores';
+	import CustomLayout from '/src/routes/_customLayout.svelte';
 
 	let user: {
 		name: string | null;
@@ -42,49 +43,51 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<title>Login</title>
 </svelte:head>
 
-<h1 class="text-center">Login</h1>
+<CustomLayout>
+	<h1 class="text-center">Login</h1>
 
-<div class="row justify-content-center">
-	<div class="col-md-7 col-lg-8">
-		{#await loginPromise}
-			<span />
-		{:then result}
-			{#if Object.entries(result.errors).length > 0}
+	<div class="row justify-content-center">
+		<div class="col-md-7 col-lg-8">
+			{#await loginPromise}
+				<span />
+			{:then result}
+				{#if Object.entries(result.errors).length > 0}
+					<div class="alert alert-danger" role="alert">
+						Fehler!
+						{#each Object.entries(result.errors) as [attribute, message]}
+							{attribute}: {message}<br />
+						{/each}
+					</div>
+				{/if}
+			{:catch error}
 				<div class="alert alert-danger" role="alert">
-					Fehler!
-					{#each Object.entries(result.errors) as [attribute, message]}
-						{attribute}: {message}<br />
-					{/each}
+					{error}
 				</div>
-			{/if}
-		{:catch error}
-			<div class="alert alert-danger" role="alert">
-				{error}
-			</div>
-		{/await}
+			{/await}
 
-		<form on:submit|preventDefault={() => (loginPromise = login())}>
-			<div class="mb-3">
-				<label for="login-name" class="form-label">Name:</label>
-				<input
-					autocomplete="username"
-					type="text"
-					class="form-control"
-					id="login-name"
-					bind:value={user.name}
-				/>
-			</div>
-			<div class="mb-3">
-				<label for="login-password" class="form-label">Passwort:</label>
-				<input
-					autocomplete="current-password"
-					type="password"
-					class="form-control"
-					id="login-password"
-					bind:value={user.password}
-				/>
-			</div>
-			<button type="submit" class="btn btn-primary">Login</button>
-		</form>
+			<form on:submit|preventDefault={() => (loginPromise = login())}>
+				<div class="mb-3">
+					<label for="login-name" class="form-label">Name:</label>
+					<input
+						autocomplete="username"
+						type="text"
+						class="form-control"
+						id="login-name"
+						bind:value={user.name}
+					/>
+				</div>
+				<div class="mb-3">
+					<label for="login-password" class="form-label">Passwort:</label>
+					<input
+						autocomplete="current-password"
+						type="password"
+						class="form-control"
+						id="login-password"
+						bind:value={user.password}
+					/>
+				</div>
+				<button type="submit" class="btn btn-primary">Login</button>
+			</form>
+		</div>
 	</div>
-</div>
+</CustomLayout>

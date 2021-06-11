@@ -4,15 +4,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import Form from './_form.svelte';
+	import CustomLayout from '/src/routes/_customLayout.svelte';
 </script>
 
-<Form
-	entity={{
-		costs: 0,
-		min_age: 5,
-		max_age: 13,
-		min_participants: 5,
-		max_participants: 15,
-		random_assignments: false
-	}}
-/>
+<CustomLayout>
+	<Form
+		entity={{
+			costs: 0,
+			min_age: 5,
+			max_age: 13,
+			min_participants: 5,
+			max_participants: 15,
+			random_assignments: false
+		}}
+	/>
+</CustomLayout>

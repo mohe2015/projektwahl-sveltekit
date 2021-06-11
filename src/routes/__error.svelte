@@ -4,6 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script context="module" lang="ts">
 	import type { LoadOutput } from '@sveltejs/kit';
+	import CustomLayout from '/src/routes/_customLayout.svelte';
 	export const load = function ({ error, status }: LoadOutput): LoadOutput {
 		return {
 			props: {
@@ -19,18 +20,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let error: Error;
 </script>
 
-<div class="alert alert-danger" role="alert">
-	<h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill" /> Fehler {status}</h4>
-	<p>{error.name}: {error.message}</p>
-	<pre>{error.stack}</pre>
-	<hr />
-	<p class="mb-0">
-		{#if status === 500}
-			Beep boop. Das tut uns Leid. Versuche es später erneut.
-		{:else if status === 404}
-			Mmh. Entweder du hast dich vertippt oder wir sind schuld.
-		{:else}
-			Mist. Wir haben keine Ahnung was los ist!
-		{/if}
-	</p>
-</div>
+<CustomLayout>
+	<div class="alert alert-danger" role="alert">
+		<h4 class="alert-heading"><i class="bi bi-exclamation-triangle-fill" /> Fehler {status}</h4>
+		<p>{error.name}: {error.message}</p>
+		<pre>{error.stack}</pre>
+		<hr />
+		<p class="mb-0">
+			{#if status === 500}
+				Beep boop. Das tut uns Leid. Versuche es später erneut.
+			{:else if status === 404}
+				Mmh. Entweder du hast dich vertippt oder wir sind schuld.
+			{:else}
+				Mist. Wir haben keine Ahnung was los ist!
+			{/if}
+		</p>
+	</div>
+</CustomLayout>

@@ -25,8 +25,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import type { Load } from '@sveltejs/kit';
 	import Form from '../_form.svelte';
+	import CustomLayout from '/src/routes/_customLayout.svelte';
 
 	export let entity: ProjectType;
 </script>
 
-<Form {entity} />
+<CustomLayout>
+	<Form {entity} />
+</CustomLayout>

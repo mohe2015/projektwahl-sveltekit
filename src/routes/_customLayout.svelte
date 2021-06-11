@@ -117,8 +117,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<slot />
 </main>
 
-<footer style="position: sticky; bottom: 0; z-index: 1020;">
-	<div class="alert alert-success mb-0 border-0 rounded-0" role="alert">
-		A simple success alert—check it out!
-	</div>
-</footer>
+<slot name="footer" />
