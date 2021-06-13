@@ -40,11 +40,12 @@ CREATE TABLE IF NOT EXISTS users (
 -- EXPLAIN ANALYZE VERBOSE SELECT id,name,type FROM users ORDER BY type ASC,name DESC;
 -- maybe add an index on name and maybe on type (or replace by enum?)
 
+-- CREATE INDEx choices_user_id ON choices(user_id);
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
   project_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
-  PRIMARY KEY(project_id,user_id),
+  PRIMARY KEY(user_id,project_id),
   FOREIGN KEY (project_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT

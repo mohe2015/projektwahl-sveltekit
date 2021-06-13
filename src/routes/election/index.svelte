@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
+	import Ranking from './_Ranking.svelte';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
 </script>
 
@@ -21,80 +22,23 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	>
 		<thead slot="filter" let:headerClick let:currentSortValue let:query>
 			<tr>
-				<Sorting name="rank" title="Rang" {headerClick} {currentSortValue} {query} />
 				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 				<Sorting name="title" title="Titel" {headerClick} {currentSortValue} {query} />
+				<Sorting name="rank" title="Rang" {headerClick} {currentSortValue} {query} />
 			</tr>
 			<tr class="align-middle">
-				<Filtering name="rank" type="number" {query} />
 				<Filtering name="id" type="number" {query} />
 				<Filtering name="title" type="text" {query} />
+				<Filtering name="rank" type="number" {query} />
 			</tr>
 		</thead>
 		<tbody slot="response" let:response>
 			{#each response.entities as entity (entity.id)}
 				<tr>
-					<td>{entity.rank ?? '-'}</td>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>
-						<!-- https://getbootstrap.com/docs/5.0/components/button-group/ -->
-						<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradio1"
-								autocomplete="off"
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradio1">1</label>
-
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradio2"
-								autocomplete="off"
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradio2">2</label>
-
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradio3"
-								autocomplete="off"
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradio3">3</label>
-
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradio4"
-								autocomplete="off"
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradio4">4</label>
-
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradio5"
-								autocomplete="off"
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradio5">5</label>
-
-							<input
-								type="radio"
-								class="btn-check"
-								name="{entity.id}btnradio"
-								id="{entity.id}btnradiox"
-								autocomplete="off"
-								checked
-							/>
-							<label class="btn btn-outline-primary" for="{entity.id}btnradiox">X</label>
-						</div>
+						<Ranking {entity} />
 					</td>
 				</tr>
 			{/each}

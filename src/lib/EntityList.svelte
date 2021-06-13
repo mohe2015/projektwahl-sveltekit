@@ -8,16 +8,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		pagination_limit: string;
 		[x: string]: string | string[];
 	};
+
+	export type BaseEntityType = {
+		id: number;
+		[x: string]: unknown;
+	};
 </script>
 
 <script lang="typescript">
 	import { query as query2, query2location } from '$lib/writable_url';
 	import type { Writable } from 'svelte/store';
-
-	type BaseEntityType = {
-		id: string;
-		[x: string]: unknown;
-	};
 
 	type EntityResponseBody = {
 		entities: Array<BaseEntityType>; // TODO FIXME we need generic components
