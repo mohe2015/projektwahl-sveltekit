@@ -13,11 +13,14 @@ export type SetRankResponse = {
 };
 
 export const post: RequestHandler<unknown, JSONValue> = async function ({
+	locals,
 	body
 }): Promise<MyEndpointOutput<SetRankResponse>> {
 	// https://www.depesz.com/2012/06/10/why-is-upsert-so-complicated/
-
-	sql`INSERT INTO choices (user_id, project_id, rank) VALUES (50, 10, ${rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${rank};`;
+	console.log(body);
+	sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${locals.user?.id ?? null}, ${
+		body.project
+	}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
 
 	return {
 		body: {

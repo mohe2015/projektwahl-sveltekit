@@ -8,7 +8,7 @@ import type { MyLocals } from 'src/hooks';
 
 // INSERT INTO choices (user_id, project_id, rank) VALUES (1, 55, 1);
 
-const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	return await buildGet(
 		[
 			'id',
