@@ -18,6 +18,10 @@ var user_in_project{u in U, p in P} binary;
 
 maximize total_cost: sum {u in U, p in P} choices[u,p] * user_in_project[u,p];
 
+
+subject to notinprojectyoudidntvote{u in U, p in P}:
+    if choices[u,p] == -1 then user_in_project[u,p] = 0;
+
 # every user is in a project or is project leader
 # if they don't vote they can get into any project
 
