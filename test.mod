@@ -3,19 +3,35 @@
 # glpsol --math test.mod --data test.dat
 # http://gusek.sourceforge.net/gmpl.pdf
 
-set choices;
+# the unique data that we really need:
+# project leaders
+# projects max and min size
 
-var test binary;
+set U; # users
 
-param cost {choices};
-param user_in_project {choices} binary;
+set P; # projects
 
-maximize total_cost: sum {j in choices} cost[j] * user_in_project[j];
+# choices (if the user voted something the others get -1 then?)
+param choices{u in U, p in P};
+
+var user_in_project{u in U, p in P} binary;
+
+maximize total_cost: sum {u in U, p in P} choices[u,p] * user_in_project[u,p];
 
 # every user is in a project or is project leader
 # if they don't vote they can get into any project
-subject to 
-
-
 
 # project not overfilled / underfilled
+
+data;
+
+set U := user0 user1 user2;
+
+set P := project0 project1 project2;
+
+param choices : project0 project1 project2 :=
+user0          1       1       1
+user1          0        1       0
+user2          5        2        1 ;
+
+end;
