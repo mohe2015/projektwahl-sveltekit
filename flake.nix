@@ -19,6 +19,8 @@
               pkgs.reuse
               pkgs.nixpkgs-fmt
               pkgs.nodePackages.npm-check-updates
+              pkgs.cbc
+              pkgs.glpk
             ];
 
             shellHook = ''

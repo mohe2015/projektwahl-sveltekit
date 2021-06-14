@@ -7,6 +7,9 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	return {};
 };
 
+// https://ampl.com/products/solvers/open-source/
+// GLPK should also have ampl support
+
 // TODO https://github.com/coin-or/Cbc
 // probably need to package with AMPL support
 
