@@ -26,6 +26,19 @@ SELECT * FROM c WHERE
 (SELECT COUNT(*) FROM c WHERE rank = 4) = 1 AND
 (SELECT COUNT(*) FROM c WHERE rank = 5) = 1;
 */
+
+	/*
+SELECT * FROM users, LATERAL (WITH c AS (SELECT * FROM choices,projects WHERE choices.user_id = users.id AND choices.project_id = projects.id AND users.project_leader_id IS DISTINCT FROM projects.id AND users.age >= projects.min_age AND users.age <= projects.max_age)
+SELECT * FROM c WHERE
+(SELECT COUNT(*) FROM c WHERE rank = 1) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 2) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 3) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 4) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 5) = 1) t;
+*/
+
+	// now we need to add choices for users that don't have any
+
 	return {};
 };
 
