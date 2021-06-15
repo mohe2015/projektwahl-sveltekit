@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
@@ -27,7 +28,11 @@ SELECT * FROM c WHERE
 (SELECT COUNT(*) FROM c WHERE rank = 5) = 1;
 */
 
+	// maybe add constraints again to database (then I don't think we need to check projects any more and this also makes this a lot cleaner)
 	/*
+
+// maybe store rank as binary bitfield so every bit represents a rank. then we can sum and compare the count of the summed values and the sum = 0b11111
+
 SELECT * FROM users, LATERAL (WITH c AS (SELECT * FROM choices,projects WHERE choices.user_id = users.id AND choices.project_id = projects.id AND users.project_leader_id IS DISTINCT FROM projects.id AND users.age >= projects.min_age AND users.age <= projects.max_age)
 SELECT * FROM c WHERE
 (SELECT COUNT(*) FROM c WHERE rank = 1) = 1 AND

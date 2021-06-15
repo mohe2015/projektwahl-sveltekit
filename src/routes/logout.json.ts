@@ -15,7 +15,9 @@ export type LogoutResponse = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function ({
 	locals
 }): Promise<MyEndpointOutput<LogoutResponse>> {
-	await sql`DELETE FROM sessions WHERE session_id = ${locals.session_id}`;
+	await sql.begin('READ WRITE', async (sql) => {
+		await sql`DELETE FROM sessions WHERE session_id = ${locals.session_id}`;
+	});
 
 	return {
 		body: {

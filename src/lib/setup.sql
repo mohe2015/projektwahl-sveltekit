@@ -1,6 +1,10 @@
 -- SPDX-License-Identifier: AGPL-3.0-or-later
 -- SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
+-- if you remove this you get a CVE for free - so don't. (because the triggers can have race conditions then)
+ALTER DATABASE projektwahl SET default_transaction_isolation = 'serializable';
+ALTER DATABASE projektwahl SET default_transaction_read_only = true;
+
 CREATE TABLE IF NOT EXISTS projects (
   id SERIAL PRIMARY KEY NOT NULL,
   title VARCHAR(255) NOT NULL,
@@ -40,7 +44,6 @@ CREATE TABLE IF NOT EXISTS users (
 -- EXPLAIN ANALYZE VERBOSE SELECT id,name,type FROM users ORDER BY type ASC,name DESC;
 -- maybe add an index on name and maybe on type (or replace by enum?)
 
--- CREATE INDEX choices_user_id ON choices(user_id);
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
   project_id INTEGER NOT NULL,
@@ -77,7 +80,9 @@ CREATE TABLE IF NOT EXISTS settings (
 -- https://dl.acm.org/doi/10.1145/3035918.3064037
 
 -- START TRANSACTION ISOLATION LEVEL SERIALIZABLE;
-/*
+-- alternatively: pessimistic locking: FOR KEY SHARE OF on_duty
+
+
 CREATE OR REPLACE FUNCTION check_choices_age() RETURNS TRIGGER
 BEGIN
   IF (SELECT min_age FROM projects WHERE id = NEW.project) > (SELECT age FROM users WHERE id = NEW.user) OR
@@ -120,6 +125,6 @@ SELECT CASE WHEN (SELECT COUNT(*) FROM users WHERE users.project_leader = NEW.pr
     RAISE(ABORT, 'Nutzer kann Projekt nicht wählen, in dem er Projektleiter ist!')
 END;
 END;
-*/
+
 
 INSERT INTO settings (id, election_running) VALUES (1, false) ON CONFLICT DO NOTHING;

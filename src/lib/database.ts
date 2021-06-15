@@ -4,5 +4,8 @@
 import postgres from 'postgres';
 
 export const sql = postgres('postgres://projektwahl:changeme@localhost:54321/projektwahl', {
-	debug: true
+	debug: (connection, query, params) => {
+		console.log(query);
+		console.log(params);
+	}
 });
