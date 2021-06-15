@@ -4,6 +4,28 @@ import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
 export const get: RequestHandler<MyLocals, unknown> = async function (request) {
+	// valid choices:
+	// exactly one of first, second, ..., fifth
+	// not the one you are project leader in
+
+	// so handle this per user
+	// maybe first filter out all invalid choices so create a view of valid choices?
+
+	// for a specific user getting the valid choices:
+	// SELECT * FROM choices,projects WHERE user_id = 1 AND choices.project_id = projects.id;
+	// SELECT * FROM choices,users,projects WHERE user_id = 1 AND choices.user_id = users.id AND choices.project_id = projects.id;
+	// SELECT * FROM choices,users,projects WHERE user_id = 1 AND choices.user_id = users.id AND choices.project_id = projects.id AND users.project_leader_id IS DISTINCT FROM projects.id AND users.age >= projects.min_age AND users.age <= projects.max_age;
+	// now only count needs to be checked
+
+	/*
+WITH c AS (SELECT * FROM choices,users,projects WHERE user_id = 7 AND choices.user_id = users.id AND choices.project_id = projects.id AND users.project_leader_id IS DISTINCT FROM projects.id AND users.age >= projects.min_age AND users.age <= projects.max_age)
+SELECT * FROM c WHERE
+(SELECT COUNT(*) FROM c WHERE rank = 1) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 2) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 3) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 4) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 5) = 1;
+*/
 	return {};
 };
 

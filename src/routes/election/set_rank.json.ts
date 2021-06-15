@@ -16,11 +16,19 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 	locals,
 	body
 }): Promise<MyEndpointOutput<SetRankResponse>> {
+	// TODO FIXME validate rank value range
+	// TODO FIXME add rank check constraint to sql
 	// https://www.depesz.com/2012/06/10/why-is-upsert-so-complicated/
-	console.log(body);
-	sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${locals.user?.id ?? null}, ${
-		body.project
-	}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
+	if (body.rank === null) {
+		sql`DELETE FROM choices WHERE user_id = ${locals.user?.id ?? null} AND project_id = ${
+			body.project
+		}`;
+	} else {
+		console.log(body);
+		sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${locals.user?.id ?? null}, ${
+			body.project
+		}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
+	}
 
 	return {
 		body: {
