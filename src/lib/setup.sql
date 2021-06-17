@@ -106,9 +106,9 @@ EXECUTE FUNCTION check_choices_age();
 
 CREATE OR REPLACE FUNCTION update_project_check_choices_age() RETURNS TRIGGER AS $test2$
 BEGIN
-  SELECT CASE WHEN (SELECT COUNT(*) FROM choices, users WHERE choices.project_id = NEW.id AND users.id = choices.userh_id AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
-      RAISE EXCEPTION 'Geänderte Altersbegrenzung würde Wahlen ungültig machen!';
-  END;
+  IF (SELECT COUNT(*) FROM choices, users WHERE choices.project_id = NEW.id AND users.id = choices.userh_id AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
+      RAISE EXCEPTION 'Geänderte Altersbegrenzung wuerde Wahlen ungültig machen!';
+  END IF;
   RETURN NEW;
 END;
 $test2$ LANGUAGE plpgsql;
@@ -123,9 +123,9 @@ EXECUTE FUNCTION update_project_check_choices_age();
 
 CREATE OR REPLACE FUNCTION check_project_leader_voted_own_project() RETURNS TRIGGER AS $test3$
 BEGIN
-  SELECT CASE WHEN (SELECT COUNT(*) FROM choices WHERE choices.project_id = NEW.project_leader_id AND choices.user_id = NEW.id) > 0 THEN
+  IF (SELECT COUNT(*) FROM choices WHERE choices.project_id = NEW.project_leader_id AND choices.user_id = NEW.id) > 0 THEN
       RAISE EXCEPTION 'Nutzer kann nicht Projektleiter in einem Projekt sein, das er gewählt hat!';
-  END;
+  END IF;
   RETURN NEW;
 END;
 $test3$ LANGUAGE plpgsql;
@@ -140,9 +140,9 @@ EXECUTE FUNCTION check_project_leader_voted_own_project();
 
 CREATE OR REPLACE FUNCTION check_project_leader_choices() RETURNS TRIGGER AS $test4$
 BEGIN
-  SELECT CASE WHEN (SELECT COUNT(*) FROM users WHERE users.project_leader_id = NEW.project_id AND users.id = NEW.user_id) > 0 THEN
+  IF (SELECT COUNT(*) FROM users WHERE users.project_leader_id = NEW.project_id AND users.id = NEW.user_id) > 0 THEN
       RAISE EXCEPTION 'Nutzer kann Projekt nicht wählen, in dem er Projektleiter ist!';
-  END;
+  END IF;
   RETURN NEW;
 END;
 $test4$ LANGUAGE plpgsql;
