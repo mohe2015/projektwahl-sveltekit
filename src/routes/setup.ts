@@ -9,13 +9,13 @@ function between(min, max) {
 }
 
 export const get: RequestHandler = async function () {
-	await sql.begin(async (sql) => {
+	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {
 			cache: false
 		});
 	});
 
-	await sql.begin(async (sql) => {
+	await sql.begin('READ WRITE', async (sql) => {
 		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
 			'changeme'
 		)}, 'admin') ON CONFLICT DO NOTHING;`;

@@ -14,7 +14,9 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 	params
 }): Promise<MyEndpointOutput<UserDeleteResponse>> {
 	try {
-		await sql`DELETE FROM users WHERE id = ${params.id}`;
+		await sql.begin('READ WRITE', async (sql) => {
+			await sql`DELETE FROM users WHERE id = ${params.id}`;
+		});
 
 		return {
 			body: {

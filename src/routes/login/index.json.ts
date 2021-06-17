@@ -40,18 +40,19 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 		};
 	}
 
-	if (entity.password == null || !checkPassword(user.password, entity.password)) {
+	if (entity.password == null || !(await checkPassword(entity.password, user.password))) {
 		return {
 			body: {
 				errors: {
-					name: 'Falsches Passwort!'
+					password: 'Falsches Passwort!'
 				}
 			}
 		};
 	}
 
-	const [session] =
-		await sql`INSERT INTO sessions (user_id) VALUES (${entity.id!}) RETURNING session_id`;
+	const [session] = await sql.begin('READ WRITE', async (sql) => {
+		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id!}) RETURNING session_id`;
+	});
 
 	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
 

@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS settings (
 -- START TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 -- alternatively: pessimistic locking: FOR KEY SHARE OF on_duty
 
-
+/*
 CREATE OR REPLACE FUNCTION check_choices_age() RETURNS TRIGGER
 BEGIN
   IF (SELECT min_age FROM projects WHERE id = NEW.project) > (SELECT age FROM users WHERE id = NEW.user) OR
@@ -125,6 +125,6 @@ SELECT CASE WHEN (SELECT COUNT(*) FROM users WHERE users.project_leader = NEW.pr
     RAISE(ABORT, 'Nutzer kann Projekt nicht wählen, in dem er Projektleiter ist!')
 END;
 END;
-
+*/
 
 INSERT INTO settings (id, election_running) VALUES (1, false) ON CONFLICT DO NOTHING;
