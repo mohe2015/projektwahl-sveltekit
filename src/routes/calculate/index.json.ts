@@ -41,10 +41,42 @@ SELECT * FROM c WHERE
 (SELECT COUNT(*) FROM c WHERE rank = 4) = 1 AND
 (SELECT COUNT(*) FROM c WHERE rank = 5) = 1) t;
 */
+	// 384ms
+
+	// now as we have constraints
+	/*
+SELECT * FROM users, LATERAL (WITH c AS (SELECT * FROM choices WHERE choices.user_id = users.id)
+SELECT * FROM c WHERE
+(SELECT COUNT(*) FROM c WHERE rank = 1) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 2) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 3) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 4) = 1 AND
+(SELECT COUNT(*) FROM c WHERE rank = 5) = 1) t;
+*/
+	// now only 6 ms
+
+	// TODO FIXME think about using an extra table for partial choices? (then we would need to move choices all the time though)
+
+	/*
+SELECT * FROM users, LATERAL (WITH c AS (SELECT * FROM choices WHERE choices.user_id = users.id)
+SELECT * FROM c WHERE
+(SELECT COUNT(*) FROM c) = 5) t;
+*/ // bit-wise encoding of ranks and then compare with 0b11111
 
 	// now we need to add choices for users that don't have any
 
-	return {};
+	// not perfect
+	// SELECT * FROM choices WHERE (SELECT COUNT(*) FROM choices AS c WHERE c.user_id = choices.user_id) = 5 ORDER BY user_id;
+
+	// DOES THIS EVEN WORK?
+	/*
+SELECT * FROM users, LATERAL (SELECT * FROM choices WHERE choices.user_id = users.id AND (SELECT COUNT(*) FROM choices WHERE choices.user_id = users.id) = 5) AS b;
+
+*/
+
+	return {
+		body: {}
+	};
 };
 
 // https://ampl.com/products/solvers/open-source/
