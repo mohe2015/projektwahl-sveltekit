@@ -82,49 +82,71 @@ CREATE TABLE IF NOT EXISTS settings (
 -- START TRANSACTION ISOLATION LEVEL SERIALIZABLE;
 -- alternatively: pessimistic locking: FOR KEY SHARE OF on_duty
 
-/*
-CREATE OR REPLACE FUNCTION check_choices_age() RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION check_choices_age() RETURNS TRIGGER AS $test1$
 BEGIN
   IF (SELECT min_age FROM projects WHERE id = NEW.project) > (SELECT age FROM users WHERE id = NEW.user) OR
      (SELECT max_age FROM projects WHERE id = NEW.project) < (SELECT age FROM users WHERE id = NEW.user) THEN
-      RAISE EXCEPTION 'Der Nutzer passt nicht in die Altersbegrenzung des Projekts!'
+      RAISE EXCEPTION 'Der Nutzer passt nicht in die Altersbegrenzung des Projekts!';
   END IF;
 END;
+$test1$ LANGUAGE plpgsql;
 
-DROP TRIGGER IF EXISTS trigger_check_choices_age;
+DROP TRIGGER IF EXISTS trigger_check_choices_age ON choices;
+
 CREATE TRIGGER trigger_check_choices_age
-BEFORE INSERT ON choices
+BEFORE INSERT ON choices -- probably also update?
 FOR EACH ROW
 EXECUTE FUNCTION check_choices_age();
 
 
-DROP TRIGGER IF EXISTS trigger_update_project_check_choices_age;
+
+
+CREATE OR REPLACE FUNCTION update_project_check_choices_age() RETURNS TRIGGER AS $test2$
+BEGIN
+  SELECT CASE WHEN (SELECT COUNT(*) FROM choices, users WHERE choices.project = NEW.id AND users.id = choices.user AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
+      RAISE(ABORT, 'Geänderte Altersbegrenzung würde Wahlen ungültig machen!')
+  END;
+END;
+$test2$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_update_project_check_choices_age ON projects;
+
 CREATE TRIGGER trigger_update_project_check_choices_age
 BEFORE UPDATE ON projects
 FOR EACH ROW
-BEGIN
-SELECT CASE WHEN (SELECT COUNT(*) FROM choices, users WHERE choices.project = NEW.id AND users.id = choices.user AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
-    RAISE(ABORT, 'Geänderte Altersbegrenzung würde Wahlen ungültig machen!')
-END;
-END;
+EXECUTE FUNCTION update_project_check_choices_age();
 
-DROP TRIGGER IF EXISTS trigger_check_project_leader_voted_own_project;
+
+CREATE OR REPLACE FUNCTION check_project_leader_voted_own_project() RETURNS TRIGGER AS $test3$
+BEGIN
+  SELECT CASE WHEN (SELECT COUNT(*) FROM choices WHERE choices.project = NEW.project_leader AND choices.user = NEW.id) > 0 THEN
+      RAISE(ABORT, 'Nutzer kann nicht Projektleiter in einem Projekt sein, das er gewählt hat!')
+  END;
+END;
+$test3$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_check_project_leader_voted_own_project ON users;
+
 CREATE TRIGGER trigger_check_project_leader_voted_own_project BEFORE UPDATE ON users
 FOR EACH ROW
-BEGIN
-SELECT CASE WHEN (SELECT COUNT(*) FROM choices WHERE choices.project = NEW.project_leader AND choices.user = NEW.id) > 0 THEN
-    RAISE(ABORT, 'Nutzer kann nicht Projektleiter in einem Projekt sein, das er gewählt hat!')
-END;
-END;
+EXECUTE FUNCTION check_project_leader_voted_own_project();
 
-DROP TRIGGER IF EXISTS trigger_check_project_leader_choices;
+
+
+CREATE OR REPLACE FUNCTION check_project_leader_choices() RETURNS TRIGGER AS $test4$
+BEGIN
+  SELECT CASE WHEN (SELECT COUNT(*) FROM users WHERE users.project_leader = NEW.project AND users.id = NEW.user) > 0 THEN
+      RAISE(ABORT, 'Nutzer kann Projekt nicht wählen, in dem er Projektleiter ist!')
+  END;
+END;
+$test4$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trigger_check_project_leader_choices ON choices;
+
 CREATE TRIGGER trigger_check_project_leader_choices BEFORE INSERT ON choices
 FOR EACH ROW
-BEGIN
-SELECT CASE WHEN (SELECT COUNT(*) FROM users WHERE users.project_leader = NEW.project AND users.id = NEW.user) > 0 THEN
-    RAISE(ABORT, 'Nutzer kann Projekt nicht wählen, in dem er Projektleiter ist!')
-END;
-END;
-*/
+EXECUTE FUNCTION check_project_leader_choices();
+
+
 
 INSERT INTO settings (id, election_running) VALUES (1, false) ON CONFLICT DO NOTHING;
