@@ -11,7 +11,7 @@ function between(min, max) {
 export const get: RequestHandler = async function () {
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {
-			cache: false
+			cache: false // TODO FIXME doesnt seem to work properly
 		});
 	});
 
