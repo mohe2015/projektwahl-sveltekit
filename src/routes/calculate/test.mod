@@ -59,7 +59,6 @@ project0         1                1
 project1         1                2
 project2         2                5                ;
 
-param project_leaders : user0 user1 user2 :=
-                        null  null  project0;
+param project_leaders [user0] null [user1] null [user2] project0;
 
 end;
