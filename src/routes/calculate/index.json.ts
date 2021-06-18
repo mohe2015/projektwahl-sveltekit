@@ -11,6 +11,9 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	await sql.begin(async (sql) => {
 		// transaction guarantees consistent view of data
 
+		// TODO FIXME check random assignments allowed
+
+		// TODO FIXME filter aways and filter type=voter
 		const choices = await sql.file('src/routes/calculate/calculate.sql', undefined!, {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
