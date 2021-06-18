@@ -65,12 +65,19 @@ SELECT * FROM c WHERE
 
 	// now we need to add choices for users that don't have any
 
-	// not perfect
-	// SELECT * FROM choices WHERE (SELECT COUNT(*) FROM choices AS c WHERE c.user_id = choices.user_id) = 5 ORDER BY user_id;
+	// not perfect (slower), but seems nicer
+	// SELECT * FROM choices WHERE (SELECT COUNT(*) FROM choices AS c WHERE c.user_id = choices.user_id) = 5;
 
 	// DOES THIS EVEN WORK?
 	/*
 SELECT * FROM users, LATERAL (SELECT * FROM choices WHERE choices.user_id = users.id AND (SELECT COUNT(*) FROM choices WHERE choices.user_id = users.id) = 5) AS b;
+
+
+-- use this for now:
+SELECT * FROM users, LATERAL (WITH c AS (SELECT * FROM choices WHERE choices.user_id = users.id)
+SELECT * FROM c WHERE
+(SELECT COUNT(*) FROM c) = 5) t;
+
 
 */
 
