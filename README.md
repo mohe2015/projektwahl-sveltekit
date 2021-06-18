@@ -7,7 +7,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 nix develop
 VITE_BASE_URL=http://localhost:3000/ npm run dev
 psql -p 54321 -h localhost -U projektwahl
-echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) SELECT * FROM projects LEFT OUTER JOIN choices ON (choices.user_id = 5 AND projects.id = choices.project_id);" | psql -p 54321 -h localhost -U projektwahl > analyze.json
+echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json
+# https://explain.dalibo.com/
 ```
 
 # create-svelte
