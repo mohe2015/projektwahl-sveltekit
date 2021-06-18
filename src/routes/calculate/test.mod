@@ -3,6 +3,12 @@
 # glpsol --math src/routes/calculate/test.mod
 # --data test.dat
 # http://gusek.sourceforge.net/gmpl.pdf
+# https://ampl.com/resources/the-ampl-book/chapter-downloads/
+# glpsol --math src/routes/calculate/test.mod --wlp test --nopresol --output a
+
+# WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
+
+#If you encounter problems with your MathProg model, you can investigate further by specifying the GLPSOL options --nopresol to disable the LP presolver and --output filename.out to write the final solution to a text file. 
 
 set U; # users
 
@@ -26,25 +32,19 @@ var user_is_project_leader{u in U} binary;
 # TODO FIXME user not in project they are project leader in
 
 maximize total_cost: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
-/*
+
 subject to notinprojectyoudidntvote{u in U, p in P}:
     if choices[u,p] == -1 then user_in_project[u,p] = 0;
 
 subject to no_project_leader{u in U}: if project_leaders[u] == 'null' then user_is_project_leader[u] else 0 = 0;
-*/
 
 subject to either_project_leader_or_project_not_exists{u in U}:
-    (if project_leaders[u] != 'null' then (user_is_project_leader[u] + project_not_exists[project_leaders[u]]) else 1) = 1;
+    if project_leaders[u] != 'null' then user_is_project_leader[u] + project_not_exists[project_leaders[u]] = 1;
 
-/*
 subject to onlyinoneproject{u in U}: (sum {p in P} user_in_project[u,p]) + user_is_project_leader[u] = 1;
 
-# TODO FIXME projects not existing is also fine
-# the project exists implementation is probably inefficient and could be rewritten as optionally subtract the amount of min participants / add the amount of max_participants
 subject to project_min_size{p in P}: projects[p,'min_participants'] <= (sum {u in U} user_in_project[u,p]) - projects[p,'min_participants'] * project_not_exists[p];
 subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'max_participants'] * project_not_exists[p] <= projects[p,'max_participants'];
-*/
-# every user is in a project or is project leader
 
 data;
 
@@ -62,6 +62,6 @@ project0         1                1
 project1         1                2
 project2         1                5                ;
 
-param project_leaders [user0] null [user1] null [user2] null;
+param project_leaders [user0] null [user1] project0 [user2] project0;
 
 end;
