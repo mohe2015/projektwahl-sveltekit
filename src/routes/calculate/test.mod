@@ -4,8 +4,6 @@
 # --data test.dat
 # http://gusek.sourceforge.net/gmpl.pdf
 
-# project leaders
-
 set U; # users
 
 set P; # projects
@@ -17,13 +15,19 @@ param choices{u in U, p in P} integer;
 
 param projects{p in P, pa in PA} integer;
 
-param project_leaders{u in U};
+param project_leaders{u in U} integer; # -1 for not a project leader
 
 var user_in_project{u in U, p in P} binary;
 
+var project_not_exists{p in P} binary;
+
 var user_is_project_leader{u in U} binary;
 
-var project_not_exists{p in P} binary;
+subject to no_project_leader{u in U}:
+    if project_leaders[u] == -1 then user_is_project_leader[u] = 0;
+
+subject to either_project_leader_or_project_not_exists{u in U}:
+    if project_leaders[u] != -1 then user_is_project_leader[u] + project_not_exists[project_leaders[u]] = 1;
 
 maximize total_cost: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
 
@@ -38,9 +42,6 @@ subject to project_min_size{p in P}: projects[p,'min_participants'] <= (sum {u i
 subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'max_participants'] * project_not_exists[p] <= projects[p,'max_participants'];
 
 # every user is in a project or is project leader
-# if they don't vote they can get into any project
-
-# project not overfilled / underfilled
 
 data;
 
@@ -57,5 +58,7 @@ param projects : min_participants max_participants :=
 project0         1                1
 project1         1                2
 project2         2                5                ;
+
+param project_leaders := -1 -1 project0 project0;
 
 end;
