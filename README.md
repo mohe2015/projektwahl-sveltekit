@@ -11,6 +11,18 @@ echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 
 # https://explain.dalibo.com/
 ```
 
+# Reset database (looses all data)
+
+```sql
+BEGIN READ WRITE;
+DROP TABLE settings;
+DROP TABLE sessions;
+DROP TABLE choices;
+DROP TABLE users;
+DROP TABLE projects;
+COMMIT;
+```
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte);

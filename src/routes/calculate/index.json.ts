@@ -3,10 +3,14 @@
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
-import { mkdtemp, open, unlink } from 'fs/promises';
+import { mkdtemp, open } from 'fs/promises';
 import { constants } from 'fs';
 import path from 'path';
 import os from 'os';
+import { execFile } from 'child_process';
+
+// https://neos-server.org/neos/cgi-bin/nph-neos-solver.cgi
+// https://neos-server.org/neos/admin.html
 
 export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	// maybe store rank as binary bitfield so every bit represents a rank. then we can sum and compare the count of the summed values and the sum = 0b11111
@@ -25,6 +29,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 		const projects = await sql`SELECT id, min_participants, max_participants FROM projects;`;
 
+		fileHandle.write(`data;${os.EOL}`);
 		fileHandle.write(`set P :=`);
 		projects.forEach((p) => {
 			fileHandle.write(` project${p.id}`);
@@ -72,6 +77,32 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	//await unlink(filePath);
 
 	await fileHandle.close();
+
+	console.log(filePath);
+
+	try {
+		const childProcess = execFile(
+			'glpsol',
+			['--math', 'src/lib/calculate.mod', '--data', filePath],
+			{}
+		);
+
+		for await (const chunk of childProcess.stdout!) {
+			console.log(chunk);
+		}
+
+		for await (const chunk of childProcess.stderr!) {
+			console.error(chunk);
+		}
+
+		const exitCode = await new Promise((resolve, reject) => {
+			childProcess.on('close', resolve);
+		});
+
+		console.log(exitCode);
+	} catch (error) {
+		console.log(error);
+	}
 
 	return {
 		body: {}

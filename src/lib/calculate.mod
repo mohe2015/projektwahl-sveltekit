@@ -45,4 +45,8 @@ subject to onlyinoneproject{u in U}: (sum {p in P} user_in_project[u,p]) + user_
 subject to project_min_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'min_participants'] * project_not_exists[p] >= projects[p,'min_participants'];
 subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'max_participants'] * project_not_exists[p] <= projects[p,'max_participants'];
 
+solve;
+
+display{u in U, p in P} choices[u,p];
+
 end;

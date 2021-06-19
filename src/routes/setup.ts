@@ -20,7 +20,8 @@ export const get: RequestHandler = async function () {
 			'changeme'
 		)}, 'admin') ON CONFLICT DO NOTHING;`;
 
-		for (let i = 0; i < 1000; i++) {
+		const PROJECT_COUNT = 100;
+		for (let i = 0; i < PROJECT_COUNT; i++) {
 			await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${
 				'project' + i
 			}, '', '', 0, 5, 13, 5, 20, '', '', FALSE) ON CONFLICT DO NOTHING;`;
@@ -32,8 +33,8 @@ export const get: RequestHandler = async function () {
 			}, NULL, 'voter', 'a', 10) ON CONFLICT DO NOTHING;`;
 			for (let j = 1; j <= 5; j++) {
 				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${i + 1}, ${between(
-					10,
-					900
+					1,
+					PROJECT_COUNT + 1
 				)}, ${j}) ON CONFLICT DO NOTHING;`; // TODO FIXME use real user_id as they could differ
 			}
 		}
