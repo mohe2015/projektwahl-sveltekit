@@ -45,19 +45,4 @@ subject to onlyinoneproject{u in U}: (sum {p in P} user_in_project[u,p]) + user_
 subject to project_min_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'min_participants'] * project_not_exists[p] >= projects[p,'min_participants'];
 subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + projects[p,'max_participants'] * project_not_exists[p] <= projects[p,'max_participants'];
 
-data;
-
-set P := project0 project1 project2;
-
-set U := user0 user1 user2;
-
-param project_leaders [user0] null [user1] null [user2] project0;
-
-param projects : min_participants max_participants :=
-project0         1                1
-project1         1                2
-project2         1                5                ;
-
-param choices [user0, project0] 1 [user1, project1] 1 [user2, project2] 1;
-
 end;

@@ -59,6 +59,14 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		const choices = await sql.file('src/lib/calculate.sql', undefined!, {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
+
+		fileHandle.write(`param choices`);
+		choices.forEach((p) => {
+			fileHandle.write(` [user${p.user_id}, project${p.project_id}] ${p.rank}`);
+		});
+		fileHandle.write(`;${os.EOL}`);
+
+		fileHandle.write(`end;${os.EOL}`);
 	});
 
 	//await unlink(filePath);
