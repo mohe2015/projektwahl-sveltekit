@@ -3,7 +3,7 @@
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
-import { promises as fs } from 'fs';
+import { mkdtemp, open, unlink } from 'fs/promises';
 import { constants } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -12,13 +12,14 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	// maybe store rank as binary bitfield so every bit represents a rank. then we can sum and compare the count of the summed values and the sum = 0b11111
 	// bit-wise encoding of ranks and then compare with 0b11111
 
-	const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'projektwahl-'));
-	const fileHandle = await fs.open(
-		path.join(dir, 'data.dat'),
+	const dir = await mkdtemp(path.join(os.tmpdir(), 'projektwahl-'));
+	const filePath = path.join(dir, 'data.dat');
+	const fileHandle = await open(
+		filePath,
 		constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL,
 		0o600
 	);
-	fs.write(fileHandle, 'test');
+	fileHandle.write('test');
 
 	await sql.begin(async (sql) => {
 		// transaction guarantees consistent view of data
@@ -34,6 +35,10 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 		const project_leaders = await sql`SELECT * FROM users;`;
 	});
+
+	await unlink(filePath);
+
+	fileHandle.close();
 
 	return {
 		body: {}
