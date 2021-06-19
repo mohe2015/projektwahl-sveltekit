@@ -1,10 +1,9 @@
 # SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 # SPDX-License-Identifier: AGPL-3.0-or-later
-# glpsol --math src/routes/calculate/test.mod
-# --data test.dat
 # http://gusek.sourceforge.net/gmpl.pdf
 # https://ampl.com/resources/the-ampl-book/chapter-downloads/
-# glpsol --math src/routes/calculate/test.mod --wlp test --nopresol --output a
+# glpsol --math src/lib/calculate.mod --wlp test --nopresol --output a
+# --data test.dat
 
 # WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
 
@@ -17,7 +16,7 @@ set P; # projects
 set PA := {'min_participants', 'max_participants'};
 
 # choices (if the user voted something the others get -1 then?)
-param choices{u in U, p in P} integer;
+param choices{u in U, p in P} integer default -1;
 
 param projects{p in P, pa in PA} integer;
 
@@ -48,20 +47,17 @@ subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + proje
 
 data;
 
-set U := user0 user1 user2;
-
 set P := project0 project1 project2;
 
-param choices : project0 project1 project2 :=
-user0           1        1       1
-user1           0        1       0
-user2           5        2       1         ;
+set U := user0 user1 user2;
+
+param project_leaders [user0] null [user1] null [user2] project0;
 
 param projects : min_participants max_participants :=
 project0         1                1
 project1         1                2
 project2         1                5                ;
 
-param project_leaders [user0] null [user1] null [user2] project0;
+param choices [user0, project0] 1 [user1, project1] 1 [user2, project2] 1;
 
 end;

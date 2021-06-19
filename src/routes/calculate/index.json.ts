@@ -19,10 +19,39 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL,
 		0o600
 	);
-	fileHandle.write('test');
 
 	await sql.begin(async (sql) => {
 		// transaction guarantees consistent view of data
+
+		const projects = await sql`SELECT id, min_participants, max_participants FROM projects;`;
+
+		fileHandle.write(`set P :=`);
+		projects.forEach((p) => {
+			fileHandle.write(` project${p.id}`);
+		});
+		fileHandle.write(`;${os.EOL}`);
+
+		const users = await sql`SELECT id, project_leader_id FROM users;`;
+
+		fileHandle.write(`set U :=`);
+		users.forEach((p) => {
+			fileHandle.write(` user${p.id}`);
+		});
+		fileHandle.write(`;${os.EOL}`);
+
+		fileHandle.write(`param project_leaders`);
+		users.forEach((p) => {
+			fileHandle.write(
+				` [user${p.id}] ${p.project_leader_id ? `project${p.project_leader_id}` : `null`}`
+			);
+		});
+		fileHandle.write(`;${os.EOL}`);
+
+		fileHandle.write(`param projects : min_participants max_participants :=${os.EOL}`);
+		projects.forEach((p) => {
+			fileHandle.write(`project${p.id} ${p.min_participants} ${p.max_participants}${os.EOL}`);
+		});
+		fileHandle.write(`;${os.EOL}`);
 
 		// TODO FIXME check random assignments allowed
 
@@ -30,15 +59,11 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		const choices = await sql.file('src/lib/calculate.sql', undefined!, {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
-
-		const projects = await sql`SELECT * FROM projects;`;
-
-		const project_leaders = await sql`SELECT * FROM users;`;
 	});
 
-	await unlink(filePath);
+	//await unlink(filePath);
 
-	fileHandle.close();
+	await fileHandle.close();
 
 	return {
 		body: {}
