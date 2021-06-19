@@ -21,12 +21,12 @@ export const buildGet = (
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
 		// TODO pagination
-		// TODO sorting and filtering
 
 		// TODO FIXME better validation and null/undefined
 
 		// AUDIT START
 
+		// i have the feeling the correct way would be to use the current sorting order as cursor?
 		const paginationCursor = parseInt(query.get('pagination_cursor') ?? '0');
 		const paginationDirection = query.get('pagination_direction');
 		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
@@ -57,7 +57,66 @@ export const buildGet = (
 
 		// obv changed
 		const queryStringPart0 = select;
+
+		// for cursor we need https://www.postgresql.org/docs/current/functions-comparisons.html
+		// mixed up and down pagination?:
+		/*
+Prior to PostgreSQL 8.2, the <, <=, > and >= cases were not handled per SQL specification. A comparison like ROW(a,b) < ROW(c,d) was implemented as a < c AND b < d whereas the correct behavior is equivalent to a < c OR (a = c AND b < d).
+
+ROW(a, b)
+(up, down)
+ROW(c, d)
+
+a < c OR (a = c AND b > d)
+
+ROW(a, b)
+(down, up)
+ROW(c, d)
+
+a > c OR (a = c AND b < d)
+
+three column - this is getting funny
+
+ROW(a, b, c)
+(up, up, up)
+ROW(d, e, f)
+
+a < d OR (a = d AND b < e) OR (a = d AND b = e AND c < f)
+
+# If this works it doesnt seem that bad. step by step add equals and for the last compare use < and probably >= (because that's what we wanted)
+
+ROW(a, b, c)
+(up, up, down)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(up, down, up)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(up, down, down)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(down, up, up)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(down, up, down)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(down, down, up)
+ROW(d, e, f)
+
+ROW(a, b, c)
+(down, down, down)
+ROW(d, e, f)
+
+*/
+
 		const queryStringPart1 = fakeTT<SerializableParameter>` WHERE ((${isForwardsPagination} AND id >= ${paginationCursor}) OR (${isBackwardsPagination} AND id < ${paginationCursor}) OR ((NOT ${isForwardsPagination}) AND (NOT ${isBackwardsPagination}))) AND `;
+
 		const queryStringPart2 = params(query); // this should be a safe part
 		const queryStringPart3 = fakeLiteralTT(orderBy);
 		const queryStringPart4 = fakeTT<SerializableParameter>` LIMIT (${paginationLimit} + 1);`;
