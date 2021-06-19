@@ -47,6 +47,6 @@ subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + proje
 
 solve;
 
-display{u in U, p in P} choices[u,p];
+printf{u in U, p in P} choices[u,p] & '\n';
 
 end;

@@ -18,6 +18,9 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 	const dir = await mkdtemp(path.join(os.tmpdir(), 'projektwahl-'));
 	const filePath = path.join(dir, 'data.dat');
+	const outputFilePath1 = path.join(dir, 'output1.txt'); // TODO FIXME as it's probably not opend with O_EXCL this is dangerous
+	const outputFilePath2 = path.join(dir, 'output2.txt'); // TODO FIXME as it's probably not opend with O_EXCL this is dangerous
+	const outputFilePath3 = path.join(dir, 'output3.txt'); // TODO FIXME as it's probably not opend with O_EXCL this is dangerous
 	const fileHandle = await open(
 		filePath,
 		constants.O_WRONLY | constants.O_CREAT | constants.O_EXCL,
@@ -83,7 +86,18 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	try {
 		const childProcess = execFile(
 			'glpsol',
-			['--math', 'src/lib/calculate.mod', '--data', filePath],
+			[
+				'--math',
+				'src/lib/calculate.mod',
+				'--data',
+				filePath,
+				'--output',
+				outputFilePath1,
+				'--write',
+				outputFilePath2,
+				'--display',
+				outputFilePath3
+			],
 			{}
 		);
 
