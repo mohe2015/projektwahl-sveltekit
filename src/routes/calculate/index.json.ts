@@ -3,7 +3,7 @@
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
-import { mkdtemp, open } from 'fs/promises';
+import { mkdtemp, open, readFile } from 'fs/promises';
 import { constants } from 'fs';
 import path from 'path';
 import os from 'os';
@@ -114,13 +114,18 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		});
 
 		console.log(exitCode);
+
+		return {
+			body: await readFile(outputFilePath3, 'utf8')
+		};
 	} catch (error) {
 		console.log(error);
+		return {
+			body: {
+				error
+			}
+		};
 	}
-
-	return {
-		body: {}
-	};
 };
 
 // https://ampl.com/products/solvers/open-source/
