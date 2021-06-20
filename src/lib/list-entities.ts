@@ -4,7 +4,7 @@ import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import { concTT, fakeLiteralTT, fakeTT, toTT } from './tagged-templates';
+import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 
 export type BaseEntityType = {
 	id: number;
@@ -122,7 +122,7 @@ ROW(d, e, f)
 			return array.slice(0, index + 1);
 		});
 
-		console.log(paginationCursorComparison);
+		//console.log(paginationCursorComparison);
 
 		const queryStringPart1 = concTT(
 			concTT(
@@ -137,7 +137,7 @@ ROW(d, e, f)
 										return concTT(
 											fakeTT<SerializableParameter>`${paginationCursor[value[0]] ?? null}`,
 											fakeLiteralTT(
-												` ${index == array.length - 1 ? (value[1] == 'up' ? '<' : '>=') : '='} ${
+												` ${index == array.length - 1 ? (value[1] == 'up' ? '<=' : '>') : '='} ${
 													value[0]
 												}`
 											)
@@ -157,7 +157,7 @@ ROW(d, e, f)
 			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) AND `)
 		);
 
-		console.log(queryStringPart1);
+		//console.log(queryStringPart1);
 
 		const queryStringPart2 = params(query); // this should be a safe part
 		const queryStringPart3 = fakeLiteralTT(orderBy);
@@ -169,14 +169,14 @@ ROW(d, e, f)
 		const queryString = toTT(queryStringParts01234);
 
 		//console.log(queryString);
-		//console.log(TTToString(...queryString));
+		console.log(TTToString(...queryString));
 		// TODO FIXME change
 		// implement min_age as < and max_age as >
 		// TODO FIXME implement filter: costs, min_age, max_age, min_participants, max_participants, random_assignments
 
 		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
 
-		console.log(entities);
+		//console.log(entities);
 
 		// e.g http://localhost:3000/users.json?pagination_direction=forwards
 		let nextCursor: BaseEntityType | null = null;
@@ -197,7 +197,7 @@ ROW(d, e, f)
 			nextCursor = paginationCursor;
 		}
 
-		console.log(previousCursor);
+		//console.log(previousCursor);
 
 		// AUDIT END
 

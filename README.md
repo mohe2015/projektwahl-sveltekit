@@ -9,6 +9,13 @@ VITE_BASE_URL=http://localhost:3000/ npm run dev
 psql -p 54321 -h localhost -U projektwahl
 echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json
 # https://explain.dalibo.com/
+EXPLAIN ANALYZE SELECT id,name,type FROM users ORDER BY id ASC,name ASC LIMIT (10 + 1); # why sorted after name
+# https://www.postgresql.org/docs/current/runtime-config-query.html
+
+
+RESET ALL;
+# docker run -it -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true -p 3306:3306 mariadb
+# mysql -h 127.0.0.1 -u root
 ```
 
 # Reset database (looses all data)

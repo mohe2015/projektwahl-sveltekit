@@ -25,6 +25,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
 
+	// TODO FIXME should sorting order change reset to page 1
+	// TODO FIXMe should filter change reset to page 1?
+
 	export let response: EntityResponseBody = {
 		entities: [],
 		previousCursor: null,

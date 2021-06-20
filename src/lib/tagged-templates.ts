@@ -42,7 +42,13 @@ export const toTT = <T>(tt: [TemplateStringsArray, T[]]): [TemplateStringsArray,
 export const TTToString = (strings: TemplateStringsArray, ...keys: unknown[]): string => {
 	let str = '';
 	strings.forEach((string, i) => {
-		str += string + keys[i];
+		str +=
+			string +
+			(strings.length - 1 == i
+				? ''
+				: keys[i] !== null && typeof keys[i] === 'object' && 'first' in (keys[i] as any)
+				? (keys[i] as any).first
+				: JSON.stringify(keys[i]).replaceAll('"', "'"));
 	});
 	return str;
 };
