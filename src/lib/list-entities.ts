@@ -4,14 +4,17 @@ import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
+import { concTT, fakeLiteralTT, fakeTT, toTT } from './tagged-templates';
 
-export type EntityType = { id: number }; // TODO FIXME is id really returned as number?
+export type BaseEntityType = {
+	id: number;
+	[x: string]: string | number | null;
+};
 
 export type EntityResponseBody = {
-	entities: Array<EntityType>;
-	previousCursor: number | null;
-	nextCursor: number | null;
+	entities: Array<BaseEntityType>;
+	previousCursor: BaseEntityType | null;
+	nextCursor: BaseEntityType | null;
 };
 
 export const buildGet = (
@@ -26,12 +29,13 @@ export const buildGet = (
 
 		// AUDIT START
 
-		// i have the feeling the correct way would be to use the current sorting order as cursor?
-		const paginationCursor = parseInt(query.get('pagination_cursor') ?? '0');
 		const paginationDirection = query.get('pagination_direction');
 		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
+		const paginationCursor =
+			query.get('pagination_cursor') !== null ? JSON.parse(query.get('pagination_cursor')!) : {}; // TODO FIXME validate
+		console.log('paginationCursor: ', paginationCursor);
 
 		const sortingQuery = query.getAll('sorting[]');
 
@@ -114,8 +118,46 @@ ROW(a, b, c)
 ROW(d, e, f)
 
 */
+		const paginationCursorComparison = allowedOrderBy.map((value, index, array) => {
+			return array.slice(0, index + 1);
+		});
 
-		const queryStringPart1 = fakeTT<SerializableParameter>` WHERE ((${isForwardsPagination} AND id >= ${paginationCursor}) OR (${isBackwardsPagination} AND id < ${paginationCursor}) OR ((NOT ${isForwardsPagination}) AND (NOT ${isBackwardsPagination}))) AND `;
+		console.log(paginationCursorComparison);
+
+		const queryStringPart1 = concTT(
+			concTT(
+				fakeLiteralTT(' WHERE ('),
+				paginationCursorComparison
+					.map((value) => {
+						return concTT(
+							concTT(
+								fakeLiteralTT('('),
+								value
+									.map((value, index, array) => {
+										return concTT(
+											fakeTT<SerializableParameter>`${paginationCursor[value[0]] ?? null}`,
+											fakeLiteralTT(
+												` ${index == array.length - 1 ? (value[1] == 'up' ? '<' : '>=') : '='} ${
+													value[0]
+												}`
+											)
+										);
+									})
+									.reduce((prev, curr) => {
+										return concTT(concTT(prev, fakeLiteralTT(' AND ')), curr);
+									})
+							),
+							fakeLiteralTT(')')
+						);
+					})
+					.reduce((prev, curr) => {
+						return concTT(concTT(prev, fakeLiteralTT(' OR ')), curr);
+					})
+			),
+			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) AND `)
+		);
+
+		console.log(queryStringPart1);
 
 		const queryStringPart2 = params(query); // this should be a safe part
 		const queryStringPart3 = fakeLiteralTT(orderBy);
@@ -126,32 +168,36 @@ ROW(d, e, f)
 		const queryStringParts01234 = concTT(queryStringPart0, queryStringParts1234);
 		const queryString = toTT(queryStringParts01234);
 
-		console.log(queryString);
-		console.log(TTToString(...queryString));
+		//console.log(queryString);
+		//console.log(TTToString(...queryString));
 		// TODO FIXME change
 		// implement min_age as < and max_age as >
 		// TODO FIXME implement filter: costs, min_age, max_age, min_participants, max_participants, random_assignments
 
-		let entities: Array<EntityType> = await sql<Array<EntityType>>(...queryString);
+		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
+
+		console.log(entities);
 
 		// e.g http://localhost:3000/users.json?pagination_direction=forwards
-		let nextCursor: number | null = null;
-		let previousCursor: number | null = null;
+		let nextCursor: BaseEntityType | null = null;
+		let previousCursor: BaseEntityType | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
-		if (isForwardsPagination) {
+		if (isForwardsPagination || (!isForwardsPagination && !isBackwardsPagination)) {
 			previousCursor = paginationCursor;
 			if (entities.length > paginationLimit) {
 				const lastElement = entities.pop();
-				nextCursor = lastElement?.id ?? null;
+				nextCursor = lastElement ?? null;
 			}
 		} else if (isBackwardsPagination) {
 			entities = entities.reverse(); // fixup as we needed to switch up orders above
 			if (entities.length > paginationLimit) {
 				entities.shift();
-				previousCursor = entities[0].id ?? null;
+				previousCursor = entities[0] ?? null;
 			}
 			nextCursor = paginationCursor;
 		}
+
+		console.log(previousCursor);
 
 		// AUDIT END
 

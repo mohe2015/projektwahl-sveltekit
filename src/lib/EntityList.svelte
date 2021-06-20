@@ -8,22 +8,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		pagination_limit: string;
 		[x: string]: string | string[];
 	};
-
-	export type BaseEntityType = {
-		id: number;
-		[x: string]: unknown;
-	};
 </script>
 
 <script lang="typescript">
 	import { query as query2, query2location } from '$lib/writable_url';
 	import type { Writable } from 'svelte/store';
-
-	type EntityResponseBody = {
-		entities: Array<BaseEntityType>; // TODO FIXME we need generic components
-		previousCursor: number | null;
-		nextCursor: number | null;
-	};
+	import type { BaseEntityType, EntityResponseBody } from './list-entities';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let url: string;
@@ -41,8 +31,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		nextCursor: null
 	};
 
-	let paginationDirection: 'forwards' | 'backwards' | null = 'forwards';
-	let paginationCursor: number | null = null;
+	let paginationDirection: 'forwards' | 'backwards' | null = null;
+	let paginationCursor: BaseEntityType | null = null;
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
@@ -66,14 +56,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	async function reloadEntities(
 		query: BaseQueryType,
 		paginationDirection: 'forwards' | 'backwards' | null,
-		paginationCursor: number | null
+		paginationCursor: BaseEntityType | null
 	) {
 		const urlSearchParams = new URLSearchParams(query2location(query));
 		if (paginationDirection !== null) {
 			urlSearchParams.set('pagination_direction', paginationDirection);
 		}
 		if (paginationCursor !== null) {
-			urlSearchParams.set('pagination_cursor', paginationCursor.toString());
+			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
 		}
 		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
 		console.log(fullUrl);
