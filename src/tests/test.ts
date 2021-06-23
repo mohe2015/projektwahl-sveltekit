@@ -5,7 +5,7 @@ import '@testing-library/jest-dom/extend-expect';
 
 import { render, fireEvent } from '@testing-library/svelte';
 
-import Comp from '../routes/users/index.svelte';
+import Comp from '../routes/login/index.svelte';
 
 test('shows proper heading when rendered', () => {
 	const { getByText } = render(Comp, { name: 'World' });

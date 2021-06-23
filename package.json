@@ -76,7 +76,7 @@
 			"svelte"
 		  ],
 		"extensionsToTreatAsEsm": [
-			".ts"
+			".ts", ".svelte"
 		]
 	}
 }

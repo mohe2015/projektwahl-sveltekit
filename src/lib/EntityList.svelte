@@ -11,7 +11,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <script lang="typescript">
-	import { query as query2, query2location } from '$lib/writable_url';
+	import { query as query2, query2location } from './writable_url';
 	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, EntityResponseBody } from './list-entities';
 
@@ -68,7 +68,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (paginationCursor !== null) {
 			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
 		}
-		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
+		const fullUrl = `${url}?${urlSearchParams}`;
 		console.log(fullUrl);
 		const res = await fetch(fullUrl);
 		response = await res.json();

@@ -3,10 +3,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import Filtering from '$lib/entity-list/Filtering.svelte';
-	import Sorting from '$lib/entity-list/Sorting.svelte';
-	import EntityList from '$lib/EntityList.svelte';
-	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
+	import Filtering from '../../lib/entity-list/Filtering.svelte';
+	import Sorting from '../../lib/entity-list/Sorting.svelte';
+	import EntityList from '../../lib/EntityList.svelte';
+	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
 	import type { UserDeleteResponse } from './delete/[id].json';
 	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
