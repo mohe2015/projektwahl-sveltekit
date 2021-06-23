@@ -21,35 +21,62 @@
 		"preview": "svelte-kit preview",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
 		"format": "prettier --write --plugin-search-dir=. .",
-		"prepare": "husky install"
+		"prepare": "husky install",
+		"test": "jest src",
+		"test:watch": "npm run test -- --watch"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-node": "^1.0.0-next.26",
 		"@sveltejs/kit": "^1.0.0-next.113",
+		"@testing-library/jest-dom": "^5.14.1",
+		"@testing-library/svelte": "^3.0.3",
 		"@types/bootstrap": "^5.0.16",
-		"@typescript-eslint/eslint-plugin": "^4.27.0",
-		"@typescript-eslint/parser": "^4.27.0",
+		"@types/jest": "^26.0.23",
+		"@typescript-eslint/eslint-plugin": "^4.28.0",
+		"@typescript-eslint/parser": "^4.28.0",
 		"eslint": "^7.29.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
 		"husky": "^6.0.0",
+		"jest": "^27.0.5",
 		"lint-staged": "^11.0.0",
 		"prettier": "~2.3.1",
 		"prettier-plugin-svelte": "^2.3.1",
-		"svelte": "^3.38.2",
+		"svelte": "^3.38.3",
+		"svelte-jester": "^1.7.0",
 		"svelte-preprocess": "^4.7.3",
+		"ts-jest": "^27.0.3",
 		"tslib": "^2.3.0",
 		"typescript": "^4.3.4"
 	},
 	"type": "module",
 	"dependencies": {
 		"argon2": "^0.28.2",
-		"bootstrap": "^5.0.1",
+		"bootstrap": "^5.0.2",
 		"postgres": "^2.0.0-beta.5",
 		"sveltestrap": "^5.2.1"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": "eslint --cache --fix",
 		"*.{ts,svelte,css,md}": "prettier --write"
+	},
+	"jest": {
+		"transform": {
+			"^.+\\.svelte$": [
+				"svelte-jester",
+				{
+				  "preprocess": true
+				}
+			  ],
+			  "^.+\\.ts$": "ts-jest"		  
+		},
+		"moduleFileExtensions": [
+			"js",
+			"ts",
+			"svelte"
+		  ],
+		"extensionsToTreatAsEsm": [
+			".ts"
+		]
 	}
 }
