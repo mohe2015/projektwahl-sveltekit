@@ -23,6 +23,7 @@
 		"format": "prettier --write --plugin-search-dir=. .",
 		"prepare": "husky install",
 		"test": "jest src",
+		"update-snapshot": "jest --updateSnapshot",
 		"test:watch": "npm run test -- --watch"
 	},
 	"devDependencies": {
@@ -51,8 +52,10 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@types/node-fetch": "^2.5.10",
 		"argon2": "^0.28.2",
 		"bootstrap": "^5.0.2",
+		"node-fetch": "^2.6.1",
 		"postgres": "^2.0.0-beta.5",
 		"sveltestrap": "^5.2.1"
 	},
@@ -65,18 +68,19 @@
 			"^.+\\.svelte$": [
 				"svelte-jester",
 				{
-				  "preprocess": true
+					"preprocess": true
 				}
-			  ],
-			  "^.+\\.ts$": "ts-jest"		  
+			],
+			"^.+\\.ts$": "ts-jest"
 		},
 		"moduleFileExtensions": [
 			"js",
 			"ts",
 			"svelte"
-		  ],
+		],
 		"extensionsToTreatAsEsm": [
-			".ts", ".svelte"
+			".ts",
+			".svelte"
 		]
 	}
 }
