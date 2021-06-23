@@ -31,5 +31,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </script>
 
 <CustomLayout>
+	<a href="https://xkcd.com/936/"
+		><img alt="" src="https://imgs.xkcd.com/comics/password_strength.png" /></a
+	>
+
 	<Form {entity} />
 </CustomLayout>
