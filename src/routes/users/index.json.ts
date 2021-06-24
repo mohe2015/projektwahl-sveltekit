@@ -15,7 +15,9 @@ export type UsersResponseBody = {
 export const get = buildGet(
 	['id', 'name', 'type'],
 	fakeTT<SerializableParameter>`SELECT ${sql(['id', 'name', 'type'])} FROM ${sql('users')}`,
-	(query) =>
+	(
+		query // TODO FIXME validation
+	) =>
 		fakeTT<SerializableParameter>`name LIKE ${
 			'%' + (query.get('filter_name') ?? '') + '%'
 		} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND type in (${query

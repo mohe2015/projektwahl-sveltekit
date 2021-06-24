@@ -68,7 +68,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		if (paginationCursor !== null) {
 			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
 		}
-		const fullUrl = `${url}?${urlSearchParams}`;
+		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
 		console.log(fullUrl);
 		const res = await fetch(fullUrl);
 		response = await res.json();

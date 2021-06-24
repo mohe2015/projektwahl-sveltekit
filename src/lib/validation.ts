@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import type { ReadOnlyFormData } from '@sveltejs/kit/types/helper';
 
 // https://github.com/Microsoft/TypeScript/issues/21732
 /*
@@ -9,6 +8,8 @@ function hasKeys<T, K extends string | number | symbol>(obj: T, keys: K[]): obj 
 }*/
 
 // TODO FIXME take case of null more (maybe also use null as default value in the original type then?)
+
+// TODO FIXME if we don't validate that there aren't additional properties these could theoretically create security vulnerabilities
 
 export function hasPropertyType<T, K extends string, Y>(
 	object: T,

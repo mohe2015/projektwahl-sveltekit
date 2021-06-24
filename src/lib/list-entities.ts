@@ -23,24 +23,34 @@ export const buildGet = (
 	params: (query: URLSearchParams) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
+		console.log(query);
+
 		// TODO pagination
 
 		// TODO FIXME better validation and null/undefined
 
 		// AUDIT START
 
-		const paginationDirection = query.get('pagination_direction');
+		const paginationDirection: string | null = query.get('pagination_direction');
 		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
+		if (isNaN(paginationLimit)) {
+			throw new Error('invalid pagination_limit');
+		}
+		if (paginationLimit > 100) {
+			throw new Error('pagination_limit too large');
+		}
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
+		const paginationCursorQueryValue = query.get('pagination_cursor');
+
+		// TODO FIXME fix that this could return an array or so
 		const paginationCursor =
-			query.get('pagination_cursor') !== null ? JSON.parse(query.get('pagination_cursor')!) : {}; // TODO FIXME validate
-		console.log('paginationCursor: ', paginationCursor);
+			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : {}; // WARNING JSON.parse can throw SyntaxError
 
 		const sortingQuery = query.getAll('sorting[]');
 
 		let allowedOrderBy = sortingQuery
-			.map((e) => e.split(':'))
+			.map((e) => e.split(':')) // TODO FIXME could return more elements / or less
 			.filter((e) => allowedFilters.includes(e[0])) // CHANGED
 			.filter((e) => ['up', 'down'].includes(e[1]));
 
@@ -62,67 +72,9 @@ export const buildGet = (
 		// obv changed
 		const queryStringPart0 = select;
 
-		// for cursor we need https://www.postgresql.org/docs/current/functions-comparisons.html
-		// mixed up and down pagination?:
-		/*
-Prior to PostgreSQL 8.2, the <, <=, > and >= cases were not handled per SQL specification. A comparison like ROW(a,b) < ROW(c,d) was implemented as a < c AND b < d whereas the correct behavior is equivalent to a < c OR (a = c AND b < d).
-
-ROW(a, b)
-(up, down)
-ROW(c, d)
-
-a < c OR (a = c AND b > d)
-
-ROW(a, b)
-(down, up)
-ROW(c, d)
-
-a > c OR (a = c AND b < d)
-
-three column - this is getting funny
-
-ROW(a, b, c)
-(up, up, up)
-ROW(d, e, f)
-
-a < d OR (a = d AND b < e) OR (a = d AND b = e AND c < f)
-
-# If this works it doesnt seem that bad. step by step add equals and for the last compare use < and probably >= (because that's what we wanted)
-
-ROW(a, b, c)
-(up, up, down)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(up, down, up)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(up, down, down)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(down, up, up)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(down, up, down)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(down, down, up)
-ROW(d, e, f)
-
-ROW(a, b, c)
-(down, down, down)
-ROW(d, e, f)
-
-*/
 		const paginationCursorComparison = allowedOrderBy.map((value, index, array) => {
 			return array.slice(0, index + 1);
 		});
-
-		//console.log(paginationCursorComparison);
 
 		const queryStringPart1 = concTT(
 			concTT(
@@ -171,8 +123,6 @@ ROW(d, e, f)
 		//console.log(queryString);
 		console.log(TTToString(...queryString));
 		// TODO FIXME change
-		// implement min_age as < and max_age as >
-		// TODO FIXME implement filter: costs, min_age, max_age, min_participants, max_participants, random_assignments
 
 		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
 
