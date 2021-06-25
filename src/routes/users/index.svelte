@@ -7,9 +7,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '../../lib/entity-list/Sorting.svelte';
 	import EntityList from '../../lib/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
-	import type { UserDeleteResponse } from './delete/[id].json';
-	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
+	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
+
 	/*
 	type UsersQueryParameters = {
 		'filter_types[]': string[];
@@ -21,66 +21,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 */
 
 	let list: EntityList;
-
-	let modalUser: string | null = null;
-	let modalUserId: string | null = null;
-	let modalDelete: Promise<void>;
-	let deleteModalOpen = false;
-
-	async function test(id: string, name: unknown) {
-		modalUserId = id;
-		modalUser = name as string;
-		modalDelete = Promise.resolve();
-		deleteModalOpen = true;
-	}
-
-	async function deleteUser() {
-		let json: UserDeleteResponse;
-		const response = await fetch(`/users/delete/${modalUserId}.json`, {
-			method: 'POST',
-			body: null,
-			headers: {
-				'Content-Type': 'application/json'
-			}
-		});
-		if (!response.ok) {
-			throw new Error(response.status + ' ' + response.statusText);
-		} else {
-			json = await response.json();
-			if (Object.entries(json.errors).length > 0) {
-				throw new Error(
-					Object.entries(json.errors)
-						.map((e) => e[1])
-						.join('\n')
-				);
-			}
-			await list.refresh();
-			deleteModalOpen = false;
-		}
-	}
 </script>
 
 <CustomLayout>
-	<Modal isOpen={deleteModalOpen} toggle={() => (deleteModalOpen = false)}>
-		<ModalHeader>{modalUser} löschen?</ModalHeader>
-		<ModalBody>
-			Möchtest du {modalUser} wirklich löschen?
-
-			<!-- svelte-ignore empty-block -->
-			{#await modalDelete}<div />{:then}<div />{:catch error}
-				<div class="alert alert-danger" role="alert">
-					Löschen fehlgeschlagen: {error}
-				</div>
-			{/await}
-		</ModalBody>
-		<ModalFooter>
-			<Button color="danger" on:click={() => (modalDelete = deleteUser())}
-				>{#await modalDelete}Wird gelöscht...{:then}Löschen{:catch}Löschen{/await}</Button
-			>
-			<Button color="secondary" on:click={() => (deleteModalOpen = false)}>Abbrechen</Button>
-		</ModalFooter>
-	</Modal>
-
 	<EntityList
 		bind:this={list}
 		initialQuery={{
@@ -139,13 +82,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 							<i class="bi bi-box-arrow-in-right" />
 						</button>
 
-						<button
-							on:click={() => test(entity.id, entity.name)}
-							class="btn btn-secondary"
-							type="button"
-						>
-							<i class="bi bi-trash" />
-						</button>
+						<DeleteButton
+							entityId={entity.id}
+							entityName={entity.name}
+							path="users"
+							refreshList={list.refresh}
+						/>
 					</td>
 				</tr>
 			{/each}
