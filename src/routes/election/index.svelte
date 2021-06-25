@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Ranking from './_Ranking.svelte';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
 	import { flip } from 'svelte/animate';
-	import { fade } from 'svelte/transition';
+	import { fade, scale, blur, fly, slide, crossfade } from 'svelte/transition';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
@@ -41,7 +41,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</thead>
 		<tbody slot="response" let:response>
 			{#each response.entities as entity (entity.id)}
-				<tr animate:flip={{ duration: 500 }} transition:fade|local={{ duration: 500 }}>
+				<tr animate:flip={{ duration: 5000 }} transition:scale={{ duration: 5000 }}>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>
