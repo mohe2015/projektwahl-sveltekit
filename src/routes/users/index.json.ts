@@ -18,7 +18,7 @@ export const get = buildGet(
 	(
 		query // TODO FIXME validation
 	) =>
-		fakeTT<SerializableParameter>`name LIKE ${
+		fakeTT<SerializableParameter>`AND name LIKE ${
 			'%' + (query.get('filter_name') ?? '') + '%'
 		} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND type in (${query
 			.getAll('filter_types[]')

@@ -106,7 +106,7 @@ export const buildGet = (
 						return concTT(concTT(prev, fakeLiteralTT(' OR ')), curr);
 					})
 			),
-			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) AND `)
+			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
 		);
 
 		//console.log(queryStringPart1);

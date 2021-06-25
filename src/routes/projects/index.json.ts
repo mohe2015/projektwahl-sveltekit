@@ -32,7 +32,7 @@ export const get = buildGet(
 		'random_assignments'
 	])} FROM ${sql('projects')}`,
 	(query) =>
-		fakeTT<SerializableParameter>`title LIKE ${
+		fakeTT<SerializableParameter>`AND title LIKE ${
 			'%' + (query.get('filter_title') ?? '') + '%'
 		} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND info LIKE ${
 			'%' + (query.get('filter_info') ?? '') + '%'
