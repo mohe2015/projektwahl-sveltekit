@@ -29,7 +29,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			let json = await response.json();
 
 			entity.rank = rank;
+
 			await list.refresh();
+
 			disabled = false;
 			return json;
 		}

@@ -8,6 +8,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
+	import { flip } from 'svelte/animate';
+	import { fade } from 'svelte/transition';
+
+	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
 </script>
@@ -37,7 +41,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</thead>
 		<tbody slot="response" let:response>
 			{#each response.entities as entity (entity.id)}
-				<tr>
+				<tr animate:flip={{ duration: 500 }} transition:fade|local={{ duration: 500 }}>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>
@@ -55,3 +59,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</div>
 	</footer>
 </CustomLayout>
+
+<style>
+</style>
