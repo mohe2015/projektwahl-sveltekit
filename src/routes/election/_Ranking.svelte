@@ -3,10 +3,12 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { BaseEntityType } from '$lib/EntityList.svelte';
+	import type EntityList from '$lib/EntityList.svelte';
+	import type { BaseEntityType } from '$lib/list-entities';
 
 	let disabled = false;
 	export let entity: BaseEntityType;
+	export let list: EntityList;
 
 	async function setRank(rank: number | null) {
 		disabled = true;
@@ -27,6 +29,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			let json = await response.json();
 
 			entity.rank = rank;
+			await list.refresh();
 			disabled = false;
 			return json;
 		}

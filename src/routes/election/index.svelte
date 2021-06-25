@@ -8,10 +8,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
+
+	let list: EntityList;
 </script>
 
 <CustomLayout>
 	<EntityList
+		bind:this={list}
 		initialQuery={{
 			pagination_limit: '50',
 			'sorting[]': ['rank:up', 'id:down-up', 'title:down-up']
@@ -38,7 +41,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>
-						<Ranking {entity} />
+						<Ranking {list} {entity} />
 					</td>
 				</tr>
 			{/each}
