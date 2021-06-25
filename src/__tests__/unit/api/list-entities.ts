@@ -15,7 +15,9 @@ test('check that all rows are returned with pagination', async () => {
 			'http://localhost:3000/tests/list-entities.json?' +
 				new URLSearchParams([
 					['pagination_limit', '10'],
-					['sorting[]', 'a:down-up,b:down-up,c:down-up'],
+					['sorting[]', 'a:up'],
+					['sorting[]', 'b:down-up'],
+					['sorting[]', 'c:down-up'],
 					...(result?.nextCursor != null
 						? [
 								['pagination_direction', 'forwards'],
