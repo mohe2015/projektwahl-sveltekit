@@ -27,10 +27,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			<tr>
 				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 				<Sorting name="title" title="Titel" {headerClick} {currentSortValue} {query} />
+				<th>Aktionen</th>
 			</tr>
 			<tr class="align-middle">
 				<Filtering name="id" type="number" {query} />
 				<Filtering name="title" type="text" {query} />
+				<th scope="col" />
 			</tr>
 		</thead>
 		<tbody slot="response" let:response>

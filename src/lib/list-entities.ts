@@ -56,7 +56,10 @@ export const buildGet = (
 
 		// TODO FIXME use all fields here which are not secret and not only the ones we are allowed to order by
 		// so it also works when the requested ordered fields are all equal
-		allowedOrderBy = allowedFilters.map((k) => allowedOrderBy.find((e) => e[0] == k) ?? [k, 'up']);
+		allowedOrderBy = [
+			...allowedOrderBy,
+			...allowedFilters.filter((k) => !allowedOrderBy.find((e) => e[0] == k)).map((k) => [k, 'up'])
+		];
 
 		// orderBy needs to be reversed for backwards pagination
 		if (isBackwardsPagination) {
