@@ -19,7 +19,7 @@ export type TestResponseBody = {
 };
 
 export const get = buildGet(
-	['a', 'b', 'c'],
+	['id', 'a', 'b', 'c'],
 	fakeTT<SerializableParameter>`SELECT ${sql(['id', 'a', 'b', 'c'])} FROM ${sql('test1')}`,
 	(
 		query // TODO FIXME validation

@@ -54,10 +54,9 @@ export const buildGet = (
 			.filter((e) => allowedFilters.includes(e[0])) // CHANGED
 			.filter((e) => ['up', 'down'].includes(e[1]));
 
-		// https://www.postgresql.org/docs/current/queries-limit.html order by is more or less required for limit
-		if (allowedOrderBy.length == 0) {
-			allowedOrderBy = [['id', 'up']];
-		}
+		// TODO FIXME use all fields here which are not secret and not only the ones we are allowed to order by
+		// so it also works when the requested ordered fields are all equal
+		allowedOrderBy = allowedFilters.map((k) => allowedOrderBy.find((e) => e[0] == k) ?? [k, 'up']);
 
 		// orderBy needs to be reversed for backwards pagination
 		if (isBackwardsPagination) {
