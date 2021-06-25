@@ -14,7 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <CreateForm
 	bind:entity
 	label="Projekt"
-	url="/projects/create.json"
+	url="/projects/create-or-update.json"
 	let:feedback
 	keys={[
 		'title',

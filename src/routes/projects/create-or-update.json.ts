@@ -50,7 +50,19 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 
 	try {
 		await sql.begin('READ WRITE', async (sql) => {
-			await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${project.title}, ${project.info}, ${project.place}, ${project.costs}, ${project.min_age}, ${project.max_age}, ${project.min_participants}, ${project.max_participants}, ${project.presentation_type}, ${project.requirements}, ${project.random_assignments});`;
+			if ('id' in project) {
+				await sql`UPDATE projects SET title = ${project.title}, info = ${project.info}, place = ${
+					project.place
+				}, costs = ${project.costs}, min_age = ${project.min_age}, max_age = ${
+					project.max_age
+				}, min_participants = ${project.min_participants}, max_participants = ${
+					project.max_participants
+				}, presentation_type = ${project.presentation_type}, requirements = ${
+					project.requirements
+				}, random_assignments = ${project.random_assignments} WHERE id = ${project.id!};`;
+			} else {
+				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${project.title}, ${project.info}, ${project.place}, ${project.costs}, ${project.min_age}, ${project.max_age}, ${project.min_participants}, ${project.max_participants}, ${project.presentation_type}, ${project.requirements}, ${project.random_assignments});`;
+			}
 		});
 
 		const response: MyEndpointOutput<CreateResponse> = {

@@ -106,7 +106,7 @@ EXECUTE FUNCTION check_choices_age();
 
 CREATE OR REPLACE FUNCTION update_project_check_choices_age() RETURNS TRIGGER AS $test2$
 BEGIN
-  IF (SELECT COUNT(*) FROM choices, users WHERE choices.project_id = NEW.id AND users.id = choices.userh_id AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
+  IF (SELECT COUNT(*) FROM choices, users WHERE choices.project_id = NEW.id AND users.id = choices.user_id AND (users.age < NEW.min_age OR users.age > NEW.max_age)) > 0 THEN
       RAISE EXCEPTION 'Geänderte Altersbegrenzung wuerde Wahlen ungültig machen!';
   END IF;
   RETURN NEW;
