@@ -12,8 +12,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <script lang="typescript">
 	import { query as query2, query2location } from './writable_url';
-	import type { Writable } from 'svelte/store';
+	import type { Readable, Writable } from 'svelte/store';
 	import type { BaseEntityType, EntityResponseBody } from './list-entities';
+	import { writable, derived } from 'svelte/store';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let url: string;
@@ -28,14 +29,31 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME should sorting order change reset to page 1
 	// TODO FIXMe should filter change reset to page 1?
 
-	export let response: EntityResponseBody = {
-		entities: [],
-		previousCursor: null,
-		nextCursor: null
-	};
+	let paginationDirection: Writable<'forwards' | 'backwards' | null> = writable(null);
+	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
+	let refreshStoreHack: Writable<boolean> = writable(false);
 
-	let paginationDirection: 'forwards' | 'backwards' | null = null;
-	let paginationCursor: BaseEntityType | null = null;
+	const response: Readable<EntityResponseBody> = derived(
+		[query, paginationDirection, paginationCursor, refreshStoreHack],
+		([$query, $paginationDirection, $paginationCursor, $refreshStoreHack], set) => {
+			reloadEntities($query, $paginationDirection, $paginationCursor).then((data) => set(data));
+
+			return (): void => {
+				// We override the `set` function to eliminate race conditions
+				// This does *not* abort running fetch() requests, it only prevents
+				// them from overriding the store.
+				// To learn about canceling fetch requests, search the internet for `AbortController`
+				set = (): void => {
+					// do nothing.
+				};
+			};
+		},
+		{
+			entities: [],
+			previousCursor: null,
+			nextCursor: null
+		}
+	);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
@@ -69,17 +87,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
 		}
 		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
-		console.log(fullUrl);
 		const res = await fetch(fullUrl);
-		response = await res.json();
+		return await res.json();
 	}
 
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
-	$: reloadEntities($query, paginationDirection, paginationCursor);
 
 	export async function refresh() {
-		await reloadEntities($query, paginationDirection, paginationCursor);
+		refreshStoreHack.set(!$refreshStoreHack);
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
@@ -118,37 +134,37 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <table class="table">
 	<slot name="filter" {headerClick} {currentSortValue} {query} />
-	<slot name="response" {response} />
+	<slot name="response" response={$response} />
 </table>
 
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
+		<li class="page-item {$response.previousCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					paginationCursor = response.previousCursor;
-					paginationDirection = 'backwards';
+					$paginationCursor = $response.previousCursor;
+					$paginationDirection = 'backwards';
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Vorherige Seite"
-				tabindex={response.previousCursor ? undefined : -1}
-				aria-disabled={!response.previousCursor}
+				tabindex={$response.previousCursor ? undefined : -1}
+				aria-disabled={!$response.previousCursor}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
+		<li class="page-item {$response.nextCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					paginationCursor = response.nextCursor;
-					paginationDirection = 'forwards';
+					$paginationCursor = $response.nextCursor;
+					$paginationDirection = 'forwards';
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Nächste Seite"
-				tabindex={response.nextCursor ? undefined : -1}
-				aria-disabled={!response.nextCursor}
+				tabindex={$response.nextCursor ? undefined : -1}
+				aria-disabled={!$response.nextCursor}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>
