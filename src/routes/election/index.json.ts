@@ -34,6 +34,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				'%' + (query.get('filter_place') ?? '') + '%'
 			} AND presentation_type LIKE ${
 				'%' + (query.get('filter_presentation_type') ?? '') + '%'
-			} AND requirements LIKE ${'%' + (query.get('filter_requirements') ?? '') + '%'}`
+			} AND requirements LIKE ${'%' + (query.get('filter_requirements') ?? '') + '%'}
+			AND (${!query.has('filter_rank')} OR rank = ${query.get('filter_rank')})`
 	)(request);
 };
