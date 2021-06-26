@@ -44,8 +44,8 @@ export const buildGet = (
 		const paginationCursorQueryValue = query.get('pagination_cursor');
 
 		// TODO FIXME fix that this could return an array or so
-		const paginationCursor =
-			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : {}; // WARNING JSON.parse can throw SyntaxError
+		const paginationCursor: any | null =
+			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : null; // WARNING JSON.parse can throw SyntaxError
 
 		const sortingQuery = query.getAll('sorting[]');
 
@@ -89,7 +89,9 @@ export const buildGet = (
 								value
 									.map((value, index, array) => {
 										return concTT(
-											fakeTT<SerializableParameter>`${paginationCursor[value[0]] ?? null}`,
+											fakeTT<SerializableParameter>`${
+												paginationCursor != null ? paginationCursor[value[0]] ?? null : null
+											}`,
 											fakeLiteralTT(
 												` ${index == array.length - 1 ? (value[1] == 'up' ? '<=' : '>') : '='} ${
 													value[0]

@@ -31,7 +31,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	let paginationDirection: Writable<'forwards' | 'backwards' | null> = writable(null);
 	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
-	let refreshStoreHack: Writable<boolean> = writable(false);
+	let refreshStoreHack: Writable<number> = writable(0);
 
 	const response: Readable<EntityResponseBody> = derived(
 		[query, paginationDirection, paginationCursor, refreshStoreHack],
@@ -95,7 +95,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
 
 	export async function refresh() {
-		refreshStoreHack.set(!$refreshStoreHack);
+		refreshStoreHack.set($refreshStoreHack + 1);
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
