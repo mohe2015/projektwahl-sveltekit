@@ -5,8 +5,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script context="module" lang="ts">
 	import { loadEntites } from '$lib/entites';
 	import type { BaseQueryType } from '$lib/entites';
+	import { browser } from '$app/env';
 
 	export const load: Load = async ({ page, fetch, session, context }) => {
+		console.log(page);
 		let [response, url] = await loadEntites(
 			fetch,
 			'users.json',
@@ -18,8 +20,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				},
 				...(location2query(page) as BaseQueryType)
 			},
-			null,
-			null
+			browser ? history.state.paginationDirection ?? null : null,
+			browser ? history.state.paginationCursor ?? null : null
 		);
 		let res = {
 			props: {

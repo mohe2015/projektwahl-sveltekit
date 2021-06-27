@@ -7,7 +7,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
 	import { writable } from 'svelte/store';
-	import { invalidate } from '$app/navigation';
+	import { goto, invalidate } from '$app/navigation';
+	import { page } from '$app/stores';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let title: string;
@@ -94,9 +95,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={async () => {
-					$paginationCursor = response.previousCursor;
-					$paginationDirection = 'backwards';
-					await refresh();
+					await goto($page.path, {
+						state: {
+							paginationCursor: response.previousCursor,
+							paginationDirection: 'backwards'
+						}
+					});
+					await refresh(); // TODO FIXME backwards pagination should also invalidate
 				}}
 				class="page-link"
 				href="/"
@@ -110,8 +115,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={async () => {
-					$paginationCursor = response.nextCursor;
-					$paginationDirection = 'forwards';
+					await goto($page.path, {
+						state: {
+							paginationCursor: response.nextCursor,
+							paginationDirection: 'forwards'
+						}
+					});
 					await refresh();
 				}}
 				class="page-link"
