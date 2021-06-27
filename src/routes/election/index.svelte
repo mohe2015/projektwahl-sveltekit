@@ -2,29 +2,40 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
+<script context="module" lang="ts">
+	import { buildLoad } from '$lib/entites';
+	import type { Load } from '@sveltejs/kit';
+
+	export const load: Load = buildLoad('election.json', {
+		pagination_limit: '50',
+		'sorting[]': ['rank:up', 'id:down-up', 'title:down-up']
+	});
+</script>
+
 <script lang="ts">
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
-
+	import type { EntityResponseBody, BaseQueryType } from '$lib/entites';
 	import { flip } from 'svelte/animate';
 	import { scale } from 'svelte/transition';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
+	export let theResponse: EntityResponseBody;
+	export let fullInvalidationUrl: string;
+	export let initialQuery: BaseQueryType;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		initialQuery={{
-			pagination_limit: '50',
-			'sorting[]': ['rank:up', 'id:down-up', 'title:down-up']
-		}}
+		response={theResponse}
+		{fullInvalidationUrl}
+		{initialQuery}
 		title="Wahl"
-		url="election.json"
 		createUrl="/404"
 	>
 		<thead slot="filter" let:headerClick let:currentSortValue let:query>
