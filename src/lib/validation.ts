@@ -29,7 +29,7 @@ export function hasPropertyType<T, K extends string, Y>(
 	});
 	const b = a.filter((k) => k in object && typeof object[k as unknown as keyof T] !== typeof type);
 	b.forEach((element) => {
-		errors[element] = `${element} ist nicht vom Typ ${type}!`;
+		errors[element] = `${element} ist nicht vom Typ ${typeof type}!`;
 	});
 	return [object as any, errors];
 }

@@ -6,6 +6,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { LoginResponse } from './index.json';
 	import { session } from '$app/stores';
 	import CustomLayout from '/src/routes/_customLayout.svelte';
+	import TextInput from '$lib/form/TextInput.svelte';
+	import { goto } from '$app/navigation';
 
 	let user: {
 		name: string | null;
@@ -17,6 +19,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let loginPromise: Promise<LoginResponse> = Promise.resolve({
 		errors: {}
 	});
+	// TODO FIXME derived store?
 
 	async function login(): Promise<LoginResponse> {
 		const response = await fetch('/login.json', {
@@ -30,10 +33,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			throw new Error(response.status + ' ' + response.statusText);
 		} else {
 			let json = await response.json();
-			// TODO FIXME use server provided data (also id etc)
-			$session.user = {
-				name: user.name
-			};
+			if (Object.entries(json.errors).length == 0) {
+				// TODO FIXME use server provided data (also id etc)
+				$session.user = {
+					name: user.name
+				};
+				goto('/', { replaceState: true });
+			}
 			return json;
 		}
 	}
@@ -51,10 +57,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{#await loginPromise}
 				<span />
 			{:then result}
-				{#if Object.entries(result.errors).length > 0}
+				{#if Object.entries(result.errors).filter(([a, m]) => !['password', 'name'].includes(a)).length > 0}
 					<div class="alert alert-danger" role="alert">
 						Fehler!
-						{#each Object.entries(result.errors) as [attribute, message]}
+						{#each Object.entries(result.errors).filter(([a, m]) => !['password', 'name'].includes(a)) as [attribute, message]}
 							{attribute}: {message}<br />
 						{/each}
 					</div>
@@ -66,26 +72,55 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{/await}
 
 			<form on:submit|preventDefault={() => (loginPromise = login())}>
-				<div class="mb-3">
-					<label for="login-name" class="form-label">Name:</label>
-					<input
-						autocomplete="username"
+				<!-- TODO FIXME extract this pattern -->
+				{#await loginPromise}
+					<TextInput
 						type="text"
-						class="form-control"
-						id="login-name"
-						bind:value={user.name}
+						autocomplete="username"
+						label="Name"
+						bind:the_value={user.name}
+						name="name"
 					/>
-				</div>
-				<div class="mb-3">
-					<label for="login-password" class="form-label">Passwort:</label>
-					<input
-						autocomplete="current-password"
+					<TextInput
+						label="Passwort"
+						name="password"
+						bind:the_value={user.password}
 						type="password"
-						class="form-control"
-						id="login-password"
-						bind:value={user.password}
+						autocomplete="current-password"
 					/>
-				</div>
+				{:then result}
+					<TextInput
+						type="text"
+						autocomplete="username"
+						label="Name"
+						bind:the_value={user.name}
+						feedback={new Map(Object.entries(result.errors))}
+						name="name"
+					/>
+					<TextInput
+						label="Passwort"
+						name="password"
+						bind:the_value={user.password}
+						type="password"
+						feedback={new Map(Object.entries(result.errors))}
+						autocomplete="current-password"
+					/>
+				{:catch error}
+					<TextInput
+						type="text"
+						autocomplete="username"
+						label="Name"
+						bind:the_value={user.name}
+						name="name"
+					/>
+					<TextInput
+						label="Passwort"
+						name="password"
+						bind:the_value={user.password}
+						type="password"
+						autocomplete="current-password"
+					/>
+				{/await}
 				<button type="submit" class="btn btn-primary">Login</button>
 			</form>
 		</div>

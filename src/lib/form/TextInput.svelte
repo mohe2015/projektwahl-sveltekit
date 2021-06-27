@@ -9,6 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let type: 'text' | 'number' | 'password' = 'text';
 	export let the_value: string | number | string[] | null | undefined;
 	export let step: string | undefined = undefined;
+	export let autocomplete: string | undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 </script>
 
@@ -56,14 +57,23 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			class="form-control {feedback.has(name) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
-			aria-describedby="{randomId}-{name}-feedback"
+			aria-describedby="{randomId}-{name}-feedback passwordHelp"
 			bind:value={the_value}
+			{autocomplete}
 		/>
 		{#if feedback.has(name)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{feedback.get(name)}
 			</div>
 		{/if}
+		<div id="passwordHelp" class="form-text">
+			<a target="_blank" href="https://imgs.xkcd.com/comics/password_strength.png"
+				>Denk dran: Lange Passwörter sind viel sicherer als welche mit vielen Sonderzeichen.</a
+			><br />
+			Also lieber "Ich mag fliegende Autos." anstatt "Moritz1234!".<br />
+			Du kannst auch einen Passwort-Manager verwenden, z.B.
+			<a target="_blank" href="https://bitwarden.com/download/">Bitwarden</a>
+		</div>
 	</div>
 {:else}
 	<div class="alert alert-danger" role="alert">
