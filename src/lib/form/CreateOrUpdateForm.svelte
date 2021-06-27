@@ -3,8 +3,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import type { CreateResponse } from 'src/routes/projects/create-or-update.json';
+
 	export let label: string;
-	export let url: string;
+	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 	let feedback: Map<string, string> = new Map();
@@ -14,12 +17,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		id?: number;
 		[key: string]: any;
 	};
-	2;
 
 	async function create() {
-		let json;
+		let json: CreateResponse;
 		try {
-			const response = await fetch(url, {
+			const response = await fetch(`/${type}/create-or-update.json`, {
 				method: 'POST',
 				body: JSON.stringify(entity),
 				headers: {
@@ -34,10 +36,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				);
 			} else {
 				json = await response.json();
-				if ('errors' in json) {
-					feedback = new Map(Object.entries(json.errors));
-				} else {
-					feedback = new Map();
+				feedback = new Map(Object.entries(json.errors));
+				if (feedback.size == 0) {
+					//await goto(`/${type}/edit/${json.id}`);
+					await goto(`/${type}`);
 				}
 			}
 		} catch (error) {

@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let type: 'text' | 'number' | 'password' = 'text';
 	export let the_value: string | number | string[] | null | undefined;
 	export let step: string | undefined = undefined;
-	export let autocomplete: string | undefined;
+	export let autocomplete: string | undefined = undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 </script>
 

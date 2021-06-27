@@ -13,7 +13,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <CreateForm
 	label="Nutzer"
-	url="/users/create-or-update.json"
+	type="users"
 	let:feedback
 	bind:entity
 	keys={['name', 'password', 'group', 'age']}

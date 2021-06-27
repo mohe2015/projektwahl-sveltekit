@@ -38,7 +38,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				$session.user = {
 					name: user.name
 				};
-				goto('/', { replaceState: true });
+				await goto('/', { replaceState: true });
 			}
 			return json;
 		}

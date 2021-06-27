@@ -7,10 +7,7 @@ import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
 import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
-
-type CreateResponse = {
-	errors: { [x: string]: string };
-};
+import type { CreateResponse } from '../projects/create-or-update.json';
 
 export const post: RequestHandler<unknown, JSONValue> = async function ({
 	body
@@ -66,25 +63,26 @@ export const post: RequestHandler<unknown, JSONValue> = async function ({
 	}
 
 	try {
-		await sql.begin('READ WRITE', async (sql) => {
+		const [row] = await sql.begin('READ WRITE', async (sql) => {
 			if ('id' in user) {
-				await sql`UPDATE users SET name = ${user.name}, password_hash = ${await hashPassword(
+				return await sql`UPDATE users SET name = ${user.name}, password_hash = ${await hashPassword(
 					user.password
 				)}, type = ${user.type}, class = ${user.group ?? null}, age = ${user.age ?? null}, away = ${
 					user.away
-				} WHERE id = ${user.id!};`;
+				} WHERE id = ${user.id!} RETURNING id;`;
 			} else {
-				await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
+				return await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
 					user.name
 				}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
 					user.age ?? null
-				}, ${user.away});`;
+				}, ${user.away}) RETURNING id;`;
 			}
 		});
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {
-				errors: {}
+				errors: {},
+				id: row.id
 			}
 		};
 		return response;

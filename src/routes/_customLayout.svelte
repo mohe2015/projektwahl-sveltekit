@@ -3,6 +3,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
+	import { goto } from '$app/navigation';
+
 	import { page, session } from '$app/stores';
 	import {
 		Button,
@@ -49,6 +51,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			}
 			$session.user = null;
 			logoutModalOpen = false;
+			goto('/login');
 		}
 	};
 </script>
