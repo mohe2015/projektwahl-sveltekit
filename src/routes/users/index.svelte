@@ -3,27 +3,30 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script context="module" lang="ts">
-	import { createReloadEntites } from '$lib/entites';
+	import { loadEntites } from '$lib/entites';
 	import type { BaseQueryType } from '$lib/entites';
 
 	export const load: Load = async ({ page, fetch, session, context }) => {
+		let [response, url] = await loadEntites(
+			fetch,
+			'users.json',
+			{
+				...{
+					'filter_types[]': ['admin', 'helper', 'voter'],
+					pagination_limit: '10',
+					'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
+				},
+				...(location2query(page) as BaseQueryType)
+			},
+			null,
+			null
+		);
 		let res = {
 			props: {
-				initialData: await createReloadEntites(fetch, 'users.json')(
-					{
-						...{
-							'filter_types[]': ['admin', 'helper', 'voter'],
-							pagination_limit: '10',
-							'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
-						},
-						...(location2query(page) as BaseQueryType)
-					},
-					null,
-					null
-				)
+				theResponse: response,
+				url
 			}
 		};
-		console.log('res', res);
 		return res;
 	};
 </script>
@@ -49,13 +52,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 */
 
 	let list: EntityList;
-	export let initialData: EntityResponseBody;
+	export let theResponse: EntityResponseBody;
+	export let url: string;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		response={initialData}
+		response={theResponse}
+		fullInvalidationUrl={url}
 		initialQuery={{
 			'filter_types[]': ['admin', 'helper', 'voter'],
 			pagination_limit: '10',

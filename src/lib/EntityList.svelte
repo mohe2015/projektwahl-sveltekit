@@ -7,11 +7,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
 	import { writable } from 'svelte/store';
+	import { invalidate } from '$app/navigation';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let title: string;
 	export let createUrl: string;
 	export let response: EntityResponseBody;
+	export let fullInvalidationUrl: string;
 
 	export let query: Writable<BaseQueryType> = query2<BaseQueryType>(initialQuery);
 
@@ -23,7 +25,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	let paginationDirection: Writable<'forwards' | 'backwards' | null> = writable(null);
 	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
-	let refreshStoreHack: Writable<number> = writable(0);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
@@ -44,11 +45,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		$query['sorting[]'] = [...$query['sorting[]'], oldElement.split(':')[0] + ':' + newElement];
 	};
 
-	// TODO FIXME optimize - the initial load makes an additional request
-	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead
-
 	export async function refresh() {
-		refreshStoreHack.set($refreshStoreHack + 1);
+		console.log('invalidate');
+		await invalidate(fullInvalidationUrl);
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
@@ -94,9 +93,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<ul class="pagination justify-content-center">
 		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 			<a
-				on:click|preventDefault={() => {
+				on:click|preventDefault={async () => {
 					$paginationCursor = response.previousCursor;
 					$paginationDirection = 'backwards';
+					await refresh();
 				}}
 				class="page-link"
 				href="/"
@@ -109,9 +109,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</li>
 		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 			<a
-				on:click|preventDefault={() => {
+				on:click|preventDefault={async () => {
 					$paginationCursor = response.nextCursor;
 					$paginationDirection = 'forwards';
+					await refresh();
 				}}
 				class="page-link"
 				href="/"

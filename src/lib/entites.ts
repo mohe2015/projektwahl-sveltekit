@@ -19,21 +19,22 @@ export type BaseQueryType = {
 	[x: string]: string | string[];
 };
 
-export function createReloadEntites(fetch: (url: string) => any, url: string) {
-	return async function (
-		query: BaseQueryType,
-		paginationDirection: 'forwards' | 'backwards' | null,
-		paginationCursor: BaseEntityType | null
-	) {
-		const urlSearchParams = new URLSearchParams(query2location(query));
-		if (paginationDirection !== null) {
-			urlSearchParams.set('pagination_direction', paginationDirection);
-		}
-		if (paginationCursor !== null) {
-			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
-		}
-		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
-		const res = await fetch(fullUrl);
-		return await res.json();
-	};
+export async function loadEntites(
+	fetch: (url: string) => any,
+	url: string,
+	query: BaseQueryType,
+	paginationDirection: 'forwards' | 'backwards' | null,
+	paginationCursor: BaseEntityType | null
+): Promise<[any, string]> {
+	const urlSearchParams = new URLSearchParams(query2location(query));
+	if (paginationDirection !== null) {
+		urlSearchParams.set('pagination_direction', paginationDirection);
+	}
+	if (paginationCursor !== null) {
+		urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
+	}
+	const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
+	const res = await fetch(fullUrl);
+	console.log(fullUrl);
+	return [await res.json(), fullUrl];
 }
