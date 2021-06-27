@@ -3,20 +3,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="typescript">
-	import { query as query2, query2location } from './writable_url';
-	import type { Readable, Writable } from 'svelte/store';
+	import { query as query2 } from './writable_url';
+	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
-	import { writable, derived } from 'svelte/store';
+	import { writable } from 'svelte/store';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
-	export let reloadEntities: (
-		query: BaseQueryType,
-		paginationDirection: 'forwards' | 'backwards' | null,
-		paginationCursor: BaseEntityType | null
-	) => Promise<EntityResponseBody>;
 	export let title: string;
 	export let createUrl: string;
-	export let initialData: EntityResponseBody;
+	export let response: EntityResponseBody;
 
 	export let query: Writable<BaseQueryType> = query2<BaseQueryType>(initialQuery);
 
@@ -29,28 +24,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationDirection: Writable<'forwards' | 'backwards' | null> = writable(null);
 	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
 	let refreshStoreHack: Writable<number> = writable(0);
-
-	// TODO FIXME goddammit with the new infrastructure we make two requests again (which is really bad - maybe only use load)
-	const response: Readable<EntityResponseBody> = derived(
-		[query, paginationDirection, paginationCursor, refreshStoreHack],
-		([$query, $paginationDirection, $paginationCursor, $refreshStoreHack], set) => {
-			reloadEntities($query, $paginationDirection, $paginationCursor).then((data) => {
-				console.log(data);
-				set(data);
-			});
-
-			return (): void => {
-				// We override the `set` function to eliminate race conditions
-				// This does *not* abort running fetch() requests, it only prevents
-				// them from overriding the store.
-				// To learn about canceling fetch requests, search the internet for `AbortController`
-				set = (): void => {
-					// do nothing.
-				};
-			};
-		},
-		initialData
-	);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
@@ -114,37 +87,37 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <table class="table">
 	<slot name="filter" {headerClick} {currentSortValue} {query} />
-	<slot name="response" response={$response} />
+	<slot name="response" {response} />
 </table>
 
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<li class="page-item {$response.previousCursor ? '' : 'disabled'}">
+		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					$paginationCursor = $response.previousCursor;
+					$paginationCursor = response.previousCursor;
 					$paginationDirection = 'backwards';
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Vorherige Seite"
-				tabindex={$response.previousCursor ? undefined : -1}
-				aria-disabled={!$response.previousCursor}
+				tabindex={response.previousCursor ? undefined : -1}
+				aria-disabled={!response.previousCursor}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item {$response.nextCursor ? '' : 'disabled'}">
+		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					$paginationCursor = $response.nextCursor;
+					$paginationCursor = response.nextCursor;
 					$paginationDirection = 'forwards';
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Nächste Seite"
-				tabindex={$response.nextCursor ? undefined : -1}
-				aria-disabled={!$response.nextCursor}
+				tabindex={response.nextCursor ? undefined : -1}
+				aria-disabled={!response.nextCursor}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>

@@ -16,7 +16,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 							pagination_limit: '10',
 							'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
 						},
-						...(Object.fromEntries(page.query as any) as BaseQueryType)
+						...(location2query(page) as BaseQueryType)
 					},
 					null,
 					null
@@ -36,6 +36,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import type { Load } from '@sveltejs/kit';
 	import type { EntityResponseBody } from '$lib/entites';
+	import { location2query } from '$lib/writable_url';
 
 	/*
 	type UsersQueryParameters = {
@@ -54,8 +55,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <main class="container">
 	<EntityList
 		bind:this={list}
-		{initialData}
-		reloadEntities={createReloadEntites(fetch, 'users.json')}
+		response={initialData}
 		initialQuery={{
 			'filter_types[]': ['admin', 'helper', 'voter'],
 			pagination_limit: '10',
