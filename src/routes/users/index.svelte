@@ -3,34 +3,14 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script context="module" lang="ts">
-	import { loadEntites } from '$lib/entites';
+	import { buildLoad } from '$lib/entites';
 	import type { BaseQueryType } from '$lib/entites';
-	import { browser } from '$app/env';
 
-	export const load: Load = async ({ page, fetch, session, context }) => {
-		console.log(page);
-		let [response, url] = await loadEntites(
-			fetch,
-			'users.json',
-			{
-				...{
-					'filter_types[]': ['admin', 'helper', 'voter'],
-					pagination_limit: '10',
-					'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
-				},
-				...(location2query(page) as BaseQueryType)
-			},
-			browser ? history.state.paginationDirection ?? null : null,
-			browser ? history.state.paginationCursor ?? null : null
-		);
-		let res = {
-			props: {
-				theResponse: response,
-				url
-			}
-		};
-		return res;
-	};
+	export const load: Load = buildLoad('users.json', {
+		'filter_types[]': ['admin', 'helper', 'voter'],
+		pagination_limit: '10',
+		'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
+	});
 </script>
 
 <script lang="ts">
@@ -41,33 +21,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import type { Load } from '@sveltejs/kit';
 	import type { EntityResponseBody } from '$lib/entites';
-	import { location2query } from '$lib/writable_url';
-
-	/*
-	type UsersQueryParameters = {
-		'filter_types[]': string[];
-		pagination_limit: string;
-		'sorting[]': string[];
-		filter_id?: string;
-		filter_name?: string;
-	};
-*/
 
 	let list: EntityList;
 	export let theResponse: EntityResponseBody;
-	export let url: string;
+	export let fullInvalidationUrl: string;
+	export let initialQuery: BaseQueryType;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
 		response={theResponse}
-		fullInvalidationUrl={url}
-		initialQuery={{
-			'filter_types[]': ['admin', 'helper', 'voter'],
-			pagination_limit: '10',
-			'sorting[]': ['id:down-up', 'name:down-up', 'type:down-up']
-		}}
+		{fullInvalidationUrl}
+		{initialQuery}
 		title="Nutzer"
 		createUrl="/users/create"
 	>

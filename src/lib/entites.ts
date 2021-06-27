@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { query2location } from './writable_url';
+import { browser } from '$app/env';
+import type { Load } from '@sveltejs/kit/types';
+import { location2query, query2location } from './writable_url';
 
 export type BaseEntityType = {
 	id: number;
@@ -37,4 +39,29 @@ export async function loadEntites(
 	const res = await fetch(fullUrl);
 	console.log(fullUrl);
 	return [await res.json(), fullUrl];
+}
+
+export function buildLoad(url: string, initialQuery: BaseQueryType) {
+	const load: Load = async ({ page, fetch, session, context }) => {
+		console.log(page);
+		const [response, fullInvalidationUrl] = await loadEntites(
+			fetch,
+			url,
+			{
+				...initialQuery,
+				...(location2query(page) as BaseQueryType)
+			},
+			browser ? history.state?.paginationDirection ?? null : null,
+			browser ? history.state?.paginationCursor ?? null : null
+		);
+		const res = {
+			props: {
+				theResponse: response,
+				fullInvalidationUrl,
+				initialQuery
+			}
+		};
+		return res;
+	};
+	return load;
 }
