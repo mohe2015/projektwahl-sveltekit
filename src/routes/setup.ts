@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
+import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
 import type { RequestHandler } from '@sveltejs/kit';
+import type { MyLocals } from 'src/hooks';
 
-function between(min, max) {
+function between(min: number, max: number) {
 	return Math.floor(Math.random() * (max - min) + min);
 }
 
-export const get: RequestHandler = async function () {
+export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+	allowUserType(request, []);
+
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {
 			cache: false // TODO FIXME doesnt seem to work properly

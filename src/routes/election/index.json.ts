@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { buildGet, EntityResponseBody } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -9,6 +10,7 @@ import type { MyLocals } from 'src/hooks';
 // INSERT INTO choices (user_id, project_id, rank) VALUES (1, 55, 1);
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+	allowUserType(request, ['voter']);
 	return await buildGet(
 		[
 			'id',

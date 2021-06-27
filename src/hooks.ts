@@ -3,6 +3,8 @@
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
+import type { Location } from '../../kit/packages/kit/types/helper';
+import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
 
 export type MyLocals = {
 	session_id: string | null;
@@ -43,9 +45,17 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		request.locals.user = null;
 	}
 
-	console.log(request.locals);
+	console.log(session_id);
 
 	const response = await resolve(request);
+
+	// TODO FIXME this doesn't work for .svelte files - that's the reason it's disabled
+	if (!request.locals.authorization_done) {
+		console.error(
+			`UNSAFE ABORT - MISSING CALL TO allowUserType at ${request.path}\nShutting down for safety.`
+		);
+		//process.exit(1);
+	}
 
 	return response;
 };

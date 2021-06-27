@@ -8,11 +8,14 @@ import { constants } from 'fs';
 import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
+import { allowUserType } from '$lib/authorization';
 
 // https://neos-server.org/neos/cgi-bin/nph-neos-solver.cgi
 // https://neos-server.org/neos/admin.html
 
 export const get: RequestHandler<MyLocals, unknown> = async function (request) {
+	allowUserType(request, ['admin']);
+
 	// maybe store rank as binary bitfield so every bit represents a rank. then we can sum and compare the count of the summed values and the sum = 0b11111
 	// bit-wise encoding of ranks and then compare with 0b11111
 

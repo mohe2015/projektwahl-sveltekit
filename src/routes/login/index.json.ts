@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowAnyone, allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
 import type { MyEndpointOutput } from '$lib/request_helpers';
@@ -7,16 +8,19 @@ import type { UserType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/endpoint';
+import type { MyLocals } from 'src/hooks';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };
 	session?: any;
 };
 
-export const post: RequestHandler<unknown, JSONValue> = async function ({
-	body
-}): Promise<MyEndpointOutput<LoginResponse>> {
-	const [user, errors] = hasPropertyType(body, ['name', 'password'], '');
+export const post: RequestHandler<MyLocals, JSONValue> = async function (
+	request
+): Promise<MyEndpointOutput<LoginResponse>> {
+	allowAnyone(request);
+
+	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
 
 	if (Object.keys(errors).length !== 0) {
 		const response: MyEndpointOutput<LoginResponse> = {

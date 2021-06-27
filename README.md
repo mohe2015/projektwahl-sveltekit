@@ -18,6 +18,8 @@ RESET ALL;
 # mysql -h 127.0.0.1 -u root
 ```
 
+https://github.com/sveltejs/realworld
+
 TODO FIXME https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-02#section-5.3.7.1
 
 # Reset database (looses all data)
