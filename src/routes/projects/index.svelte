@@ -7,12 +7,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
 
 	let list: EntityList;
 </script>
 
-<CustomLayout>
+<main class="container">
 	<EntityList
 		bind:this={list}
 		initialQuery={{
@@ -55,4 +54,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{/each}
 		</tbody>
 	</EntityList>
-</CustomLayout>
+</main>

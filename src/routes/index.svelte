@@ -4,14 +4,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { session } from '$app/stores';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
 </script>
 
 <svelte:head>
 	<title>Willkommen</title>
 </svelte:head>
 
-<CustomLayout>
+<main class="container">
 	<h1 class="text-center">Willkommen</h1>
 
 	{#if $session.user !== null}
@@ -19,4 +18,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	{:else}
 		Noch nicht angemeldet.
 	{/if}
-</CustomLayout>
+</main>

@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '../../lib/entity-list/Sorting.svelte';
 	import EntityList from '../../lib/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
+
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 
 	/*
@@ -23,7 +23,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let list: EntityList;
 </script>
 
-<CustomLayout>
+<main class="container">
 	<EntityList
 		bind:this={list}
 		initialQuery={{
@@ -93,4 +93,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{/each}
 		</tbody>
 	</EntityList>
-</CustomLayout>
+</main>

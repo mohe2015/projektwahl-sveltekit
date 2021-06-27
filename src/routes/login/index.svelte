@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import type { LoginResponse } from './index.json';
 	import { session } from '$app/stores';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
+
 	import TextInput from '$lib/form/TextInput.svelte';
 	import { goto } from '$app/navigation';
 
@@ -49,7 +49,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<title>Login</title>
 </svelte:head>
 
-<CustomLayout>
+<main class="container">
 	<h1 class="text-center">Login</h1>
 
 	<div class="row justify-content-center">
@@ -125,4 +125,4 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</form>
 		</div>
 	</div>
-</CustomLayout>
+</main>

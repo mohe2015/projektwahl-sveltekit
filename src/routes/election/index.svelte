@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
+
 	import { flip } from 'svelte/animate';
 	import { scale } from 'svelte/transition';
 
@@ -16,7 +16,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let list: EntityList;
 </script>
 
-<CustomLayout>
+<main class="container">
 	<EntityList
 		bind:this={list}
 		initialQuery={{
@@ -51,14 +51,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{/each}
 		</tbody>
 	</EntityList>
+</main>
 
-	<!-- https://github.com/sveltejs/kit/issues/627 -->
-	<footer slot="footer" style="position: sticky; bottom: 0; z-index: 1020;">
-		<div class="alert alert-success mb-0 border-0 rounded-0" role="alert">
-			A simple success alert—check it out!
-		</div>
-	</footer>
-</CustomLayout>
-
-<style>
-</style>
+<!-- https://github.com/sveltejs/kit/issues/627 -->
+<footer style="position: sticky; bottom: 0; z-index: 1020;">
+	<div class="alert alert-success mb-0 border-0 rounded-0" role="alert">
+		A simple success alert—check it out!
+	</div>
+</footer>

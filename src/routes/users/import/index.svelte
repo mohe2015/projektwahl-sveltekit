@@ -3,8 +3,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import CustomLayout from '/src/routes/_customLayout.svelte';
-
 	// currently there will not be progress and this is not easily fixable with fetch so it's not gonna happen
 
 	// https://github.com/sveltejs/kit/issues/1563
@@ -31,10 +29,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 </script>
 
-<CustomLayout>
+<main class="container">
 	<form on:submit={importEntities}>
 		<input bind:this={fileInput} type="file" accept="text/csv" />
 
 		<button type="submit">Importieren</button>
 	</form>
-</CustomLayout>
+</main>

@@ -6,7 +6,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { ProjectType } from '$lib/types';
-	import CustomLayout from '/src/routes/_customLayout.svelte';
 
 	export let entity: Partial<ProjectType>;
 </script>
