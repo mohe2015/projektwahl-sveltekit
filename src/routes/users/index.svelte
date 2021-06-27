@@ -3,7 +3,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script context="module" lang="ts">
-	import type { BaseQueryType } from '$lib/list-entities';
+	import { createReloadEntites } from '$lib/entites';
+	import type { BaseQueryType } from '$lib/entites';
 
 	export const load: Load = async ({ page, fetch, session, context }) => {
 		let res = {
@@ -32,11 +33,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '../../lib/entity-list/Sorting.svelte';
 	import EntityList from '../../lib/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
-
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import type { Load } from '@sveltejs/kit';
-	import type { EntityResponseBody } from '$lib/list-entities';
-	import { createReloadEntites } from '$lib/list-entities';
+	import type { EntityResponseBody } from '$lib/entites';
 
 	/*
 	type UsersQueryParameters = {

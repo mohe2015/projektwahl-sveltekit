@@ -4,44 +4,9 @@ import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
+import type { BaseEntityType, EntityResponseBody } from './entites';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 import { query2location } from './writable_url';
-
-export type BaseEntityType = {
-	id: number;
-	[x: string]: string | number | null;
-};
-
-export type EntityResponseBody = {
-	entities: Array<BaseEntityType>;
-	previousCursor: BaseEntityType | null;
-	nextCursor: BaseEntityType | null;
-};
-
-export type BaseQueryType = {
-	'sorting[]': string[];
-	pagination_limit: string;
-	[x: string]: string | string[];
-};
-
-export function createReloadEntites(fetch: (url: string) => any, url: string) {
-	return async function (
-		query: BaseQueryType,
-		paginationDirection: 'forwards' | 'backwards' | null,
-		paginationCursor: BaseEntityType | null
-	) {
-		const urlSearchParams = new URLSearchParams(query2location(query));
-		if (paginationDirection !== null) {
-			urlSearchParams.set('pagination_direction', paginationDirection);
-		}
-		if (paginationCursor !== null) {
-			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
-		}
-		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
-		const res = await fetch(fullUrl);
-		return await res.json();
-	};
-}
 
 export const buildGet = (
 	allowedFilters: string[],

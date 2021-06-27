@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="typescript">
 	import { query as query2, query2location } from './writable_url';
 	import type { Readable, Writable } from 'svelte/store';
-	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './list-entities';
+	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
 	import { writable, derived } from 'svelte/store';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
@@ -30,6 +30,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
 	let refreshStoreHack: Writable<number> = writable(0);
 
+	// TODO FIXME goddammit with the new infrastructure we make two requests again (which is really bad - maybe only use load)
 	const response: Readable<EntityResponseBody> = derived(
 		[query, paginationDirection, paginationCursor, refreshStoreHack],
 		([$query, $paginationDirection, $paginationCursor, $refreshStoreHack], set) => {
