@@ -19,10 +19,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	} from 'sveltestrap/src';
 	let logoutModalOpen = false;
 
-	let isNavbarOpen = false; // TODO FIXME why does this hide the navbar on loading
+	let isNavbarOpen = true; // TODO FIXME why does this hide the navbar on loading
 
 	const handleNavigationEnd = () => {
-		isNavbarOpen = false;
+		isNavbarOpen = true; // TODO FIXME false
 	};
 
 	function handleUpdate(event: CustomEvent<any>) {
