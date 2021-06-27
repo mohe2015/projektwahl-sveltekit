@@ -2,24 +2,21 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script lang="typescript" context="module">
-	export type BaseQueryType = {
-		'sorting[]': string[];
-		pagination_limit: string;
-		[x: string]: string | string[];
-	};
-</script>
-
 <script lang="typescript">
 	import { query as query2, query2location } from './writable_url';
 	import type { Readable, Writable } from 'svelte/store';
-	import type { BaseEntityType, EntityResponseBody } from './list-entities';
+	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './list-entities';
 	import { writable, derived } from 'svelte/store';
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
-	export let url: string;
+	export let reloadEntities: (
+		query: BaseQueryType,
+		paginationDirection: 'forwards' | 'backwards' | null,
+		paginationCursor: BaseEntityType | null
+	) => Promise<EntityResponseBody>;
 	export let title: string;
 	export let createUrl: string;
+	export let initialData: EntityResponseBody;
 
 	export let query: Writable<BaseQueryType> = query2<BaseQueryType>(initialQuery);
 
@@ -36,7 +33,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	const response: Readable<EntityResponseBody> = derived(
 		[query, paginationDirection, paginationCursor, refreshStoreHack],
 		([$query, $paginationDirection, $paginationCursor, $refreshStoreHack], set) => {
-			reloadEntities($query, $paginationDirection, $paginationCursor).then((data) => set(data));
+			reloadEntities($query, $paginationDirection, $paginationCursor).then((data) => {
+				console.log(data);
+				set(data);
+			});
 
 			return (): void => {
 				// We override the `set` function to eliminate race conditions
@@ -48,11 +48,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				};
 			};
 		},
-		{
-			entities: [],
-			previousCursor: null,
-			nextCursor: null
-		}
+		initialData
 	);
 
 	export const headerClick = (sortType: string): void => {
@@ -73,23 +69,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 		$query['sorting[]'] = [...$query['sorting[]'], oldElement.split(':')[0] + ':' + newElement];
 	};
-
-	async function reloadEntities(
-		query: BaseQueryType,
-		paginationDirection: 'forwards' | 'backwards' | null,
-		paginationCursor: BaseEntityType | null
-	) {
-		const urlSearchParams = new URLSearchParams(query2location(query));
-		if (paginationDirection !== null) {
-			urlSearchParams.set('pagination_direction', paginationDirection);
-		}
-		if (paginationCursor !== null) {
-			urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
-		}
-		const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
-		const res = await fetch(fullUrl);
-		return await res.json();
-	}
 
 	// TODO FIXME optimize - the initial load makes an additional request
 	// TODO FIXME https://github.com/sveltejs/svelte/issues/2118 maybe use derived store instead

@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import { goto } from '$app/navigation';
 
-	import { page, session } from '$app/stores';
+	import { navigating, page, session } from '$app/stores';
 	import {
 		Button,
 		Modal,
@@ -66,6 +66,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<Button color="secondary" on:click={() => (logoutModalOpen = false)}>Abbrechen</Button>
 	</ModalFooter>
 </Modal>
+
+{$navigating}
 
 <Navbar color="light" light expand="lg" class="shadow p-3 mb-5">
 	<NavbarBrand href="/">Projektwahl</NavbarBrand>
