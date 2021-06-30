@@ -27,21 +27,21 @@
 		"test:watch": "npm run test -- --watch"
 	},
 	"devDependencies": {
-		"@sveltejs/adapter-node": "^1.0.0-next.26",
-		"@sveltejs/kit": "^1.0.0-next.113",
+		"@sveltejs/adapter-node": "^1.0.0-next.29",
+		"@sveltejs/kit": "^1.0.0-next.119",
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/svelte": "^3.0.3",
 		"@types/bootstrap": "^5.0.16",
 		"@types/jest": "^26.0.23",
-		"@typescript-eslint/eslint-plugin": "^4.28.0",
-		"@typescript-eslint/parser": "^4.28.0",
+		"@typescript-eslint/eslint-plugin": "^4.28.1",
+		"@typescript-eslint/parser": "^4.28.1",
 		"eslint": "^7.29.0",
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
 		"husky": "^6.0.0",
-		"jest": "^27.0.5",
+		"jest": "^27.0.6",
 		"lint-staged": "^11.0.0",
-		"prettier": "~2.3.1",
+		"prettier": "~2.3.2",
 		"prettier-plugin-svelte": "^2.3.1",
 		"svelte": "^3.38.3",
 		"svelte-jester": "^1.7.0",
@@ -57,7 +57,7 @@
 		"bootstrap": "^5.0.2",
 		"node-fetch": "^2.6.1",
 		"postgres": "^2.0.0-beta.5",
-		"sveltestrap": "^5.2.1"
+		"sveltestrap": "^5.4.0"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": "eslint --cache --fix",
