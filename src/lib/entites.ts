@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { browser } from '$app/env';
 import type { Load } from '@sveltejs/kit/types';
+import { HTTPError } from './authorization';
 import { location2query, query2location } from './writable_url';
 
 export type BaseEntityType = {
@@ -22,7 +23,7 @@ export type BaseQueryType = {
 };
 
 export async function loadEntites(
-	fetch: (url: string) => any,
+	fetch: (info: RequestInfo, init?: RequestInit | undefined) => Promise<Response>,
 	url: string,
 	query: BaseQueryType,
 	paginationDirection: 'forwards' | 'backwards' | null,
@@ -37,6 +38,9 @@ export async function loadEntites(
 	}
 	const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
 	const res = await fetch(fullUrl);
+	if (!res.ok) {
+		throw new HTTPError(res.status, res.statusText);
+	}
 	console.log(fullUrl);
 	return [await res.json(), fullUrl];
 }

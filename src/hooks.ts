@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { AuthorizationError, HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
@@ -40,24 +41,30 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		request.locals.session_id = session_id!;
 		request.locals.user = session ?? null;
 	} catch (e) {
+		// we catch to allow opening /setup
 		console.error(e);
 		request.locals.session_id = null;
 		request.locals.user = null;
 	}
 
-	console.log(session_id);
+	try {
+		const response = await resolve(request);
 
-	const response = await resolve(request);
-
-	// TODO FIXME this doesn't work for .svelte files - that's the reason it's disabled
-	if (!request.locals.authorization_done) {
-		console.error(
-			`UNSAFE ABORT - MISSING CALL TO allowUserType at ${request.path}\nShutting down for safety.`
-		);
-		//process.exit(1);
+		return response;
+	} catch (error: unknown) {
+		console.error(error);
+		if (error instanceof HTTPError) {
+			return {
+				status: error.status,
+				body: error.statusText,
+				headers: {}
+			};
+		} else {
+			return {
+				status: 500
+			};
+		}
 	}
-
-	return response;
 };
 
 export const getSession: GetSession = ({ locals }) => {

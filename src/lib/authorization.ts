@@ -3,18 +3,26 @@
 import type { MyLocals } from 'src/hooks';
 import type { ServerRequest } from '../../../kit/packages/kit/types/hooks';
 
+export class HTTPError extends Error {
+	status: number;
+	statusText: string;
+
+	constructor(status: number, statusText: string) {
+		super(`HTTP-Fehler ${status} ${statusText}`);
+		this.status = status;
+		this.statusText = statusText;
+	}
+}
+
 export const allowUserType = (
 	request: ServerRequest<MyLocals, unknown>,
 	allowedTypes: ('voter' | 'helper' | 'admin' | undefined)[]
 ) => {
 	if (!allowedTypes.includes(request.locals.user?.type)) {
-		throw new Error('unauthorized');
+		throw new HTTPError(403, 'Forbidden');
 	}
-	// @ts-expect-error we don't want to show this property somewhere in the types
-	request.locals.authorization_done = true;
 };
 
 export const allowAnyone = (request: ServerRequest<MyLocals, unknown>) => {
-	// @ts-expect-error we don't want to show this property somewhere in the types
-	request.locals.authorization_done = true;
+	// do nothing.
 };
