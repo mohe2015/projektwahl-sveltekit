@@ -36,8 +36,10 @@ export async function loadEntites(
 	if (paginationCursor !== null) {
 		urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
 	}
-	const fullUrl = `${import.meta.env.VITE_BASE_URL}${url}?${urlSearchParams}`;
-	const res = await fetch(fullUrl);
+	const fullUrl = `/${url}?${urlSearchParams}`;
+	const res = await fetch(fullUrl, {
+		credentials: 'same-origin'
+	});
 	if (!res.ok) {
 		throw new HTTPError(res.status, res.statusText);
 	}
@@ -47,25 +49,32 @@ export async function loadEntites(
 
 export function buildLoad(url: string, initialQuery: BaseQueryType) {
 	const load: Load = async ({ page, fetch, session, context }) => {
-		console.log(page);
-		const [response, fullInvalidationUrl] = await loadEntites(
-			fetch,
-			url,
-			{
-				...initialQuery,
-				...(location2query(page) as BaseQueryType)
-			},
-			browser ? history.state?.paginationDirection ?? null : null,
-			browser ? history.state?.paginationCursor ?? null : null
-		);
-		const res = {
-			props: {
-				theResponse: response,
-				fullInvalidationUrl,
-				initialQuery
-			}
-		};
-		return res;
+		try {
+			const [response, fullInvalidationUrl] = await loadEntites(
+				fetch,
+				url,
+				{
+					...initialQuery,
+					...(location2query(page) as BaseQueryType)
+				},
+				browser ? history.state?.paginationDirection ?? null : null,
+				browser ? history.state?.paginationCursor ?? null : null
+			);
+			const res = {
+				props: {
+					theResponse: response,
+					fullInvalidationUrl,
+					initialQuery
+				}
+			};
+			return res;
+		} catch (error) {
+			// I hate this but I don't want to send 500s - maybe I should create a generic wrapper around load instead
+			return {
+				error,
+				status: error.status
+			};
+		}
 	};
 	return load;
 }
