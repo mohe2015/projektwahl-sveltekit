@@ -9,6 +9,7 @@ export class HTTPError extends Error {
 
 	constructor(status: number, statusText: string) {
 		super(`HTTP-Fehler ${status} ${statusText}`);
+		this.name = 'HTTPError';
 		this.status = status;
 		this.statusText = statusText;
 	}

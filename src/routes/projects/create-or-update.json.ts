@@ -15,7 +15,7 @@ export type CreateResponse = {
 	id?: number;
 };
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const post: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	allowUserType(request, ['admin']);
 	const { body } = request;
 

@@ -11,7 +11,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		// there seems to be some client server inconsistency...
 		// https://github.com/sveltejs/kit/issues/1161
 		// https://github.com/sveltejs/kit/issues/1199
-		if (error instanceof HTTPError) {
+		if (error.name === 'HTTPError') {
 			status = error.status;
 		}
 		return {
