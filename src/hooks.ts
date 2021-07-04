@@ -37,14 +37,9 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		const [session]: [UserType?] =
 			await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
-		console.log(request.path);
-		console.log('ii', session);
-
 		// locals seem to only be available server side
 		request.locals.session_id = session_id!;
 		request.locals.user = session ?? null;
-
-		console.log(request.locals);
 	} catch (e) {
 		// we catch to allow opening /setup
 		console.error(e);

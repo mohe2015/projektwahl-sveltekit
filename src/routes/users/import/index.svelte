@@ -15,15 +15,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 		let file: File = fileInput.files![0];
 
-		file.slice();
-
-		file.stream().getReader();
-
 		// TOOD FIXME maybe https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#uploading_a_file
 
-		let response = await fetch('/test', {
+		let response = await fetch('/users/import.json', {
 			method: 'POST',
-			body: file //.slice()
+			headers: {
+				'content-type': 'text/plain'
+			},
+			body: file
 		});
 		let json = await response.text();
 	};

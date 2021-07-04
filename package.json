@@ -55,6 +55,7 @@
 		"@types/node-fetch": "^2.5.10",
 		"argon2": "^0.28.2",
 		"bootstrap": "^5.0.2",
+		"csv-parse": "^4.16.0",
 		"node-fetch": "^2.6.1",
 		"postgres": "^2.0.0-beta.5",
 		"sveltestrap": "^5.4.0"
