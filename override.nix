@@ -8,7 +8,7 @@ let
   };
 in
 nodePackages // {
-    package = nodePackages.package.override {
+    shell = nodePackages.shell.override {
         nativeBuildInputs = [ pkgs.nodePackages.node-pre-gyp ];
 
         preRebuild = ''
@@ -23,6 +23,8 @@ nodePackages // {
         '';
     };
 }
+
+# node2nix --development -l
 
 # nix repl
 # flake = builtins.getFlake (toString /home/moritz/Documents/projektwahl-sveltekit)

@@ -29,8 +29,24 @@
           };
 
           packages = {
-            # .shell.nodeDependencies
-            container = (pkgs.callPackage ./override.nix { });
+            container = 
+let
+  nodeDependencies = (pkgs.callPackage ./override.nix {}).shell.nodeDependencies;
+in
+pkgs.stdenv.mkDerivation {
+  name = "projektwahl-sveltekit";
+  src = ./.;
+  buildInputs = [pkgs.nodejs];
+  buildPhase = ''
+    ln -s ${nodeDependencies}/lib/node_modules ./node_modules
+    ls -la ${nodeDependencies}/bin/
+    export PATH="${nodeDependencies}/bin:$PATH"
+
+    # Build the distribution bundle in "dist"
+    npm run build
+    cp -r build $out/
+  '';
+};
           };
         }
       );
