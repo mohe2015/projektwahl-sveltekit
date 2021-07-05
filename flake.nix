@@ -30,7 +30,7 @@
 
           packages = {
             # .shell.nodeDependencies
-            container = (pkgs.callPackage ./override.nix {});
+            container = (pkgs.callPackage ./override.nix { });
           };
         }
       );

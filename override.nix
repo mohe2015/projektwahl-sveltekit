@@ -8,8 +8,19 @@ let
   };
 in
 nodePackages // {
-    sources."argon2-0.28.2" = nodePackages.sources."argon2-0.28.2".override {
-        
+    package = nodePackages.package.override {
+        nativeBuildInputs = [ pkgs.nodePackages.node-pre-gyp ];
+
+        preRebuild = ''
+            find | grep "node-pre-gyp$"
+            patchShebangs node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp
+            patchShebangs node_modules/.bin/node-pre-gyp
+
+            ls -la node_modules/argon2/package.json
+            cat node_modules/argon2/package.json
+
+            ls ${pkgs.nodePackages.node-pre-gyp}/bin/node-pre-gyp
+        '';
     };
 }
 
