@@ -27,6 +27,11 @@
               docker-compose up -d
             '';
           };
+
+          packages = {
+            # .shell.nodeDependencies
+            container = (pkgs.callPackage ./override.nix {});
+          };
         }
       );
 }
