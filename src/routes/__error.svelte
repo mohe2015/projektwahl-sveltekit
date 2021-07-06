@@ -19,6 +19,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			}
 		};
 	};
+
+	/*
+
+class MyError extends Error {
+	test = "hi"
+}
+
+	var error = new MyError();
+var { name, message, stack } = error;
+console.log({ ...error, name, message, stack })
+
+*/
 </script>
 
 <script lang="ts">
