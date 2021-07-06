@@ -3,7 +3,7 @@
 {
   description = "projektwahl-sveltekit's development flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -37,7 +37,7 @@
               pkgs.stdenv.mkDerivation {
                 name = "projektwahl-sveltekit";
                 src = ./.;
-                buildInputs = [ pkgs.nodejs ];
+                buildInputs = [ pkgs.nodejs-16_x ];
                 buildPhase = ''
                   ln -s ${nodeDependencies}/lib/node_modules ./node_modules
                   ls -la ${nodeDependencies}/bin/

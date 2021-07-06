@@ -5,6 +5,7 @@
 let
   nodePackages = import ./default.nix {
     inherit pkgs system;
+    nodejs = pkgs.nodejs-16_x;
   };
 in
 nodePackages // {
@@ -12,14 +13,13 @@ nodePackages // {
         nativeBuildInputs = [ pkgs.nodePackages.node-pre-gyp ];
 
         preRebuild = ''
-            find | grep "node-pre-gyp$"
             patchShebangs node_modules/@mapbox/node-pre-gyp/bin/node-pre-gyp
             patchShebangs node_modules/.bin/node-pre-gyp
-
-            ls -la node_modules/argon2/package.json
-            cat node_modules/argon2/package.json
-
-            ls ${pkgs.nodePackages.node-pre-gyp}/bin/node-pre-gyp
+            cat node_modules/esbuild/install.js
+            cp node_modules/esbuild-linux-64/bin/esbuild node_modules/esbuild/bin/esbuild
+            substituteInPlace node_modules/esbuild/package.json --replace 'node install.js' ""
+            #substituteInPlace node_modules/esbuild/package.json --replace 'node install.js' "ESBUILD_BINARY_PATH=node_modules/esbuild-linux-64/bin/esbuild node install.js"
+            substituteInPlace package.json --replace 'husky install' ""
         '';
     };
 }

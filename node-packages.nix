@@ -1912,13 +1912,13 @@ let
         sha512 = "MWRhAbMOJ9RJygCrt778rz/qNYgA4ZVj6aXnNPxFjs7PmIpb0fuB9Gmg5uWrr6n++XKwwm/RmSz6RR5JL2Ocsw==";
       };
     };
-    "esbuild-linux-64-0.12.15" = {
+    "esbuild-linux-64-0.12.9" = {
       name = "esbuild-linux-64";
       packageName = "esbuild-linux-64";
-      version = "0.12.15";
+      version = "0.12.9";
       src = fetchurl {
-        url = "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.15.tgz";
-        sha512 = "bBJR64G4rdlS5iSMSLgrAbrvFNJpHKT2p2tQoSOUZQ8Mv8JRdgEolUGpqCrIFAzi25QU9IbxA/Ifmai0x6UWkg==";
+        url = "https://registry.npmjs.org/esbuild-linux-64/-/esbuild-linux-64-0.12.9.tgz";
+        sha512 = "KQ4RLDOlwMZSgl0KKIz5afYiF8HE1TG2nQ1Sw+210b628Kx5KU9vsHXrHtEmcM40XrhDgzCAo6kQujg/F+R39Q==";
       };
     };
     "escalade-3.1.1" = {
@@ -5255,7 +5255,7 @@ let
       sources."enquirer-2.3.6"
       sources."error-ex-1.3.2"
       sources."esbuild-0.12.9"
-      sources."esbuild-linux-64-0.12.15"
+      sources."esbuild-linux-64-0.12.9"
       sources."escalade-3.1.1"
       sources."escape-string-regexp-4.0.0"
       (sources."escodegen-2.0.0" // {
