@@ -4968,7 +4968,7 @@ let
     name = "projektwahl-sveltekit";
     packageName = "projektwahl-sveltekit";
     version = "0.0.1";
-    src = ./.;
+    src = lib.sourceByRegex ./. ["src.*" "package.json" "svelte.config.js" "tsconfig.json"];
     dependencies = [
       sources."@babel/code-frame-7.14.5"
       sources."@babel/compat-data-7.14.7"
