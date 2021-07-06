@@ -3,7 +3,7 @@
 {
   description = "projektwahl-sveltekit's development flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable-small";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -29,8 +29,8 @@
             '';
           };
 
-          packages = {
-            container =
+          packages = rec {
+            package =
               let
                 nodeDependencies = (pkgs.callPackage ./override.nix { }).shell.nodeDependencies;
               in
@@ -40,14 +40,26 @@
                 buildInputs = [ pkgs.nodejs-16_x ];
                 buildPhase = ''
                   ln -s ${nodeDependencies}/lib/node_modules ./node_modules
-                  ls -la ${nodeDependencies}/bin/
+                  ls -la ./node_modules/
                   export PATH="${nodeDependencies}/bin:$PATH"
 
                   # Build the distribution bundle in "dist"
                   npm run build
+                '';
+                installPhase = ''
                   cp -r build $out/
                 '';
               };
+            container = pkgs.dockerTools.buildLayeredImage {
+              name = "projektwahl-sveltekit";
+              tag = "latest";
+
+              contents = [ pkgs.nodejs-16_x package ];
+
+              config = {
+                Cmd = [ "${pkgs.nodejs-16_x}/bin/nodejs" ];
+              };
+            };
           };
         }
       );

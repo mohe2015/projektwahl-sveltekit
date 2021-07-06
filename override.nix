@@ -1,3 +1,5 @@
+# SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+# SPDX-License-Identifier: AGPL-3.0-or-later
 {pkgs ? import <nixpkgs> {
     inherit system;
 }, system ? builtins.currentSystem}:

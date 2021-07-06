@@ -12,12 +12,14 @@ const config = {
 	// for more information about preprocessors
 	preprocess: preprocess(),
 	compilerOptions: {
-		
 	},
 	kit: {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
 		adapter: node(),
+		prerender: {
+			enabled: false
+		}, // build makes database requests otherwise
 		vite: {
 			optimizeDeps: {
 				exclude: ['fs/promises']
