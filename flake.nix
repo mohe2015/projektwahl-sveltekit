@@ -30,6 +30,23 @@
           };
 
           packages = rec {
+            # nix path-info -rsSh nixpkgs#nodejs-16_x
+            # 246.8M
+            # nix why-depends nixpkgs#nodejs-16_x /nix/store/qlr1ffwc6z9inhzn3qk58k627ps7k7pv-perl-5.32.1
+            nodejs = (pkgs.nodejs-16_x.override {
+              openssl = pkgs.openssl.overrideAttrs (old: {
+                postInstall = ''
+                  ${old.postInstall}
+                  rm $out/bin/c_rehash
+                '';
+              });
+            }).overrideAttrs (old: {
+              postInstall = ''
+                ${old.postInstall}
+                echo MY CUSTOM POST INSTALL PHASE
+                rm $out/lib/node_modules/npm/node_modules/node-gyp/gyp/gyp_main.py
+              ''; 
+            });
             package =
               let
                 nodeDependencies = (pkgs.callPackage ./override.nix { }).shell.nodeDependencies;
@@ -37,7 +54,7 @@
               pkgs.stdenv.mkDerivation {
                 name = "projektwahl-sveltekit";
                 src = pkgs.lib.sourceByRegex ./. [ "src.*" "package.json" "svelte.config.js" "tsconfig.json" ]; # TODO FIXME this causes all the rebuilds
-                buildInputs = [ pkgs.nodejs-16_x ];
+                buildInputs = [ nodejs ];
                 buildPhase = ''
                   ln -s ${nodeDependencies}/lib/node_modules ./node_modules
                   ls -la ./node_modules/
@@ -51,13 +68,16 @@
                   cp -r node_modules $out/node_modules # we definitely need to remove development dependencies
                   cp package.json $out/package.json
                   cp -r build $out/build
+                  sed -e '\#^//#d' build/index.js > $out/build/index.js
                 '';
               };
             container =
-              let
                 # 244M
                 # ls -Llh result
                 # du -sh result/
+                # nix path-info -rsSh .#package
+                # the following command is epic
+                # nix why-depends .#package  /nix/store/gmsv7hm0wd5siyhi4nsbn1aqpbcbi0cl-perl-5.32.1
                 # docker load --input result
                 # docker images
                 # docker run -it projektwahl-sveltekit
@@ -99,8 +119,6 @@
                   projektwahl-sveltekit.tar.gz> Creating layer 34 from paths: ['/nix/store/mfshcz4sqjwyx0cz68dbs3z4cb1lq1kb-node-dependencies-projektwahl-sveltekit-0.0.1']
                   projektwahl-sveltekit.tar.gz> Creating layer 35 from paths: ['/nix/store/h4c2d5b7jv1fmz64qnkc6w10pdxwkghx-projektwahl-sveltekit']
                 */
-                nodejs = pkgs.nodejs-16_x;
-              in
               pkgs.dockerTools.buildLayeredImage {
                 name = "projektwahl-sveltekit";
                 tag = "latest";
