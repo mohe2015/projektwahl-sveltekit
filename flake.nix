@@ -45,14 +45,22 @@
             }).overrideAttrs (old: {
               postInstall = ''
                 ${old.postInstall}
-                echo MY CUSTOM POST INSTALL PHASE
                 rm $out/lib/node_modules/npm/node_modules/node-gyp/gyp/*.py
                 rm $out/lib/node_modules/npm/node_modules/node-gyp/*.py
                 rm $out/lib/node_modules/npm/node_modules/node-gyp/gyp/tools/*.py
                 rm -R $out/lib/node_modules/npm/node_modules/node-gyp/gyp/pylib/
               '';
             });
-            nodejs-slim = pkgs.nodejs-16_x.override { enableNpm = false; };
+            nodejs-slim = pkgs.nodejs-16_x.override {
+              enableNpm = false;
+              openssl = pkgs.openssl.overrideAttrs (old: {
+                postInstall = ''
+                  ${old.postInstall}
+                  ls -R $bin
+                  rm $bin/bin/c_rehash
+                '';
+              });
+            };
             package =
               let
                 nodeDependencies = (pkgs.callPackage ./override.nix { }).shell.nodeDependencies;
