@@ -6,7 +6,20 @@ import type { TestResponseBody } from 'src/routes/tests/list-entities.json';
 import { fetchPost } from '../../../test_utils';
 
 test('check that all rows are returned with pagination', async () => {
-	await fetchPost('http://localhost:3000/tests/setup.json', JSON.stringify(null));
+	const loginResponse = await fetchPost(
+		'http://localhost:3000/login.json',
+		JSON.stringify({
+			name: 'admin',
+			password: 'changeme'
+		})
+	);
+	const loginResult: any = await loginResponse.json();
+
+	await fetchPost(
+		'http://localhost:3000/tests/setup.json',
+		JSON.stringify(null),
+		loginResult.session.session_id
+	);
 	// TODO FIXME replace fetch with internal sveltekit routing or so?
 	let result: TestResponseBody | null = null;
 	const foundIds = new Set(Array.from(new Array(100), (x, i) => i + 1));

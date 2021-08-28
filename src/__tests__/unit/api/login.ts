@@ -15,3 +15,16 @@ test('invalid login returns error', async () => {
 	const result = await response.json();
 	expect(result).toMatchSnapshot();
 });
+
+test('successful login returns cookie', async () => {
+	const response = await fetchPost(
+		'http://localhost:3000/login.json',
+		JSON.stringify({
+			name: 'admin',
+			password: 'changeme'
+		})
+	);
+	const result: any = await response.json();
+	expect(result.errors).toEqual({});
+	expect(result.session.session_id).toHaveLength(36);
+});

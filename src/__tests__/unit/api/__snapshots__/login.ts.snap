@@ -7,3 +7,12 @@ Object {
   },
 }
 `;
+
+exports[`successful login returns cookie 1`] = `
+Object {
+  "errors": Object {},
+  "session": Object {
+    "session_id": "459a14c0-05c1-4dd1-9843-f11f63671827",
+  },
+}
+`;
