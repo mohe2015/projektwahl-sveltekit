@@ -12,7 +12,7 @@ function between(min: number, max: number) {
 }
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
-	allowUserType(request, []);
+	//allowUserType(request, []);
 
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {

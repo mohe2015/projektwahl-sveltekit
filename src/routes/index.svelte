@@ -11,6 +11,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export const load: Load = async () => {
 		await sleep(1000);
+
+		return {
+			status: 200
+		};
 	};
 </script>
 
