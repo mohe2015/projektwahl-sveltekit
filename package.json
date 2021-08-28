@@ -39,14 +39,14 @@
 		"eslint-config-prettier": "^8.3.0",
 		"eslint-plugin-svelte3": "^3.2.0",
 		"husky": "^7.0.2",
-		"jest": "^27.1.0",
+		"jest": "^26.6.3",
 		"lint-staged": "^11.1.2",
 		"prettier": "~2.3.2",
 		"prettier-plugin-svelte": "^2.4.0",
 		"svelte": "^3.42.4",
-		"svelte-jester": "^2.1.0",
+		"svelte-jester": "^1.8.2",
 		"svelte-preprocess": "^4.8.0",
-		"ts-jest": "^27.0.5",
+		"ts-jest": "^26.5.6",
 		"tslib": "^2.3.1",
 		"typescript": "^4.4.2"
 	},
@@ -67,18 +67,13 @@
 	},
 	"jest": {
 		"transform": {
-			"^.+\\.svelte$": [
-				"svelte-jester",
-				{
-					"preprocess": true
-				}
-			],
+			"^.+\\.svelte$": "svelte-jester",
 			"^.+\\.ts$": "ts-jest"
 		},
 		"moduleFileExtensions": [
 			"js",
-			"ts",
-			"svelte"
+			"svelte",
+			"ts"
 		],
 		"extensionsToTreatAsEsm": [
 			".ts",
