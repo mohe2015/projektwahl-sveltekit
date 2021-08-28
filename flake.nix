@@ -13,6 +13,7 @@
         {
           devShell = pkgs.mkShell {
             nativeBuildInputs = [
+              pkgs.bashInteractive
               pkgs.nodejs-16_x
               pkgs.postgresql_13
               pkgs.docker-compose
