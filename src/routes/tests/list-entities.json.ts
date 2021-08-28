@@ -1,9 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
+import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { SerializableParameter } from 'postgres';
+import type { MyLocals } from 'src/hooks';
+import type { RequestHandler } from '../../../../kit/packages/kit/types';
 
 export type TestType = {
 	id: number;
@@ -18,10 +22,13 @@ export type TestResponseBody = {
 	nextCursor: number | null;
 };
 
-export const get = buildGet(
-	['id', 'a', 'b', 'c'],
-	fakeTT<SerializableParameter>`SELECT ${sql(['id', 'a', 'b', 'c'])} FROM ${sql('test1')}`,
-	(
-		query // TODO FIXME validation
-	) => fakeTT<SerializableParameter>``
-);
+export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+	allowUserType(request, ['admin']);
+	return await buildGet(
+		['id', 'a', 'b', 'c'],
+		fakeTT<SerializableParameter>`SELECT ${sql(['id', 'a', 'b', 'c'])} FROM ${sql('test1')}`,
+		(
+			query // TODO FIXME validation
+		) => fakeTT<SerializableParameter>``
+	)(request);
+};

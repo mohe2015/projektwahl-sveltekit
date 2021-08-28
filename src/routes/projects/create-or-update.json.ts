@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
+import type { EntityResponseBody } from '$lib/entites';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
 import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
+import type { MyLocals } from 'src/hooks';
 
 export type CreateResponse = {
 	errors: { [x: string]: string };
 	id?: number;
 };
 
-// generalization currently probably not really worth it.
-export const post: RequestHandler<unknown, JSONValue> = async function ({
-	body
-}): Promise<MyEndpointOutput<CreateResponse>> {
+export const post: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+	allowUserType(request, ['admin']);
+	const { body } = request;
+
 	let errors: { [index: string]: string } = {};
 	if (typeof body !== 'object') {
 		throw new Error('wrong request format');

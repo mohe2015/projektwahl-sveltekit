@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput } from '$lib/request_helpers';
@@ -7,11 +8,15 @@ import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
 import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
+import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 
-export const post: RequestHandler<unknown, JSONValue> = async function ({
-	body
-}): Promise<MyEndpointOutput<CreateResponse>> {
+export const post: RequestHandler<MyLocals, JSONValue> = async function (
+	request
+): Promise<MyEndpointOutput<CreateResponse>> {
+	allowUserType(request, ['admin']);
+	const { body } = request;
+
 	// TODO FIXME when implementing update don't accidentially destroy the password
 
 	let user: UserType;

@@ -1,18 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 import type { PostgresError } from 'postgres';
+import type { MyLocals } from 'src/hooks';
 
 export type UserDeleteResponse = {
 	errors: { [x: string]: string };
 };
 
-export const post: RequestHandler<unknown, JSONValue> = async function ({
-	params
-}): Promise<MyEndpointOutput<UserDeleteResponse>> {
+export const post: RequestHandler<MyLocals, JSONValue> = async function (
+	request
+): Promise<MyEndpointOutput<UserDeleteResponse>> {
+	allowUserType(request, ['admin']);
+	const { params } = request;
 	try {
 		await sql.begin('READ WRITE', async (sql) => {
 			await sql`DELETE FROM users WHERE id = ${params.id}`;

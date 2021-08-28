@@ -6,6 +6,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { LoadOutput } from '@sveltejs/kit';
 
 	export const load = function ({ error, status }: LoadOutput): LoadOutput {
+		// there seems to be some client server inconsistency...
+		// https://github.com/sveltejs/kit/issues/1161
+		// https://github.com/sveltejs/kit/issues/1199
+		if (error.name === 'HTTPError') {
+			status = error.status;
+		}
 		return {
 			props: {
 				status: status!,
@@ -13,6 +19,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			}
 		};
 	};
+
+	/*
+
+class MyError extends Error {
+	test = "hi"
+}
+
+	var error = new MyError();
+var { name, message, stack } = error;
+console.log({ ...error, name, message, stack })
+
+*/
 </script>
 
 <script lang="ts">
@@ -31,6 +49,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				Beep boop. Das tut uns Leid. Versuche es später erneut.
 			{:else if status === 404}
 				Mmh. Entweder du hast dich vertippt oder wir sind schuld.
+			{:else if status === 403}
+				Einbrecher. Du hast hierauf definitiv keinen Zugriff.
 			{:else}
 				Mist. Wir haben keine Ahnung was los ist!
 			{/if}

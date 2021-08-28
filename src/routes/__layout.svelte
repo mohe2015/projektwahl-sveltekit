@@ -17,6 +17,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		NavbarToggler,
 		NavbarBrand
 	} from 'sveltestrap/src';
+
 	let logoutModalOpen = false;
 
 	let isNavbarOpen = true; // TODO FIXME why does this hide the navbar on loading
@@ -67,7 +68,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	</ModalFooter>
 </Modal>
 
-{$navigating}
+<div style="position: absolute; top: 50%; left: 50%;">
+	{#if $navigating}
+		<div class="spinner-grow text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	{/if}
+</div>
 
 <Navbar color="light" light expand="lg" class="shadow p-3 mb-5">
 	<NavbarBrand href="/">Projektwahl</NavbarBrand>

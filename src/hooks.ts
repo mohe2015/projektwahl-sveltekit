@@ -1,8 +1,11 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+import { AuthorizationError, HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
+import type { Location } from '../../kit/packages/kit/types/helper';
+import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
 
 export type MyLocals = {
 	session_id: string | null;
@@ -38,16 +41,30 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		request.locals.session_id = session_id!;
 		request.locals.user = session ?? null;
 	} catch (e) {
+		// we catch to allow opening /setup
 		console.error(e);
 		request.locals.session_id = null;
 		request.locals.user = null;
 	}
 
-	console.log(request.locals);
+	try {
+		const response = await resolve(request);
 
-	const response = await resolve(request);
-
-	return response;
+		return response;
+	} catch (error: unknown) {
+		console.error(error);
+		if (error instanceof HTTPError) {
+			return {
+				status: error.status,
+				body: error.statusText,
+				headers: {}
+			};
+		} else {
+			return {
+				status: 500
+			};
+		}
+	}
 };
 
 export const getSession: GetSession = ({ locals }) => {

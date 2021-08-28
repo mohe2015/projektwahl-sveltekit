@@ -5,6 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 ```bash
 nix develop
+# TODO FIXME check that this is set - if we use it.
 VITE_BASE_URL=http://localhost:3000/ npm run dev
 psql -p 54321 -h localhost -U projektwahl
 echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json
@@ -17,6 +18,8 @@ RESET ALL;
 # docker run -it -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true -p 3306:3306 mariadb
 # mysql -h 127.0.0.1 -u root
 ```
+
+https://github.com/sveltejs/realworld
 
 TODO FIXME https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-02#section-5.3.7.1
 
