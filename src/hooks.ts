@@ -14,9 +14,9 @@ export type MyLocals = {
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
-	if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
+	/*if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
 		throw new Error('No CSRF header!');
-	}
+	}*/
 
 	let session_id = null;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases

@@ -9,6 +9,7 @@ import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
+import { Issuer } from 'openid-client';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };
@@ -30,6 +31,27 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		};
 		return response;
 	}
+
+	// https://mxtoolbox.com
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
+	// https://login.microsoftonline.com/aesgb.de/v2.0/.well-known/openid-configuration
+
+	// https://go.microsoft.com/fwlink/?linkid=2083908
+	// https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+
+	// https://login.microsoftonline.com/aesgb.de/v2.0/.well-known/openid-configuration
+	// https://login.microsoftonline.com/cf26c69d-b010-4a12-9b3b-7c85b4ee914b/oauth2/v2.0/authorize?scope=openid&response_type=id_token&nonce=test
+
+	// NEW ONE
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-authentication-flows
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=aspnetcore
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=aspnetcore#register-an-app-by-using-the-quickstarts
+	// Starting November 9th, 2020 end users will no longer be able to grant consent to newly registered multitenant apps without verified publishers.  Add MPN ID to verify publisher
+
+	// https://docs.microsoft.com/en-us/azure/active-directory/develop/tutorial-v2-nodejs-webapp-msal
+	const googleIssuer = await Issuer.discover('https://login.microsoftonline.com/common/v2.0');
+
+	console.log(googleIssuer);
 
 	const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
