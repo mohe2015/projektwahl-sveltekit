@@ -16,12 +16,12 @@ export type LoginResponse = {
 	session?: any;
 };
 
-export const post: RequestHandler<MyLocals, JSONValue> = async function (
+export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<LoginResponse>> {
 	allowAnyone(request);
 
-	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
+	/*const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
 
 	if (Object.keys(errors).length !== 0) {
 		const response: MyEndpointOutput<LoginResponse> = {
@@ -31,29 +31,38 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		};
 		return response;
 	}
+*/
+	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
+	// .well-known/openid-configuration
+	const issuer = await Issuer.discover('http://localhost:8888/auth/realms/projektwahl');
 
-	// https://mxtoolbox.com
-	// https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-protocols-oidc
-	// https://login.microsoftonline.com/aesgb.de/v2.0/.well-known/openid-configuration
+	const Client = issuer.Client;
 
-	// https://go.microsoft.com/fwlink/?linkid=2083908
-	// https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade
+	// TODO ERROR HANDLING
 
-	// https://login.microsoftonline.com/aesgb.de/v2.0/.well-known/openid-configuration
-	// https://login.microsoftonline.com/cf26c69d-b010-4a12-9b3b-7c85b4ee914b/oauth2/v2.0/authorize?scope=openid&response_type=id_token&nonce=test
+	const client = new Client({
+		client_id: 'projektwahl',
+		client_secret: '5b4e5809-0b49-48df-979d-72bf4ee80878'
+	});
 
-	// NEW ONE
-	// https://docs.microsoft.com/en-us/azure/active-directory/develop/msal-authentication-flows
-	// https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=aspnetcore
-	// https://docs.microsoft.com/en-us/azure/active-directory/develop/scenario-web-app-sign-user-app-registration?tabs=aspnetcore#register-an-app-by-using-the-quickstarts
-	// Starting November 9th, 2020 end users will no longer be able to grant consent to newly registered multitenant apps without verified publishers.  Add MPN ID to verify publisher
+	const url = client.authorizationUrl({
+		redirect_uri: 'http://localhost:3000/redirect',
+		response_type: 'code'
+	});
 
-	// https://docs.microsoft.com/en-us/azure/active-directory/develop/tutorial-v2-nodejs-webapp-msal
-	const googleIssuer = await Issuer.discover('https://login.microsoftonline.com/common/v2.0');
+	console.log(url);
 
-	console.log(googleIssuer);
+	return {
+		body: {
+			errors: {}
+		},
+		status: 307,
+		headers: {
+			Location: url
+		}
+	};
 
-	const [entity]: [UserType?] =
+	/*const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
 
 	if (entity === undefined) {
@@ -99,5 +108,5 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
 			] as unknown as string
 		}
-	};
+	};*/
 };
