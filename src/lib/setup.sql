@@ -21,15 +21,13 @@ CREATE TABLE IF NOT EXISTS projects (
 );
 
 CREATE TABLE IF NOT EXISTS users (
-  id SERIAL PRIMARY KEY NOT NULL,
+  id VARCHAR(256) PRIMARY KEY NOT NULL,
   name VARCHAR(64) UNIQUE NOT NULL,
-  password_hash VARCHAR(512),
   type VARCHAR(16) NOT NULL,
   project_leader_id INTEGER,
   class VARCHAR(8),
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
-  password_changed BOOLEAN NOT NULL DEFAULT FALSE,
   in_project_id INTEGER, -- this should still be stored here even with openid as we can't join on it otherwise
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
@@ -47,23 +45,12 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
   project_id INTEGER NOT NULL,
-  user_id INTEGER NOT NULL,
+  user_id VARCHAR(256) NOT NULL,
   PRIMARY KEY(user_id,project_id),
   FOREIGN KEY (project_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT,
-  FOREIGN KEY (user_id)
-    REFERENCES users(id)
-    ON UPDATE RESTRICT
-    ON DELETE RESTRICT
-);
-
-CREATE TABLE IF NOT EXISTS sessions (
-  session_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user_id INTEGER NOT NULL,
   FOREIGN KEY (user_id)
     REFERENCES users(id)
     ON UPDATE RESTRICT

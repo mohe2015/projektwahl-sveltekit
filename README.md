@@ -9,6 +9,8 @@ nix develop
 VITE_BASE_URL=http://localhost:3000/ npm run dev
 http://localhost:3000/setup
 
+docker-compose stop
+docker-compose rm db
 
 psql -p 54321 -h localhost -U projektwahl
 echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json

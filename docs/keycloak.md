@@ -14,6 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
       https://oauth.net/code/nodejs/
       https://openid.net/certification/#RPs
       https://www.npmjs.com/package/openid-client
+      https://openid.net/specs/openid-connect-core-1_0.html#IDToken
    1. Access Type: Confidential
    1. Credentials
    1. OpenID Connect Compatibility Modes -> Use Refresh Tokens -> Off (Important!!!)

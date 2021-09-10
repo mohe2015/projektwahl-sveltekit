@@ -33,9 +33,26 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		}
 
 		for (let i = 0; i < 1000; i++) {
-			await sql`INSERT INTO users (name, password_hash, type, class, age) VALUES (${
+			// TODO FIXME add user to keycloak / import users from keycloak (probably easier)
+			// https://www.keycloak.org/documentation
+			// https://www.keycloak.org/docs-api/15.0/rest-api/index.html
+
+			/*
+			# https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_partialimportrepresentation
+			access_token=`curl --data "grant_type=password&username=admin&password=admin&client_secret=secret&client_id=admin-cli" http://localhost:8888/auth/realms/master/protocol/openid-connect/token | jq -r .access_token`
+			curl -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Bearer $access_token"  --data "@src/lib/test-users.json"  http://localhost:8888/auth/admin/realms/projektwahl/partialImport
+
+			curl -X GET -H 'Accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Bearer $access_token" http://localhost:8888/auth/admin/realms/projektwahl/users | jq
+			*/
+
+			// GET /{realm}/users
+
+			// TODO we could use that admin URL
+			// Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
+
+			await sql`INSERT INTO users (name, type, class, age) VALUES (${
 				'user' + i
-			}, NULL, 'voter', 'a', 10) ON CONFLICT DO NOTHING;`;
+			}, 'voter', 'a', 10) ON CONFLICT DO NOTHING;`;
 			for (let j = 1; j <= 5; j++) {
 				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${i + 1}, ${between(
 					1,
