@@ -19,9 +19,11 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	allowAnyone(request); // you could argue that this should only be available to logged in users but I think this makes it more user friendly if you're actually already logged out e.g. because you logged out in another tab.
 	const { locals } = request;
 
-	await sql.begin('READ WRITE', async (sql) => {
+	/*await sql.begin('READ WRITE', async (sql) => {
 		await sql`DELETE FROM sessions WHERE session_id = ${locals.session_id}`;
-	});
+	});*/
+
+	// TODO FIXME send session deauth to keycloak
 
 	return {
 		body: {

@@ -4,13 +4,13 @@ import { AuthorizationError, HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
-import { TokenSet } from 'openid-client';
+import { IdTokenClaims, TokenSet } from 'openid-client';
 import type { Location } from '../../kit/packages/kit/types/helper';
 import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
 
 export type MyLocals = {
 	session_id: string | null;
-	user: UserType | null;
+	user: IdTokenClaims | null;
 };
 
 // maybe use bearer token / oauth?
@@ -41,6 +41,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		throw new Error('Unsupported HTTP method!');
 	}
 	if (session_id) {
+		console.log(session_id);
 		try {
 			/*
 			const [session]: [UserType?] =
@@ -49,7 +50,16 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			const tokenset = new TokenSet({
 				id_token: session_id
 			});
+
+			console.log(tokenset);
+
+			console.log(tokenset.expired());
+
+			// ahh the id_token is probably signed by the server but not by the client
+
+			// TODO FIXME seems like this is not signed which is pretty bad
 			// TODO FIXME this doesn't seem to do any verfiication
+			// exp     REQUIRED. Expiration time on or after which the ID Token MUST NOT be accepted for processing. The processing of this parameter requires that the current date/time MUST be before the expiration date/time listed in the value. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time. See RFC 3339 [RFC3339] for details regarding date/times in general and UTC in particular.
 			const session = tokenset.claims();
 
 			console.log(session);
@@ -90,8 +100,9 @@ export const getSession: GetSession = ({ locals }) => {
 	if (locals.user) {
 		return {
 			user: {
-				id: locals.user.id,
-				name: locals.user.name,
+				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+				id: locals.user.sub,
+				preferred_username: locals.user.preferred_username,
 				type: locals.user.type
 			}
 		};
