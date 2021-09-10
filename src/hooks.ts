@@ -1,12 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { AuthorizationError, HTTPError } from '$lib/authorization';
+import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
-import { IdTokenClaims, TokenSet } from 'openid-client';
-import type { Location } from '../../kit/packages/kit/types/helper';
-import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
+import { IdTokenClaims, Issuer, TokenSet } from 'openid-client';
 
 export type MyLocals = {
 	session_id: string | null;
@@ -47,26 +45,34 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			const [session]: [UserType?] =
 				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 	*/
-			const tokenset = new TokenSet({
+			const issuer = await Issuer.discover('http://localhost:8888/auth/realms/projektwahl');
+
+			const Client = issuer.Client;
+
+			// TODO ERROR HANDLING
+
+			const client = new Client({
+				client_id: 'projektwahl',
+				client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
+			});
+
+			const result = await client.callback('http://localhost:3000/redirect', {
 				id_token: session_id
 			});
 
-			console.log(tokenset);
+			console.log(result);
 
-			console.log(tokenset.expired());
+			console.log(result.claims()); // id token
 
 			// ahh the id_token is probably signed by the server but not by the client
 
 			// TODO FIXME seems like this is not signed which is pretty bad
 			// TODO FIXME this doesn't seem to do any verfiication
 			// exp     REQUIRED. Expiration time on or after which the ID Token MUST NOT be accepted for processing. The processing of this parameter requires that the current date/time MUST be before the expiration date/time listed in the value. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time. See RFC 3339 [RFC3339] for details regarding date/times in general and UTC in particular.
-			const session = tokenset.claims();
-
-			console.log(session);
 
 			// locals seem to only be available server side
 			request.locals.session_id = session_id!;
-			request.locals.user = (session ?? null) as any as UserType; // TODO FIXME
+			request.locals.user = result.claims();
 		} catch (e) {
 			// we catch to allow opening /setup
 			console.error(e);

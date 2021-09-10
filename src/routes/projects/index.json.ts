@@ -5,9 +5,9 @@ import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
+import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import type { RequestHandler } from '../../../../kit/packages/kit/types';
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	allowUserType(request, ['admin']);
