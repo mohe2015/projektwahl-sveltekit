@@ -1,10 +1,13 @@
 {
     "users": [
         {
-            "username": "elephant"
+            "username": "cat",
+            "enabled": true
         },
         {
-            "username": "cat"
+            "username": "Moritz.Hedtke@t-online.de",
+            "email": "Moritz.Hedtke@t-online.de",
+            "enabled": true
         }
     ]
 }

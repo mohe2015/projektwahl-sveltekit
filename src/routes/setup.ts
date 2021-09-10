@@ -37,6 +37,29 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			// https://www.keycloak.org/documentation
 			// https://www.keycloak.org/docs-api/15.0/rest-api/index.html
 
+			// TODO compare our approach in general with https://github.com/keycloak/keycloak-quickstarts
+
+			// https://github.com/keycloak/keycloak-documentation/blob/master/server_admin/topics/admin-cli.adoc
+
+			/*
+
+			"federatedIdentities": [{
+                "identityProvider": "github",
+                "userId": "13287984",
+                "userName": "mohe2015"
+            }]
+
+			What's extremely nice is that we get
+			"User with email moritz.hedtke@t-online.de already exists. How do you want to continue?"
+			with an identity provider and existing email. So if we get the emails and a provider we can implement single sign-on.
+
+			UNFORTUNATELY you need the password of that account then. Try linking only email then.
+
+			*/
+
+			// INTERESTING https://www.keycloak.org/docs/latest/server_admin/index.html#automatically-link-existing-first-login-flow
+			// https://github.com/keycloak/keycloak-documentation/blob/master/server_admin/topics/identity-broker/first-login-flow.adoc
+
 			/*
 			# https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_partialimportrepresentation
 			access_token=`curl --data "grant_type=password&username=admin&password=admin&client_secret=secret&client_id=admin-cli" http://localhost:8888/auth/realms/master/protocol/openid-connect/token | jq -r .access_token`

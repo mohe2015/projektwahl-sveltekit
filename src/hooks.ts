@@ -65,18 +65,18 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 			const claims = result.claims();
 
-			let roles = (claims.realm_access as any).roles as string[];
-			roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
-			if (roles.length != 1) {
-				console.log('no role found');
-			} else {
-				// locals seem to only be available server side
-				request.locals.session_id = session_id!;
-				request.locals.user = {
-					...claims,
-					type: roles[0]
-				};
-			}
+			//let roles = (claims.realm_access as any).roles as string[];
+			//roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
+			//if (roles.length != 1) {
+			//	console.log('no role found');
+			//} else {
+			// locals seem to only be available server side
+			request.locals.session_id = session_id!;
+			request.locals.user = {
+				...claims,
+				type: 'voter' //roles[0] // TODO FIXME select from database
+			};
+			//}
 		} catch (e) {
 			// we catch to allow opening /setup
 			console.error(e);
