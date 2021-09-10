@@ -43,7 +43,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	console.log(result.claims()); // id token
 
-	const userinf = await client.userinfo(result);
+	const userinf = await client.userinfo(result, {});
 
 	console.log(userinf);
 

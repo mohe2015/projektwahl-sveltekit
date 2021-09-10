@@ -47,7 +47,8 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	const url = client.authorizationUrl({
 		redirect_uri: 'http://localhost:3000/redirect',
-		response_type: 'code'
+		response_type: 'code',
+		claims: 'roles'
 	});
 
 	console.log(url);

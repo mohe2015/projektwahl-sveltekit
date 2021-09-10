@@ -39,7 +39,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		throw new Error('Unsupported HTTP method!');
 	}
 	if (session_id) {
-		console.log(session_id);
 		try {
 			/*
 			const [session]: [UserType?] =
@@ -60,10 +59,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 				id_token: session_id
 			});
 
-			console.log(result);
-
-			console.log(result.claims()); // id token
-
 			// ahh the id_token is probably signed by the server but not by the client
 
 			// TODO FIXME seems like this is not signed which is pretty bad
@@ -73,6 +68,9 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			// locals seem to only be available server side
 			request.locals.session_id = session_id!;
 			request.locals.user = result.claims();
+			let roles = (request.locals.user.realm_access as any).roles as string[];
+			roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
+			request.locals.user.type = roles.length == 1 ? roles[0] : null;
 		} catch (e) {
 			// we catch to allow opening /setup
 			console.error(e);
@@ -95,7 +93,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			};
 		} else {
 			return {
-				status: 500
+				status: 500,
+				headers: {}
 			};
 		}
 	}
