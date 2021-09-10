@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS users (
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
   password_changed BOOLEAN NOT NULL DEFAULT FALSE,
-  in_project_id INTEGER,
+  in_project_id INTEGER, -- this should still be stored here even with openid as we can't join on it otherwise
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT

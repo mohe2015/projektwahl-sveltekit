@@ -31,7 +31,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	const client = new Client({
 		client_id: 'projektwahl',
-		client_secret: '5b4e5809-0b49-48df-979d-72bf4ee80878'
+		client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
 	});
 
 	const result = await client.callback('http://localhost:3000/redirect', {
@@ -41,7 +41,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	console.log(result);
 
-	console.log(result.claims());
+	console.log(result.claims()); // id token
 
 	const userinf = await client.userinfo(result);
 
@@ -53,6 +53,10 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 		},
 		status: 307,
 		headers: {
+			'Set-Cookie': [
+				`strict_id=${result.id_token}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Strict`,
+				`lax_id=${result.id_token}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
+			] as unknown as string,
 			Location: 'http://localhost:3000'
 		}
 	};

@@ -4,6 +4,7 @@ import { AuthorizationError, HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
+import { TokenSet } from 'openid-client';
 import type { Location } from '../../kit/packages/kit/types/helper';
 import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
 
@@ -18,7 +19,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		throw new Error('No CSRF header!');
 	}*/
 
-	let session_id = null;
+	let session_id = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
@@ -39,18 +40,29 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
-	try {
-		const [session]: [UserType?] =
-			await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+	if (session_id) {
+		try {
+			/*
+			const [session]: [UserType?] =
+				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+	*/
+			const tokenset = new TokenSet({
+				id_token: session_id
+			});
+			// TODO FIXME this doesn't seem to do any verfiication
+			const session = tokenset.claims();
 
-		// locals seem to only be available server side
-		request.locals.session_id = session_id!;
-		request.locals.user = session ?? null;
-	} catch (e) {
-		// we catch to allow opening /setup
-		console.error(e);
-		request.locals.session_id = null;
-		request.locals.user = null;
+			console.log(session);
+
+			// locals seem to only be available server side
+			request.locals.session_id = session_id!;
+			request.locals.user = (session ?? null) as any as UserType; // TODO FIXME
+		} catch (e) {
+			// we catch to allow opening /setup
+			console.error(e);
+			request.locals.session_id = null;
+			request.locals.user = null;
+		}
 	}
 
 	try {

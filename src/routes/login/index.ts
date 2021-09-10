@@ -42,7 +42,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	const client = new Client({
 		client_id: 'projektwahl',
-		client_secret: '5b4e5809-0b49-48df-979d-72bf4ee80878'
+		client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
 	});
 
 	const url = client.authorizationUrl({
