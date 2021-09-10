@@ -51,8 +51,6 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 		claims: 'roles'
 	});
 
-	console.log(url);
-
 	return {
 		body: {
 			errors: {}

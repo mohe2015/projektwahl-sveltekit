@@ -39,13 +39,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 		code: request.query.get('code')!
 	});
 
-	console.log(result);
-
-	console.log(result.claims()); // id token
-
 	const userinf = await client.userinfo(result, {});
-
-	console.log(userinf);
 
 	return {
 		body: {

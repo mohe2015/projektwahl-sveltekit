@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ServerRequest } from '@sveltejs/kit/types/hooks';
-import type { MyLocals } from 'src/hooks';
+import type { MyLocals, SessionUserType } from 'src/hooks';
 
 export class HTTPError extends Error {
 	status: number;
@@ -17,11 +17,12 @@ export class HTTPError extends Error {
 
 export const allowUserType = (
 	request: ServerRequest<MyLocals, unknown>,
-	allowedTypes: ('voter' | 'helper' | 'admin' | undefined)[]
-) => {
-	if (!allowedTypes.includes(request.locals.user?.type)) {
+	allowedTypes: ('voter' | 'helper' | 'admin')[]
+): SessionUserType => {
+	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
 		throw new HTTPError(403, 'Forbidden');
 	}
+	return request.locals.user;
 };
 
 export const allowAnyone = (request: ServerRequest<MyLocals, unknown>) => {

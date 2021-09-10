@@ -6,9 +6,13 @@ import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import { IdTokenClaims, Issuer, TokenSet } from 'openid-client';
 
+export type SessionUserType = IdTokenClaims & {
+	type: string;
+};
+
 export type MyLocals = {
 	session_id: string | null;
-	user: IdTokenClaims | null;
+	user: SessionUserType | null;
 };
 
 // maybe use bearer token / oauth?
@@ -59,18 +63,20 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 				id_token: session_id
 			});
 
-			// ahh the id_token is probably signed by the server but not by the client
+			const claims = result.claims();
 
-			// TODO FIXME seems like this is not signed which is pretty bad
-			// TODO FIXME this doesn't seem to do any verfiication
-			// exp     REQUIRED. Expiration time on or after which the ID Token MUST NOT be accepted for processing. The processing of this parameter requires that the current date/time MUST be before the expiration date/time listed in the value. Implementers MAY provide for some small leeway, usually no more than a few minutes, to account for clock skew. Its value is a JSON number representing the number of seconds from 1970-01-01T0:0:0Z as measured in UTC until the date/time. See RFC 3339 [RFC3339] for details regarding date/times in general and UTC in particular.
-
-			// locals seem to only be available server side
-			request.locals.session_id = session_id!;
-			request.locals.user = result.claims();
-			let roles = (request.locals.user.realm_access as any).roles as string[];
+			let roles = (claims.realm_access as any).roles as string[];
 			roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
-			request.locals.user.type = roles.length == 1 ? roles[0] : null;
+			if (roles.length != 1) {
+				console.log('no role found');
+			} else {
+				// locals seem to only be available server side
+				request.locals.session_id = session_id!;
+				request.locals.user = {
+					...claims,
+					type: roles[0]
+				};
+			}
 		} catch (e) {
 			// we catch to allow opening /setup
 			console.error(e);
