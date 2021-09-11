@@ -4,6 +4,7 @@ import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
+import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
@@ -21,9 +22,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 	});
 
 	await sql.begin('READ WRITE', async (sql) => {
-		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
-			'changeme'
-		)}, 'admin') ON CONFLICT DO NOTHING;`;
+		//await sql`INSERT INTO users (name, type) VALUES ('admin', 'admin') ON CONFLICT DO NOTHING;`;
 
 		const PROJECT_COUNT = 100;
 		for (let i = 0; i < PROJECT_COUNT; i++) {
@@ -41,46 +40,51 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 
 			// https://github.com/keycloak/keycloak-documentation/blob/master/server_admin/topics/admin-cli.adoc
 
-			/*
-
-			"federatedIdentities": [{
-                "identityProvider": "github",
-                "userId": "13287984",
-                "userName": "mohe2015"
-            }]
-
-			What's extremely nice is that we get
-			"User with email moritz.hedtke@t-online.de already exists. How do you want to continue?"
-			with an identity provider and existing email. So if we get the emails and a provider we can implement single sign-on.
-
-			UNFORTUNATELY you need the password of that account then. Try linking only email then.
-
-			*/
-
 			// INTERESTING https://www.keycloak.org/docs/latest/server_admin/index.html#automatically-link-existing-first-login-flow
 			// https://github.com/keycloak/keycloak-documentation/blob/master/server_admin/topics/identity-broker/first-login-flow.adoc
 
-			/*
-			# https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_partialimportrepresentation
-			access_token=`curl --data "grant_type=password&username=admin&password=admin&client_secret=secret&client_id=admin-cli" http://localhost:8888/auth/realms/master/protocol/openid-connect/token | jq -r .access_token`
-			curl -X POST -H 'Accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Bearer $access_token"  --data "@src/lib/test-users.json"  http://localhost:8888/auth/admin/realms/projektwahl/partialImport
-
-			curl -X GET -H 'Accept: application/json' -H 'Content-Type: application/json' -H "Authorization: Bearer $access_token" http://localhost:8888/auth/admin/realms/projektwahl/users | jq
-			*/
-
-			// GET /{realm}/users
+			// https://www.keycloak.org/docs-api/15.0/rest-api/index.html
 
 			// TODO we could use that admin URL
 			// Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
 
-			await sql`INSERT INTO users (name, type, class, age) VALUES (${
-				'user' + i
-			}, 'voter', 'a', 10) ON CONFLICT DO NOTHING;`;
+			const response = await fetch('http://localhost:8888/auth/admin/realms/projektwahl/users', {
+				// TODO make configurable
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${process.env['PROJEKTWAHL_ADMIN_ACCESS_TOKEN']}`
+				},
+				redirect: 'manual',
+				body: JSON.stringify({
+					username: `4user${i}`,
+					email: `4user${i}@example.org`,
+					enabled: true
+				})
+			});
+			console.log(await response.text());
+			console.log(response.headers);
+			console.log(response.headers.get('location'));
+			const userResponse = await fetch(response.headers.get('location')!, {
+				method: 'GET',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${process.env['PROJEKTWAHL_ADMIN_ACCESS_TOKEN']}`
+				}
+			});
+			const keycloakUser = await userResponse.json();
+			console.log(keycloakUser);
+
+			const [user] = await sql<
+				[UserType]
+			>`INSERT INTO users (id, name, type, class, age) VALUES (${keycloakUser.id}, ${keycloakUser.username}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 			for (let j = 1; j <= 5; j++) {
-				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${i + 1}, ${between(
+				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${between(
 					1,
 					PROJECT_COUNT + 1
-				)}, ${j}) ON CONFLICT DO NOTHING;`; // TODO FIXME use real user_id as they could differ
+				)}, ${j}) ON CONFLICT DO NOTHING;`;
 			}
 		}
 	});

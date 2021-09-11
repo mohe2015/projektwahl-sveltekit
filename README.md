@@ -6,6 +6,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 ```bash
 nix develop
 # TODO FIXME check that this is set - if we use it.
+// TODO FIXME store password instead or use a longer living token or use oauth so we can refresh this
+PROJEKTWAHL_ADMIN_ACCESS_TOKEN=`curl --data "grant_type=password&username=admin&password=admin&client_secret=secret&client_id=admin-cli" http://localhost:8888/auth/realms/master/protocol/openid-connect/token | jq -r .access_token`
+
 VITE_BASE_URL=http://localhost:3000/ npm run dev
 http://localhost:3000/setup
 
