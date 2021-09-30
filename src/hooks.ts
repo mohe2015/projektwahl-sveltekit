@@ -32,7 +32,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			session_id = cookie[1];
 		}
 	} else if (request.method === 'POST') {
-		console.log(request.headers);
 		if (request.headers['x-csrf-protection'] !== 'projektwahl') {
 			throw new Error('No CSRF header!');
 		}
@@ -40,14 +39,12 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			?.split('; ')
 			.map((c) => c.split('='))
 			.find((c) => c[0] == 'strict_id');
-		console.log(cookie);
 		if (cookie) {
 			session_id = cookie[1];
 		}
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
-	console.log('session_id', session_id);
 	if (session_id) {
 		try {
 			const [session]: [UserType?] =
@@ -55,8 +52,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 			request.locals.session_id = session_id!;
 			request.locals.user = session ?? null;
-
-			console.log('this', request.locals.user);
 
 			/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 

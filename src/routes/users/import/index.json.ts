@@ -19,8 +19,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	allowUserType(request, ['admin']);
 	const { body, rawBody } = request;
 
-	console.log(body);
-
 	const parser = Readable.from(body as string).pipe(
 		parse({
 			trim: true
@@ -28,8 +26,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	);
 
 	for await (const body of parser) {
-		console.log(body);
-
 		// TODO FIXME duplicate code with create-or-update
 		let user: UserType;
 		let errors: { [index: string]: string } = {};

@@ -12,7 +12,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<any>> {
 	if (!dev) {
-		console.log('notdev');
 		throw new Error('only available in dev');
 	}
 

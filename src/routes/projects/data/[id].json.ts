@@ -20,8 +20,6 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	const [entity]: [ProjectType?] =
 		await sql`SELECT id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments FROM projects WHERE id = ${params.id} LIMIT 1`;
 
-	console.log(entity);
-
 	return {
 		body: {
 			entity: entity ?? null

@@ -22,6 +22,9 @@ export const buildGet = (
 
 		// AUDIT START
 
+		// this is based on the assumption that two rows are never exactly equal (e.g. uuid is different) and therefore the cursor can always be maintained
+		// this creates arbitrary results when elements are changed while holding a cursor
+
 		const paginationDirection: string | null = query.get('pagination_direction');
 		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
 		if (isNaN(paginationLimit)) {
@@ -57,6 +60,7 @@ export const buildGet = (
 			allowedOrderBy = allowedOrderBy.map((e) => [e[0], e[1] === 'up' ? 'down' : 'up']);
 		}
 
+		// TODO FIXME replace up and down with ASC and DESC everywhere
 		const orderByQuery = allowedOrderBy
 			.map((e) => (e[1] === 'up' ? `${e[0]} ASC` : `${e[0]} DESC`))
 			.join(',');
@@ -84,7 +88,7 @@ export const buildGet = (
 												paginationCursor != null ? paginationCursor[value[0]] ?? null : null
 											}`,
 											fakeLiteralTT(
-												` ${index == array.length - 1 ? (value[1] == 'up' ? '<=' : '>') : '='} ${
+												` ${index == array.length - 1 ? (value[1] == 'up' ? '<' : '>') : '='} ${
 													value[0]
 												}`
 											)
@@ -130,8 +134,8 @@ export const buildGet = (
 		if (isForwardsPagination || (!isForwardsPagination && !isBackwardsPagination)) {
 			previousCursor = paginationCursor;
 			if (entities.length > paginationLimit) {
-				const lastElement = entities.pop();
-				nextCursor = lastElement ?? null;
+				entities.pop();
+				nextCursor = entities[entities.length - 1] ?? null;
 			}
 		} else if (isBackwardsPagination) {
 			entities = entities.reverse(); // fixup as we needed to switch up orders above

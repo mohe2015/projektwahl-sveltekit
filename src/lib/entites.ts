@@ -43,7 +43,6 @@ export async function loadEntites(
 	if (!res.ok) {
 		throw new HTTPError(res.status, res.statusText);
 	}
-	console.log(fullUrl);
 	return [await res.json(), fullUrl];
 }
 

@@ -25,7 +25,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		if (body.rank === null) {
 			sql`DELETE FROM choices WHERE user_id = ${user.id} AND project_id = ${body.project}`;
 		} else {
-			console.log(body);
 			sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${body.project}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
 		}
 	});

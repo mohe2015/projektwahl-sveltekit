@@ -40,7 +40,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					name: user.name
 				};
 				await goto('/', { replaceState: true });
-				console.log('jo');
 			}
 			return json;
 		}
