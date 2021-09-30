@@ -3,8 +3,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 
-1. Create new realm
-2. Clients -> Create
+1. http://localhost:8888/auth/
+1. Create new realm "projektwahl"
+1. Clients -> Create
    1. Client ID: projektwahl
    1. Root URL: http://localhost:3000/
       https://connect2id.com/learn/openid-connect
@@ -22,18 +23,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
    1. Realm Settings -> Tokens -> Revoke Refresh Tokens = True
    1. Realm Settings -> Security Defenses -> Brute Force Detection -> Enabled
    1. Realm Settings -> Tokens -> Access Token Lifespan -> Set appropiately (e.g. 5min) - also is for ID token
-   1. Clients -> Mappers -> Add Builtin -> Realm roles
+   1. Clients -> projektwahl -> Mappers -> Add Builtin -> Realm roles
       1. Add to ID token -> True
-3. Roles -> Add voter, helper, admin
+1. Roles -> Add voter, helper, admin
    // 3. Groups -> Add group voter, helper, admin
-4. Users -> Add user
+1. Users -> Add user
    1. Role Mappings -> Add appropiate role
       //1. Groups -> Join a group
    1. Credentials -> Reset Password
    1. http://localhost:8888/auth/realms/projektwahl/account
-5. http://localhost:8888/auth/realms/projektwahl/protocol/openid-connect/auth?client_id=projektwahl&redirect_uri=http://localhost:3000/redirect&state=b5696824-434d-4b39-981b-086bb3453071&response_type=code&scope=openid&nonce=a5af838d-0576-4849-918d-27231c4d04f3
-   http://localhost:8888/auth/realms/projektwahl/.well-known/openid-configuration
-6. You can test what you get at Clients -> Client Scopes -> Evaluate
+1. You can test what you get at Clients -> Client Scopes -> Evaluate
 
 https://datatracker.ietf.org/doc/html/rfc6819#section-4.1.3
 

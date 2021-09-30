@@ -9,7 +9,15 @@ nix develop
 // TODO FIXME store password instead or use a longer living token or use oauth so we can refresh this
 PROJEKTWAHL_ADMIN_ACCESS_TOKEN=`curl --data "grant_type=password&username=admin&password=admin&client_secret=secret&client_id=admin-cli" http://localhost:8888/auth/realms/master/protocol/openid-connect/token | jq -r .access_token`
 
-VITE_BASE_URL=http://localhost:3000/ npm run dev
+# set in .env
+THE_BASE_URL=http://localhost:3000/
+DATABASE_URL='postgres://projektwahl:changeme@localhost:54321/projektwahl'
+OPENID_URL=http://localhost:8888/auth/realms/projektwahl
+CLIENT_ID=projektwahl
+CLIENT_SECRET=
+OPENID_ADMIN_URL='http://localhost:8888/auth/admin/realms/projektwahl/users'
+
+npm run dev
 http://localhost:3000/setup
 
 docker-compose stop

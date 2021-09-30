@@ -23,18 +23,18 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
-	const issuer = await Issuer.discover('http://localhost:8888/auth/realms/projektwahl');
+	const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
 	const Client = issuer.Client;
 
 	// TODO ERROR HANDLING
 
 	const client = new Client({
-		client_id: 'projektwahl',
-		client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
+		client_id: process.env['CLIENT_ID']!,
+		client_secret: process.env['CLIENT_SECRET']
 	});
 
-	const result = await client.callback('http://localhost:3000/redirect', {
+	const result = await client.callback(`${process.env['THE_BASE_URL']}/redirect`, {
 		session_state: request.query.get('session_state')!,
 		code: request.query.get('code')!
 	});
@@ -51,7 +51,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 				`strict_id=${result.id_token}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Strict`,
 				`lax_id=${result.id_token}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
 			] as unknown as string,
-			Location: 'http://localhost:3000'
+			Location: process.env['THE_BASE_URL']
 		}
 	};
 };

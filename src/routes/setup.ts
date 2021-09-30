@@ -48,8 +48,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			// TODO we could use that admin URL
 			// Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
 
-			const response = await fetch('http://localhost:8888/auth/admin/realms/projektwahl/users', {
-				// TODO make configurable
+			const response = await fetch(process.env['OPENID_ADMIN_URL']!, {
 				method: 'POST',
 				headers: {
 					Accept: 'application/json',

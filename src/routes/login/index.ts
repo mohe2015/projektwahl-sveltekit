@@ -34,19 +34,19 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 */
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
-	const issuer = await Issuer.discover('http://localhost:8888/auth/realms/projektwahl');
+	const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
 	const Client = issuer.Client;
 
 	// TODO ERROR HANDLING
 
 	const client = new Client({
-		client_id: 'projektwahl',
-		client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
+		client_id: process.env['CLIENT_ID']!,
+		client_secret: process.env['CLIENT_SECRET']
 	});
 
 	const url = client.authorizationUrl({
-		redirect_uri: 'http://localhost:3000/redirect',
+		redirect_uri: `${process.env['THE_BASE_URL']}/redirect`,
 		response_type: 'code',
 		claims: 'roles'
 	});

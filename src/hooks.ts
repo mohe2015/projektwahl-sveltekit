@@ -5,6 +5,7 @@ import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import { IdTokenClaims, Issuer, TokenSet } from 'openid-client';
+import dotenv from 'dotenv';
 
 export type SessionUserType = IdTokenClaims & {
 	type: string;
@@ -17,6 +18,9 @@ export type MyLocals = {
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
+	// TODO FIXME hack because VITE doesn't load all env vars
+	dotenv.config();
+
 	/*if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
 		throw new Error('No CSRF header!');
 	}*/
@@ -47,19 +51,19 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			/*
 			const [session]: [UserType?] =
 				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
-	*/
-			const issuer = await Issuer.discover('http://localhost:8888/auth/realms/projektwahl');
+			*/
+			const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
 			const Client = issuer.Client;
 
 			// TODO ERROR HANDLING
 
 			const client = new Client({
-				client_id: 'projektwahl',
-				client_secret: '5748ce04-8a61-4bb3-99dc-f07b5b41d2bf' // TODO FIXME put this into file / env variable
+				client_id: process.env['CLIENT_ID']!,
+				client_secret: process.env['CLIENT_SECRET']
 			});
 
-			const result = await client.callback('http://localhost:3000/redirect', {
+			const result = await client.callback(`${process.env['THE_BASE_URL']}/redirect`, {
 				id_token: session_id
 			});
 
