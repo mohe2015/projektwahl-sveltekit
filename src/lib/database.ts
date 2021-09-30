@@ -4,8 +4,9 @@
 import postgres from 'postgres';
 
 export const sql = postgres(process.env['DATABASE_URL']!, {
-	debug: (connection, query, params) => {
+	database: process.env['DATABASE_NAME'],
+	debug: true /*(connection, query, params) => {
 		//console.log(query);
 		//console.log(params);
-	}
+	}*/
 });

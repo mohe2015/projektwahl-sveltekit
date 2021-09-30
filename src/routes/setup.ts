@@ -6,6 +6,7 @@ import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
 import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
+import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
 function between(min: number, max: number) {
@@ -14,6 +15,18 @@ function between(min: number, max: number) {
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	//allowUserType(request, []);
+
+	const nodbsql = postgres(process.env['DATABASE_URL']!, {
+		database: 'postgres',
+		debug: true
+	});
+
+	try {
+		await nodbsql`CREATE DATABASE projektwahl`;
+	} catch (err) {
+		console.log(err);
+		console.log("couldn't create database - possibly it already exists then ignore this");
+	}
 
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {
@@ -30,6 +43,8 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				'project' + i
 			}, '', '', 0, 5, 13, 5, 20, '', '', FALSE) ON CONFLICT DO NOTHING;`;
 		}
+
+		console.log(await sql`SELECT * FROM projects;`);
 
 		for (let i = 0; i < 1000; i++) {
 			// TODO FIXME add user to keycloak / import users from keycloak (probably easier)
@@ -57,8 +72,8 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				},
 				redirect: 'manual',
 				body: JSON.stringify({
-					username: `4user${i}`,
-					email: `4user${i}@example.org`,
+					username: `9user${i}`,
+					email: `9user${i}@example.org`,
 					enabled: true
 				})
 			});
@@ -80,6 +95,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				[UserType]
 			>`INSERT INTO users (id, name, type, class, age) VALUES (${keycloakUser.id}, ${keycloakUser.username}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 			for (let j = 1; j <= 5; j++) {
+				// failed transactions still update the autoincrement count - then this project id here is wrong
 				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${between(
 					1,
 					PROJECT_COUNT + 1
