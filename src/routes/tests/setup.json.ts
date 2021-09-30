@@ -6,10 +6,15 @@ import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
+import { dev } from '$app/env';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<any>> {
+	if (!dev) {
+		throw new Error('only available in dev');
+	}
+
 	allowUserType(request, ['admin']);
 	const { body } = request;
 

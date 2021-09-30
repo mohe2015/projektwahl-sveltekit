@@ -8,6 +8,7 @@ import { fakeTT } from '$lib/tagged-templates';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
+import { dev } from '$app/env';
 
 export type TestType = {
 	id: number;
@@ -23,6 +24,10 @@ export type TestResponseBody = {
 };
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+	if (!dev) {
+		throw new Error('only available in dev');
+	}
+
 	allowUserType(request, ['admin']);
 	return await buildGet(
 		['id', 'a', 'b', 'c'],

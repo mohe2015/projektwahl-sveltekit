@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
-import { buildGet, EntityResponseBody } from '$lib/list-entities';
+import type { EntityResponseBody } from '$lib/entites';
+import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';

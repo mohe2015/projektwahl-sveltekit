@@ -37,7 +37,8 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 	await sql.begin('READ WRITE', async (sql) => {
 		//await sql`INSERT INTO users (name, type) VALUES ('admin', 'admin') ON CONFLICT DO NOTHING;`;
 
-		const projects = await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 1000)) RETURNING *;`;
+		const projects =
+			await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 1000)) RETURNING *;`;
 
 		console.log(projects);
 
@@ -57,7 +58,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 
 			// TODO we could use that admin URL
 			// Remove all user sessions associated with the user Also send notification to all clients that have an admin URL to invalidate the sessions for the particular user.
-
+			/*
 			const response = await fetch(process.env['OPENID_ADMIN_URL']!, {
 				method: 'POST',
 				headers: {
@@ -85,13 +86,16 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			});
 			const keycloakUser = await userResponse.json();
 			console.log(keycloakUser);
+			*/
 
 			const [user] = await sql<
 				[UserType]
-			>`INSERT INTO users (id, name, type, class, age) VALUES (${keycloakUser.id}, ${keycloakUser.username}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
+			>`INSERT INTO users (name, type, class, age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 			for (let j = 1; j <= 5; j++) {
 				// failed transactions still update the autoincrement count - then this project id here is wrong
-				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${projects[Math.floor(Math.random() * projects.length)].id}, ${j}) ON CONFLICT DO NOTHING;`;
+				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
+					projects[Math.floor(Math.random() * projects.length)].id
+				}, ${j}) ON CONFLICT DO NOTHING;`;
 			}
 		}
 	});

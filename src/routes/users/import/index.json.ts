@@ -115,4 +115,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			return response;
 		}
 	}
+	return {
+		status: 400
+	};
 };

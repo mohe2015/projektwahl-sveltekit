@@ -21,17 +21,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 ): Promise<MyEndpointOutput<LoginResponse>> {
 	allowAnyone(request);
 
-	/*const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
-
-	if (Object.keys(errors).length !== 0) {
-		const response: MyEndpointOutput<LoginResponse> = {
-			body: {
-				errors: errors
-			}
-		};
-		return response;
-	}
-*/
+	/*
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
 	const issuer = await Issuer.discover(process.env['OPENID_URL']!);
@@ -59,9 +49,20 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 		headers: {
 			Location: url
 		}
-	};
+	};*/
 
-	/*const [entity]: [UserType?] =
+	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
+
+	if (Object.keys(errors).length !== 0) {
+		const response: MyEndpointOutput<LoginResponse> = {
+			body: {
+				errors: errors
+			}
+		};
+		return response;
+	}
+
+	const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
 
 	if (entity === undefined) {
@@ -107,5 +108,5 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
 			] as unknown as string
 		}
-	};*/
+	};
 };

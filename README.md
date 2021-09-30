@@ -25,7 +25,6 @@ docker-compose stop
 docker-compose rm db
 
 psql -p 54321 -h localhost -U projektwahl
-psql -p 54321 -h localhost -U projektwahl --db postgres
 echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json
 # https://explain.dalibo.com/
 EXPLAIN ANALYZE SELECT id,name,type FROM users ORDER BY id ASC,name ASC LIMIT (10 + 1); # why sorted after name
@@ -43,8 +42,9 @@ TODO FIXME https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-0
 
 # Reset database (looses all data)
 
+psql -p 54321 -h localhost -U projektwahl --db postgres
+
 ```sql
-\c postgres
 set default_transaction_read_only = false;
 DROP DATABASE projektwahl;
 
