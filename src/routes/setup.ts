@@ -35,7 +35,9 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 	});
 
 	await sql.begin('READ WRITE', async (sql) => {
-		//await sql`INSERT INTO users (name, type) VALUES ('admin', 'admin') ON CONFLICT DO NOTHING;`;
+		await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
+			'changeme'
+		)}, 'admin') ON CONFLICT DO NOTHING;`;
 
 		const projects =
 			await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 1000)) RETURNING *;`;

@@ -32,7 +32,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			session_id = cookie[1];
 		}
 	} else if (request.method === 'POST') {
-		if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
+		console.log(request.headers);
+		if (request.headers['x-csrf-protection'] !== 'projektwahl') {
 			throw new Error('No CSRF header!');
 		}
 		const cookie = request.headers.cookie

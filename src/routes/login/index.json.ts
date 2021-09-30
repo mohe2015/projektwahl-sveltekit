@@ -16,7 +16,7 @@ export type LoginResponse = {
 	session?: any;
 };
 
-export const get: RequestHandler<MyLocals, JSONValue> = async function (
+export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<LoginResponse>> {
 	allowAnyone(request);

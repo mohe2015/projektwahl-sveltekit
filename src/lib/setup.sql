@@ -23,11 +23,13 @@ CREATE TABLE IF NOT EXISTS projects (
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   name VARCHAR(64) UNIQUE NOT NULL,
+  password_hash VARCHAR(512),
   type VARCHAR(16) NOT NULL,
   project_leader_id UUID,
   class VARCHAR(8), -- TODO RENAME TO group
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
+  password_changed BOOLEAN NOT NULL DEFAULT FALSE,
   in_project_id UUID, -- this should still be stored here even with openid as we can't join on it otherwise
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
