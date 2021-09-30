@@ -17,20 +17,16 @@ export type SetRankResponse = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<SetRankResponse>> {
-	allowUserType(request, ['voter']);
-	const { locals, body } = request;
+	const user = allowUserType(request, ['voter']);
+	const { locals, body }: { locals: MyLocals; body: any } = request;
 	// TODO FIXME validate rank value range
 	// TODO FIXME add rank check constraint to sql
 	await sql.begin('READ WRITE', async (sql) => {
 		if (body.rank === null) {
-			sql`DELETE FROM choices WHERE user_id = ${locals.user?.id ?? null} AND project_id = ${
-				body.project
-			}`;
+			sql`DELETE FROM choices WHERE user_id = ${user.sub} AND project_id = ${body.project}`;
 		} else {
 			console.log(body);
-			sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${locals.user?.id ?? null}, ${
-				body.project
-			}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
+			sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.sub}, ${body.project}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
 		}
 	});
 

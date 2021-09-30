@@ -22,8 +22,8 @@
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
 		"format": "prettier --write --plugin-search-dir=. .",
 		"prepare": "husky install",
-		"test": "jest src",
-		"update-snapshot": "jest --updateSnapshot",
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest src",
+		"update-snapshot": "NODE_OPTIONS=--experimental-vm-modules jest --updateSnapshot",
 		"test:watch": "npm run test -- --watch"
 	},
 	"devDependencies": {
@@ -31,58 +31,63 @@
 		"@sveltejs/kit": "^1.0.0-next.119",
 		"@testing-library/jest-dom": "^5.14.1",
 		"@testing-library/svelte": "^3.0.3",
-		"@types/bootstrap": "^5.1.2",
-		"@types/jest": "^27.0.1",
-		"@typescript-eslint/eslint-plugin": "^4.29.3",
-		"@typescript-eslint/parser": "^4.29.3",
+		"@types/bootstrap": "^5.1.6",
+		"@types/jest": "^27.0.2",
+		"@typescript-eslint/eslint-plugin": "^4.32.0",
+		"@typescript-eslint/parser": "^4.32.0",
 		"eslint": "^7.32.0",
 		"eslint-config-prettier": "^8.3.0",
-		"eslint-plugin-svelte3": "^3.2.0",
+		"eslint-plugin-svelte3": "^3.2.1",
 		"husky": "^7.0.2",
-		"jest": "^27.1.0",
+		"jest": "^27.2.4",
 		"lint-staged": "^11.1.2",
-		"prettier": "~2.3.2",
+		"prettier": "~2.4.1",
 		"prettier-plugin-svelte": "^2.4.0",
-		"svelte": "^3.42.4",
-		"svelte-jester": "^2.1.0",
-		"svelte-preprocess": "^4.8.0",
+		"svelte": "^3.43.1",
+		"svelte-jester": "^2.1.5",
+		"svelte-preprocess": "^4.9.5",
 		"ts-jest": "^27.0.5",
 		"tslib": "^2.3.1",
-		"typescript": "^4.4.2"
+		"typescript": "^4.4.3"
 	},
 	"type": "module",
 	"dependencies": {
-		"@types/node-fetch": "^2.5.12",
+		"@types/node-fetch": "^3.0.2",
 		"argon2": "^0.28.2",
-		"bootstrap": "^5.1.0",
-		"csv-parse": "^4.16.2",
-		"esbuild-linux-64": "^0.12.24",
-		"node-fetch": "^2.6.1",
+		"bootstrap": "^5.1.1",
+		"csv-parse": "^4.16.3",
+		"dotenv": "^10.0.0",
+		"esbuild-linux-64": "^0.13.3",
+		"node-fetch": "^3.0.0",
+		"openid-client": "^4.9.0",
 		"postgres": "^2.0.0-beta.5",
-		"sveltestrap": "^5.6.2"
+		"sveltestrap": "^5.6.3"
 	},
 	"lint-staged": {
 		"*.{ts,svelte}": "eslint --cache --fix",
 		"*.{ts,svelte,css,md}": "prettier --write"
 	},
 	"jest": {
+		"transformIgnorePatterns": [
+			"node_modules/(?!(node-fetch)/)"
+		],
 		"transform": {
-			"^.+\\.svelte$": [
-				"svelte-jester",
-				{
-					"preprocess": true
-				}
-			],
+			"^.+\\.svelte$": "svelte-jester",
 			"^.+\\.ts$": "ts-jest"
 		},
 		"moduleFileExtensions": [
 			"js",
-			"ts",
-			"svelte"
+			"svelte",
+			"ts"
 		],
 		"extensionsToTreatAsEsm": [
 			".ts",
 			".svelte"
-		]
+		],
+		"globals": {
+			"ts-jest": {
+				"useESM": true
+			}
+		}
 	}
 }

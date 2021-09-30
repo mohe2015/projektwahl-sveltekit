@@ -23,6 +23,7 @@
               pkgs.cbc
               pkgs.glpk
               pkgs.nodePackages.node2nix
+              pkgs.jq
             ];
 
             shellHook = ''

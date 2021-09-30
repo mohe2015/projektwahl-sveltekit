@@ -6,9 +6,9 @@ import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { UserType } from '$lib/types';
+import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import type { RequestHandler } from '../../../../kit/packages/kit/types';
 
 export type UsersResponseBody = {
 	entities: Array<UserType>;

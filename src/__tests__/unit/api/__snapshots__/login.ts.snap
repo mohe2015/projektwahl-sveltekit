@@ -1,9 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`invalid login returns error 1`] = `
-Object {
-  "errors": Object {
-    "name": "Nutzer existiert nicht!",
-  },
-}
-`;

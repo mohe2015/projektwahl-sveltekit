@@ -9,18 +9,19 @@ import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
+import { Issuer } from 'openid-client';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };
 	session?: any;
 };
 
-export const post: RequestHandler<MyLocals, JSONValue> = async function (
+export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<LoginResponse>> {
 	allowAnyone(request);
 
-	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
+	/*const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
 
 	if (Object.keys(errors).length !== 0) {
 		const response: MyEndpointOutput<LoginResponse> = {
@@ -30,8 +31,37 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		};
 		return response;
 	}
+*/
+	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
+	// .well-known/openid-configuration
+	const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
-	const [entity]: [UserType?] =
+	const Client = issuer.Client;
+
+	// TODO ERROR HANDLING
+
+	const client = new Client({
+		client_id: process.env['CLIENT_ID']!,
+		client_secret: process.env['CLIENT_SECRET']
+	});
+
+	const url = client.authorizationUrl({
+		redirect_uri: `${process.env['THE_BASE_URL']}/redirect`,
+		response_type: 'code',
+		claims: 'roles'
+	});
+
+	return {
+		body: {
+			errors: {}
+		},
+		status: 307,
+		headers: {
+			Location: url
+		}
+	};
+
+	/*const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
 
 	if (entity === undefined) {
@@ -77,5 +107,5 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
 			] as unknown as string
 		}
-	};
+	};*/
 };

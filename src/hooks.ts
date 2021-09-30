@@ -1,19 +1,32 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { AuthorizationError, HTTPError } from '$lib/authorization';
+import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
-import type { Location } from '../../kit/packages/kit/types/helper';
-import type { ServerRequest } from '../../kit/packages/kit/types/hooks';
+import { IdTokenClaims, Issuer, TokenSet } from 'openid-client';
+import dotenv from 'dotenv';
+
+export type SessionUserType = IdTokenClaims & {
+	type: string;
+};
 
 export type MyLocals = {
 	session_id: string | null;
-	user: UserType | null;
+	user: SessionUserType | null;
 };
 
+// maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
-	let session_id = null;
+	// TODO FIXME hack because VITE doesn't load all env vars
+	dotenv.config();
+
+	/*if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
+		throw new Error('No CSRF header!');
+	}*/
+
+	let session_id = undefined;
+	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
 			?.split('; ')
@@ -33,18 +46,47 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
-	try {
-		const [session]: [UserType?] =
-			await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+	if (session_id) {
+		try {
+			/*
+			const [session]: [UserType?] =
+				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+			*/
+			const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
-		// locals seem to only be available server side
-		request.locals.session_id = session_id!;
-		request.locals.user = session ?? null;
-	} catch (e) {
-		// we catch to allow opening /setup
-		console.error(e);
-		request.locals.session_id = null;
-		request.locals.user = null;
+			const Client = issuer.Client;
+
+			// TODO ERROR HANDLING
+
+			const client = new Client({
+				client_id: process.env['CLIENT_ID']!,
+				client_secret: process.env['CLIENT_SECRET']
+			});
+
+			const result = await client.callback(`${process.env['THE_BASE_URL']}/redirect`, {
+				id_token: session_id
+			});
+
+			const claims = result.claims();
+
+			//let roles = (claims.realm_access as any).roles as string[];
+			//roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
+			//if (roles.length != 1) {
+			//	console.log('no role found');
+			//} else {
+			// locals seem to only be available server side
+			request.locals.session_id = session_id!;
+			request.locals.user = {
+				...claims,
+				type: 'voter' //roles[0] // TODO FIXME select from database
+			};
+			//}
+		} catch (e) {
+			// we catch to allow opening /setup
+			console.error(e);
+			request.locals.session_id = null;
+			request.locals.user = null;
+		}
 	}
 
 	try {
@@ -61,7 +103,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			};
 		} else {
 			return {
-				status: 500
+				status: 500,
+				headers: {}
 			};
 		}
 	}
@@ -72,8 +115,9 @@ export const getSession: GetSession = ({ locals }) => {
 	if (locals.user) {
 		return {
 			user: {
-				id: locals.user.id,
-				name: locals.user.name,
+				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
+				id: locals.user.sub,
+				preferred_username: locals.user.preferred_username,
 				type: locals.user.type
 			}
 		};

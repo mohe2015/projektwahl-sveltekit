@@ -3,9 +3,10 @@
 
 import postgres from 'postgres';
 
-export const sql = postgres('postgres://projektwahl:changeme@localhost:54321/projektwahl', {
-	debug: (connection, query, params) => {
+export const sql = postgres(process.env['DATABASE_URL']!, {
+	database: process.env['DATABASE_NAME'],
+	debug: true /*(connection, query, params) => {
 		//console.log(query);
 		//console.log(params);
-	}
+	}*/
 });
