@@ -21,7 +21,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				rank: rank
 			}),
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'x-csrf-protection': 'projektwahl'
 			}
 		});
 		if (!response.ok) {

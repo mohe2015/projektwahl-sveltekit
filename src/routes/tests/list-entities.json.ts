@@ -25,9 +25,11 @@ export type TestResponseBody = {
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	if (!dev) {
+		console.log('notdev');
 		throw new Error('only available in dev');
 	}
 
+	console.log('f', request);
 	allowUserType(request, ['admin']);
 	return await buildGet(
 		['id', 'a', 'b', 'c'],

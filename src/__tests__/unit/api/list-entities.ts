@@ -6,20 +6,27 @@ import type { TestResponseBody } from 'src/routes/tests/list-entities.json';
 import { fetchPost } from '../../../test_utils';
 
 test('check that all rows are returned with pagination', async () => {
-	const loginResponse = await fetchPost(
-		'http://localhost:3000/login.json',
-		JSON.stringify({
+	const loginResponse = await fetchPost('http://localhost:3000/login.json', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'x-csrf-protection': 'projektwahl'
+		},
+		body: JSON.stringify({
 			name: 'admin',
 			password: 'changeme'
 		})
-	);
+	});
 	const loginResult: any = await loginResponse.json();
 
-	await fetchPost(
-		'http://localhost:3000/tests/setup.json',
-		JSON.stringify(null),
-		loginResult.session.session_id
-	);
+	await fetchPost('http://localhost:3000/tests/setup.json', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'x-csrf-protection': 'projektwahl',
+			cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
+		}
+	});
 	// TODO FIXME replace fetch with internal sveltekit routing or so?
 	let result: TestResponseBody | null = null;
 	const foundIds = new Set(Array.from(new Array(100), (x, i) => i + 1));
@@ -37,9 +44,15 @@ test('check that all rows are returned with pagination', async () => {
 								['pagination_cursor', JSON.stringify(result.nextCursor)]
 						  ]
 						: [])
-				])
+				]),
+			{
+				headers: {
+					'x-csrf-protection': 'projektwahl',
+					cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
+				}
+			}
 		);
-		result = await response.json();
+		result = (await response.json()) as TestResponseBody;
 		console.log(result);
 		result?.entities.forEach((e) => {
 			expect(foundIds).toContain(e.id);

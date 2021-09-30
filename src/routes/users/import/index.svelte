@@ -20,7 +20,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		let response = await fetch('/users/import.json', {
 			method: 'POST',
 			headers: {
-				'content-type': 'text/plain'
+				'content-type': 'text/plain',
+				'x-csrf-protection': 'projektwahl'
 			},
 			body: file
 		});

@@ -40,12 +40,14 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			?.split('; ')
 			.map((c) => c.split('='))
 			.find((c) => c[0] == 'strict_id');
+		console.log(cookie);
 		if (cookie) {
 			session_id = cookie[1];
 		}
 	} else {
 		throw new Error('Unsupported HTTP method!');
 	}
+	console.log('session_id', session_id);
 	if (session_id) {
 		try {
 			const [session]: [UserType?] =
@@ -53,6 +55,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 			request.locals.session_id = session_id!;
 			request.locals.user = session ?? null;
+
+			console.log('this', request.locals.user);
 
 			/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
@@ -118,8 +122,8 @@ export const getSession: GetSession = ({ locals }) => {
 		return {
 			user: {
 				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-				id: locals.user.sub,
-				preferred_username: locals.user.preferred_username,
+				id: locals.user.name.id,
+				preferred_username: locals.user.name,
 				type: locals.user.type
 			}
 		};

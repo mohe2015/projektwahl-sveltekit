@@ -20,6 +20,7 @@ export const allowUserType = (
 	request: ServerRequest<MyLocals, unknown>,
 	allowedTypes: ('voter' | 'helper' | 'admin')[]
 ): UserType => {
+	console.log('jo', request);
 	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
 		throw new HTTPError(403, 'Forbidden');
 	}
