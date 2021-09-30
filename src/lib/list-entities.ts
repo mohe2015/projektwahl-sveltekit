@@ -52,7 +52,9 @@ export const buildGet = (
 		// so it also works when the requested ordered fields are all equal
 		allowedOrderBy = [
 			...allowedOrderBy,
-			...allowedFilters.filter((k) => !allowedOrderBy.find((e) => e[0] == k)).map((k) => [k, 'up'])
+			...allowedFilters
+				.filter((k) => k == 'id' && !allowedOrderBy.find((e) => e[0] == k))
+				.map((k) => [k, 'up']) // TODO FIXME maybe only add the 'id' column if it's not already in to simplify query by a lot and (possibly need to think about it) not loose any guarantees
 		];
 
 		// orderBy needs to be reversed for backwards pagination

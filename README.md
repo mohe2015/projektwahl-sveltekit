@@ -30,6 +30,19 @@ echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 
 EXPLAIN ANALYZE SELECT id,name,type FROM users ORDER BY id ASC,name ASC LIMIT (10 + 1); # why sorted after name
 # https://www.postgresql.org/docs/current/runtime-config-query.html
 
+-- TODO FIXME OPTIMIZE THIS KIND OF QUERY BY UNION-ing the parts together and also only ordering the id field
+-- ALSO TEST IF THIS IS ACTUALLY FASTER
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE (('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) OR (NOT true AND NOT false)) AND name LIKE '%%' AND (true OR id = null) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
+
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
+
+EXPLAIN ANALYZE
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+UNION ALL
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' = name AND 'voter' < type) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+UNION ALL
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+LIMIT 11;
 
 RESET ALL;
 # docker run -it -e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=true -p 3306:3306 mariadb
