@@ -132,7 +132,7 @@ export const buildGet = (
 		let previousCursor: BaseEntityType | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
 		if (isForwardsPagination || (!isForwardsPagination && !isBackwardsPagination)) {
-			previousCursor = paginationCursor;
+			previousCursor = entities[0];
 			if (entities.length > paginationLimit) {
 				entities.pop();
 				nextCursor = entities[entities.length - 1] ?? null;
@@ -143,7 +143,7 @@ export const buildGet = (
 				entities.shift();
 				previousCursor = entities[0] ?? null;
 			}
-			nextCursor = paginationCursor;
+			nextCursor = entities[entities.length - 1];
 		}
 
 		//console.log(previousCursor);

@@ -28,8 +28,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
 
 	export const headerClick = (sortType: string): void => {
-		let oldElementIndex = $query['sorting[]'].findIndex((e) => e.startsWith(sortType + ':'));
-		let oldElement = $query['sorting[]'].splice(oldElementIndex, 1)[0];
+		let value = $query['sorting[]'];
+		let oldElementIndex = value.findIndex((e) => e.startsWith(sortType + ':'));
+		let oldElement = value.splice(oldElementIndex, 1)[0];
 
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
@@ -43,7 +44,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				newElement = 'down-up';
 		}
 
-		$query['sorting[]'] = [...$query['sorting[]'], oldElement.split(':')[0] + ':' + newElement];
+		$query['sorting[]'] = [...value, oldElement.split(':')[0] + ':' + newElement];
 	};
 
 	export async function refresh() {
@@ -95,7 +96,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={async () => {
-					await goto($page.path, {
+					await goto($page.path + '?' + $page.query, {
 						state: {
 							paginationCursor: response.previousCursor,
 							paginationDirection: 'backwards'
@@ -115,7 +116,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={async () => {
-					await goto($page.path, {
+					await goto($page.path + '?' + $page.query, {
 						state: {
 							paginationCursor: response.nextCursor,
 							paginationDirection: 'forwards'

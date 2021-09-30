@@ -118,7 +118,7 @@ export const getSession: GetSession = ({ locals }) => {
 			user: {
 				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
 				id: locals.user.name.id,
-				preferred_username: locals.user.name,
+				name: locals.user.name,
 				type: locals.user.type
 			}
 		};

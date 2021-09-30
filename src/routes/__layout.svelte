@@ -112,7 +112,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						on:click={(e) => {
 							e.preventDefault();
 							logoutModalOpen = true;
-						}}>{$session.user.preferred_username} abmelden</a
+						}}>{$session.user.name} abmelden</a
 					>
 				</li>
 			{:else}
