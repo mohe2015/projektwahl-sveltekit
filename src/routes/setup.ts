@@ -37,14 +37,9 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 	await sql.begin('READ WRITE', async (sql) => {
 		//await sql`INSERT INTO users (name, type) VALUES ('admin', 'admin') ON CONFLICT DO NOTHING;`;
 
-		const PROJECT_COUNT = 100;
-		for (let i = 0; i < PROJECT_COUNT; i++) {
-			await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${
-				'project' + i
-			}, '', '', 0, 5, 13, 5, 20, '', '', FALSE) ON CONFLICT DO NOTHING;`;
-		}
+		const projects = await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 1000)) RETURNING *;`;
 
-		console.log(await sql`SELECT * FROM projects;`);
+		console.log(projects);
 
 		for (let i = 0; i < 1000; i++) {
 			// TODO FIXME add user to keycloak / import users from keycloak (probably easier)
@@ -72,8 +67,8 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				},
 				redirect: 'manual',
 				body: JSON.stringify({
-					username: `9user${i}`,
-					email: `9user${i}@example.org`,
+					username: `user${Math.random()}`,
+					//email: `user${i}@example.org`,
 					enabled: true
 				})
 			});
@@ -96,10 +91,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			>`INSERT INTO users (id, name, type, class, age) VALUES (${keycloakUser.id}, ${keycloakUser.username}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 			for (let j = 1; j <= 5; j++) {
 				// failed transactions still update the autoincrement count - then this project id here is wrong
-				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${between(
-					1,
-					PROJECT_COUNT + 1
-				)}, ${j}) ON CONFLICT DO NOTHING;`;
+				await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${projects[Math.floor(Math.random() * projects.length)].id}, ${j}) ON CONFLICT DO NOTHING;`;
 			}
 		}
 	});
