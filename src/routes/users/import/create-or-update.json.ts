@@ -13,13 +13,14 @@ import type { CreateResponse } from '../../projects/create-or-update.json';
 import parse from 'csv-parse';
 import { Readable } from 'stream';
 
-export const post: RequestHandler<MyLocals, JSONValue> = async function (
+export type UserImportRequest = { [x: string]: any; fileInput?: string; id?: number | undefined };
+
+export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request
 ): Promise<MyEndpointOutput<CreateResponse>> {
 	allowUserType(request, ['admin']);
-	const { body, rawBody } = request;
 
-	const parser = Readable.from(body as string).pipe(
+	const parser = Readable.from(request.body.fileInput!).pipe(
 		parse({
 			trim: true,
 			columns: true
