@@ -14,7 +14,7 @@ export type ProjectsResponseBody = {
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<ProjectsResponseBody>> {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']);
 	const { params } = request;
 
 	const [entity]: [ProjectType?] =

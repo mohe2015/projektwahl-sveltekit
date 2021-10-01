@@ -27,12 +27,13 @@ CREATE TABLE IF NOT EXISTS users (
   name VARCHAR(64) UNIQUE NOT NULL,
   password_hash VARCHAR(512),
   type user_type NOT NULL,
-  project_leader_id UUID,
+  project_leader_id UUID, -- TODO FIXME maybe m:n as somebody could theoretically be in multiple projects?
   class VARCHAR(8), -- TODO RENAME TO group
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
   password_changed BOOLEAN NOT NULL DEFAULT FALSE,
   in_project_id UUID, -- this should still be stored here even with openid as we can't join on it otherwise
+  -- TODO maybe add computed_in_project_id so you can manually force people in a project and this doesn't break when calculating
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT

@@ -10,7 +10,7 @@ import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']);
 	return await buildGet(
 		[
 			'id',

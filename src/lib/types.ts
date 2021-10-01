@@ -9,6 +9,7 @@ export type UserVoterType = {
 	group: string;
 	age: number;
 	away: boolean;
+	project_leader_id?: string;
 };
 
 export type UserHelperAdminType = {
@@ -19,6 +20,7 @@ export type UserHelperAdminType = {
 	group: never;
 	age: never;
 	away: boolean;
+	project_leader_id?: string;
 };
 
 export type UserType = UserVoterType | UserHelperAdminType;
