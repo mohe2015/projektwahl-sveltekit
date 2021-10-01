@@ -12,7 +12,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let title: string;
-	export let createUrl: string;
+	export let createUrl: string | null;
 	export let response: EntityResponseBody;
 	export let fullInvalidationUrl: string;
 
@@ -65,7 +65,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <div class="row justify-content-between">
 	<div class="col-auto">
-		<a class="btn btn-primary" href={createUrl} role="button">{title} erstellen</a>
+		{#if createUrl}<a class="btn btn-primary" href={createUrl} role="button">{title} erstellen</a
+			>{/if}
 		<slot name="buttons" />
 	</div>
 

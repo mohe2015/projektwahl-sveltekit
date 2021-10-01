@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
+import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-
-// INSERT INTO choices (user_id, project_id, rank) VALUES (1, 55, 1);
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	allowUserType(request, ['voter']);
@@ -25,7 +24,23 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			'random_assignments',
 			'rank'
 		],
-		fakeTT<SerializableParameter>`SELECT * FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = ${
+		fakeTT<SerializableParameter>`SELECT ${sql([
+			'id',
+			'title',
+			'info',
+			'place',
+			'costs',
+			'min_age',
+			'max_age',
+			'min_participants',
+			'max_participants',
+			'presentation_type',
+			'requirements',
+			'random_assignments',
+			'rank',
+			'choices.project_id',
+			'choices.user_id'
+		])} FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = ${
 			request.locals.user?.id ?? null
 		})`,
 		(query) =>

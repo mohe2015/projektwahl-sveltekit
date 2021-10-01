@@ -36,7 +36,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{fullInvalidationUrl}
 		{initialQuery}
 		title="Wahl"
-		createUrl="/404"
+		createUrl={null}
 	>
 		<thead slot="filter" let:headerClick let:currentSortValue let:query>
 			<tr>
