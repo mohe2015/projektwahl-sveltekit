@@ -3,7 +3,7 @@
 {
   description = "projektwahl-sveltekit's development flake";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs";
   inputs.flake-utils.url = "github:numtide/flake-utils";
 
   outputs = { self, nixpkgs, flake-utils }:
@@ -15,7 +15,7 @@
             nativeBuildInputs = [
               pkgs.bashInteractive
               pkgs.nodejs-16_x
-              pkgs.postgresql_13
+              pkgs.postgresql_14
               pkgs.docker-compose
               pkgs.reuse
               pkgs.nixpkgs-fmt

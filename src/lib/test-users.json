@@ -1,13 +1,13 @@
 {
-    "users": [
-        {
-            "username": "cat",
-            "enabled": true
-        },
-        {
-            "username": "Moritz.Hedtke@t-online.de",
-            "email": "Moritz.Hedtke@t-online.de",
-            "enabled": true
-        }
-    ]
+	"users": [
+		{
+			"username": "cat",
+			"enabled": true
+		},
+		{
+			"username": "Moritz.Hedtke@t-online.de",
+			"email": "Moritz.Hedtke@t-online.de",
+			"enabled": true
+		}
+	]
 }

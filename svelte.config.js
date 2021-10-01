@@ -30,7 +30,7 @@ const config = {
 			},
 			ssr: {
 				external: ['fs/promises']
-			},
+			}
 		}
 	}
 };

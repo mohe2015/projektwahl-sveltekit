@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { LoginResponse } from './index';
+	import type { LoginResponse } from './index.json';
 	import { session } from '$app/stores';
 
 	import TextInput from '$lib/form/TextInput.svelte';
@@ -26,7 +26,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			method: 'POST',
 			body: JSON.stringify(user),
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'x-csrf-protection': 'projektwahl'
 			}
 		});
 		if (!response.ok) {

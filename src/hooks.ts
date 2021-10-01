@@ -13,17 +13,13 @@ export type SessionUserType = IdTokenClaims & {
 
 export type MyLocals = {
 	session_id: string | null;
-	user: SessionUserType | null;
+	user: UserType | null;
 };
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	// TODO FIXME hack because VITE doesn't load all env vars
 	dotenv.config();
-
-	/*if (request.headers['X-CSRF-Projection'] !== 'PROJEKTWAHL') {
-		throw new Error('No CSRF header!');
-	}*/
 
 	let session_id = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
@@ -36,6 +32,9 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			session_id = cookie[1];
 		}
 	} else if (request.method === 'POST') {
+		if (request.headers['x-csrf-protection'] !== 'projektwahl') {
+			throw new Error('No CSRF header!');
+		}
 		const cookie = request.headers.cookie
 			?.split('; ')
 			.map((c) => c.split('='))
@@ -48,11 +47,13 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	}
 	if (session_id) {
 		try {
-			/*
 			const [session]: [UserType?] =
-				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
-			*/
-			const issuer = await Issuer.discover(process.env['OPENID_URL']!);
+				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+
+			request.locals.session_id = session_id!;
+			request.locals.user = session ?? null;
+
+			/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
 			const Client = issuer.Client;
 
@@ -80,7 +81,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 				...claims,
 				type: 'voter' //roles[0] // TODO FIXME select from database
 			};
-			//}
+			//}*/
 		} catch (e) {
 			// we catch to allow opening /setup
 			console.error(e);
@@ -116,8 +117,8 @@ export const getSession: GetSession = ({ locals }) => {
 		return {
 			user: {
 				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-				id: locals.user.sub,
-				preferred_username: locals.user.preferred_username,
+				id: locals.user.name.id,
+				name: locals.user.name,
 				type: locals.user.type
 			}
 		};

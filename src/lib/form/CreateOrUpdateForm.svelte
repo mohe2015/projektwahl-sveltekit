@@ -25,7 +25,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				method: 'POST',
 				body: JSON.stringify(entity),
 				headers: {
-					'Content-Type': 'application/json'
+					'Content-Type': 'application/json',
+					'x-csrf-protection': 'projektwahl'
 				}
 			});
 			if (!response.ok) {
@@ -39,7 +40,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				feedback = new Map(Object.entries(json.errors));
 				if (feedback.size == 0) {
 					//await goto(`/${type}/edit/${json.id}`);
-					await goto(`/${type}`);
+					await goto(`/${type.split('/')[0]}`);
 				}
 			}
 		} catch (error) {

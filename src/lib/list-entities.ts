@@ -16,11 +16,12 @@ export const buildGet = (
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
 		console.log(query);
 
-		// TODO pagination
-
 		// TODO FIXME better validation and null/undefined
 
 		// AUDIT START
+
+		// this is based on the assumption that two rows are never exactly equal (e.g. uuid is different) and therefore the cursor can always be maintained
+		// this creates arbitrary results when elements are changed while holding a cursor
 
 		const paginationDirection: string | null = query.get('pagination_direction');
 		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
@@ -34,104 +35,93 @@ export const buildGet = (
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 		const paginationCursorQueryValue = query.get('pagination_cursor');
 
-		// TODO FIXME fix that this could return an array or so
+		// TODO FIXME fix that this could return an array or so (not any and validate it)
 		const paginationCursor: any | null =
 			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : null; // WARNING JSON.parse can throw SyntaxError
 
-		const sortingQuery = query.getAll('sorting[]');
+		const sortingQuery: [string, string][] = query
+			.getAll('sorting[]')
+			.map((e) => e.split(':', 2))
+			.map<[string, string]>((e) => [e[0], e[1]])
+			.filter((e) => allowedFilters.includes(e[0]))
+			.filter((e) => ['ASC', 'DESC'].includes(e[1]));
+		// TODO FIXME remove dupes of sorting keys
 
-		let allowedOrderBy = sortingQuery
-			.map((e) => e.split(':')) // TODO FIXME could return more elements / or less
-			.filter((e) => allowedFilters.includes(e[0])) // CHANGED
-			.filter((e) => ['up', 'down'].includes(e[1]));
-
-		// TODO FIXME use all fields here which are not secret and not only the ones we are allowed to order by
-		// so it also works when the requested ordered fields are all equal
-		allowedOrderBy = [
-			...allowedOrderBy,
-			...allowedFilters.filter((k) => !allowedOrderBy.find((e) => e[0] == k)).map((k) => [k, 'up'])
+		let allowedOrderBy = [
+			...sortingQuery,
+			...[['id', 'ASC']].filter((k) => !sortingQuery.find((e) => e[0] == k[0]))
 		];
 
 		// orderBy needs to be reversed for backwards pagination
 		if (isBackwardsPagination) {
-			allowedOrderBy = allowedOrderBy.map((e) => [e[0], e[1] === 'up' ? 'down' : 'up']);
+			allowedOrderBy = allowedOrderBy.map((e) => [e[0], e[1] === 'ASC' ? 'DESC' : 'ASC']);
 		}
 
-		const orderByQuery = allowedOrderBy
-			.map((e) => (e[1] === 'up' ? `${e[0]} ASC` : `${e[0]} DESC`))
-			.join(',');
+		const orderByQuery = allowedOrderBy.map((e) => `${e[0]} ${e[1]}`).join(',');
 		const orderBy = ' ORDER BY ' + orderByQuery;
-
-		// obv changed
-		const queryStringPart0 = select;
 
 		const paginationCursorComparison = allowedOrderBy.map((value, index, array) => {
 			return array.slice(0, index + 1);
 		});
 
+		const pagination = paginationCursorComparison
+			.map((value) => {
+				return concTT(
+					concTT(
+						fakeLiteralTT('('),
+						value
+							.map((value, index, array) => {
+								return concTT(
+									fakeTT<SerializableParameter>`${
+										paginationCursor != null ? paginationCursor[value[0]] ?? null : null
+									}`,
+									fakeLiteralTT(
+										` ${index == array.length - 1 ? (value[1] == 'ASC' ? '<' : '>') : '='} ${
+											value[0]
+										}`
+									)
+								);
+							})
+							.reduce((prev, curr) => {
+								return concTT(concTT(prev, fakeLiteralTT(' AND ')), curr);
+							})
+					),
+					fakeLiteralTT(')')
+				);
+			})
+			.reduce((prev, curr) => {
+				return concTT(concTT(prev, fakeLiteralTT(' OR ')), curr);
+			});
+
+		// TODO FIXME use UNION technique like in README
+		// probably can't use https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON because up and down can be mixed here (also it's inefficient)
 		const queryStringPart1 = concTT(
-			concTT(
-				fakeLiteralTT(' WHERE ('),
-				paginationCursorComparison
-					.map((value) => {
-						return concTT(
-							concTT(
-								fakeLiteralTT('('),
-								value
-									.map((value, index, array) => {
-										return concTT(
-											fakeTT<SerializableParameter>`${
-												paginationCursor != null ? paginationCursor[value[0]] ?? null : null
-											}`,
-											fakeLiteralTT(
-												` ${index == array.length - 1 ? (value[1] == 'up' ? '<=' : '>') : '='} ${
-													value[0]
-												}`
-											)
-										);
-									})
-									.reduce((prev, curr) => {
-										return concTT(concTT(prev, fakeLiteralTT(' AND ')), curr);
-									})
-							),
-							fakeLiteralTT(')')
-						);
-					})
-					.reduce((prev, curr) => {
-						return concTT(concTT(prev, fakeLiteralTT(' OR ')), curr);
-					})
-			),
+			concTT(fakeLiteralTT(' WHERE ('), pagination),
 			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
 		);
 
-		//console.log(queryStringPart1);
-
-		const queryStringPart2 = params(query); // this should be a safe part
+		const queryStringPart2 = params(query);
 		const queryStringPart3 = fakeLiteralTT(orderBy);
 		const queryStringPart4 = fakeTT<SerializableParameter>` LIMIT (${paginationLimit} + 1);`;
 		const queryStringParts12 = concTT(queryStringPart1, queryStringPart2);
 		const queryStringParts34 = concTT(queryStringPart3, queryStringPart4);
 		const queryStringParts1234 = concTT(queryStringParts12, queryStringParts34);
-		const queryStringParts01234 = concTT(queryStringPart0, queryStringParts1234);
+		const queryStringParts01234 = concTT(select, queryStringParts1234);
 		const queryString = toTT(queryStringParts01234);
 
 		//console.log(queryString);
 		console.log(TTToString(...queryString));
-		// TODO FIXME change
 
 		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
 
-		//console.log(entities);
-
-		// e.g http://localhost:3000/users.json?pagination_direction=forwards
 		let nextCursor: BaseEntityType | null = null;
 		let previousCursor: BaseEntityType | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
 		if (isForwardsPagination || (!isForwardsPagination && !isBackwardsPagination)) {
-			previousCursor = paginationCursor;
+			previousCursor = entities[0];
 			if (entities.length > paginationLimit) {
-				const lastElement = entities.pop();
-				nextCursor = lastElement ?? null;
+				entities.pop();
+				nextCursor = entities[entities.length - 1] ?? null;
 			}
 		} else if (isBackwardsPagination) {
 			entities = entities.reverse(); // fixup as we needed to switch up orders above
@@ -139,10 +129,8 @@ export const buildGet = (
 				entities.shift();
 				previousCursor = entities[0] ?? null;
 			}
-			nextCursor = paginationCursor;
+			nextCursor = entities[entities.length - 1];
 		}
-
-		//console.log(previousCursor);
 
 		// AUDIT END
 

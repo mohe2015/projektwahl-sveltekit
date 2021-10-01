@@ -16,10 +16,9 @@ export function hasPropertyType<T, K extends string, Y>(
 	keys: K[],
 	type: Y
 ): [
-	T &
-		{
-			[k in K]: Y;
-		},
+	T & {
+		[k in K]: Y;
+	},
 	{ [index: string]: string }
 ] {
 	const errors: { [index: string]: string } = {};
@@ -39,10 +38,9 @@ export function hasEnumProperty<T, K extends string, Y extends string>(
 	keys: K[],
 	enums: Readonly<Y[]>
 ): [
-	T &
-		{
-			[k in K]: Y;
-		},
+	T & {
+		[k in K]: Y;
+	},
 	{ [index: string]: string }
 ] {
 	const errors: { [index: string]: string } = {};

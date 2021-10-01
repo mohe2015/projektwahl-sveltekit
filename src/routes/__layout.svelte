@@ -36,7 +36,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			method: 'POST',
 			body: null,
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'x-csrf-protection': 'projektwahl'
 			}
 		});
 		if (!response.ok) {
@@ -111,7 +112,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						on:click={(e) => {
 							e.preventDefault();
 							logoutModalOpen = true;
-						}}>{$session.user.preferred_username} abmelden</a
+						}}>{$session.user.name} abmelden</a
 					>
 				</li>
 			{:else}

@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 import type { MyLocals, SessionUserType } from 'src/hooks';
+import type { UserType } from './types';
 
 export class HTTPError extends Error {
 	status: number;
@@ -18,7 +19,7 @@ export class HTTPError extends Error {
 export const allowUserType = (
 	request: ServerRequest<MyLocals, unknown>,
 	allowedTypes: ('voter' | 'helper' | 'admin')[]
-): SessionUserType => {
+): UserType => {
 	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
 		throw new HTTPError(403, 'Forbidden');
 	}

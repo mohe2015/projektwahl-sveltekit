@@ -25,11 +25,89 @@ docker-compose stop
 docker-compose rm db
 
 psql -p 54321 -h localhost -U projektwahl
-psql -p 54321 -h localhost -U projektwahl --db postgres
 echo "EXPLAIN (ANALYZE, COSTS, VERBOSE, BUFFERS, FORMAT JSON) " | psql -p 54321 -h localhost -U projektwahl > analyze.json
 # https://explain.dalibo.com/
 EXPLAIN ANALYZE SELECT id,name,type FROM users ORDER BY id ASC,name ASC LIMIT (10 + 1); # why sorted after name
 # https://www.postgresql.org/docs/current/runtime-config-query.html
+
+-- TODO FIXME OPTIMIZE THIS KIND OF QUERY BY UNION-ing the parts together and also only ordering the id field
+-- ALSO TEST IF THIS IS ACTUALLY FASTER
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE (('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) OR (NOT true AND NOT false)) AND name LIKE '%%' AND (true OR id = null) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
+
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
+
+TODO
+
+TODO FIXME THE ORDER OF THE UNIONS HERE IS WRONG AND MAY ALSO NEED TO BE ADJUSTED FOR BACKWARDS PAGINATION
+
+EXPLAIN ANALYZE
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+UNION ALL
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' = name AND 'voter' < type) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+UNION ALL
+(SELECT id,name,type FROM users WHERE ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1))
+LIMIT 11;
+
+
+
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ROW('user0.94651659117602724', 'voter', '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44') < ROW(name, type, id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
+
+
+OTHER ONE:
+
+SELECT id,name,type FROM users WHERE ('user0.0033005226067721605' < name) OR ('user0.0033005226067721605' = name AND 'c7821916-0e40-4459-8746-2ad6bde37700' > id) ORDER BY name ASC,id DESC LIMIT (10 + 1);
+
+
+
+SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'c7821916-0e40-4459-8746-2ad6bde37700' > id) ORDER BY name ASC,id DESC LIMIT (10 + 1);
+
+in AND umschreiben?
+
+
+mit tricks in ROW umschreiben:
+
+CREATE INDEX users_type_index ON users (type);
+
+sure, das wird jetzt natürlich nen seq scan, weil type...
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ROW(type, 'user0.04651659117602724', id) < ROW('wter', name, '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44') ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1);
+
+
+slow:
+EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ROW(type, 'user0.04651659117602724', id) < ROW('voter', name, '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44') ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1);
+30ms
+
+can this be improved? maybe with an and query or union?
+
+
+this works AND IS THE FASTEST:
+
+EXPLAIN ANALYZE
+(SELECT name,type FROM users WHERE ('voter' = type AND 'user0.04651659117602724' = name AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' > id) ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1))
+UNION ALL
+(SELECT name,type FROM users WHERE ('voter' = type AND 'user0.04651659117602724' < name) ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1))
+UNION ALL
+(SELECT name,type FROM users WHERE ('voter' > type) ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1))
+LIMIT 11;
+
+
+
+maybe with AND:
+
+
+EXPLAIN ANALYZE SELECT type,name FROM users WHERE ROW(type, 'user0.04651659117602724') < ROW('voter', name) ORDER BY type DESC, name ASC LIMIT (10 + 1);
+
+
+EXPLAIN ANALYZE SELECT type,name FROM users WHERE type <= 'voter' AND (name >= 'user0.04651659117602724' OR type < 'voter') ORDER BY type DESC, name ASC LIMIT (10 + 1);
+
+
+just for the trolls using INTERSECT
+
+EXPLAIN ANALYZE
+(SELECT type,name FROM users WHERE type <= 'voter')
+INTERSECT ALL
+(SELECT type,name FROM users WHERE (name >= 'user0.04651659117602724' OR type < 'voter'))
+ORDER BY type DESC, name ASC LIMIT (10 + 1);
+
 
 
 RESET ALL;
@@ -43,8 +121,9 @@ TODO FIXME https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-rfc6265bis-0
 
 # Reset database (looses all data)
 
+psql -p 54321 -h localhost -U projektwahl --db postgres
+
 ```sql
-\c postgres
 set default_transaction_read_only = false;
 DROP DATABASE projektwahl;
 

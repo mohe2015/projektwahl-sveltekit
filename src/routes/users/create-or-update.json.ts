@@ -68,19 +68,20 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	}
 
 	try {
+		// TODO FIXME allow helper to change this but only specific fields (NOT type)
 		const [row] = await sql.begin('READ WRITE', async (sql) => {
 			if ('id' in user) {
-				return await sql`UPDATE users SET name = ${user.name}, password_hash = ${await hashPassword(
-					user.password
-				)}, type = ${user.type}, class = ${user.group ?? null}, age = ${user.age ?? null}, away = ${
-					user.away
-				} WHERE id = ${user.id!} RETURNING id;`;
+				return await sql`UPDATE users SET name = ${user.name}, password_hash = COALESCE(${
+					user.password ? await hashPassword(user.password) : null
+				}, password_hash), type = ${user.type}, class = ${user.group ?? null}, age = ${
+					user.age ?? null
+				}, away = ${user.away} WHERE id = ${user.id!} RETURNING id;`;
 			} else {
 				return await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
 					user.name
-				}, ${await hashPassword(user.password)}, ${user.type}, ${user.group ?? null}, ${
-					user.age ?? null
-				}, ${user.away}) RETURNING id;`;
+				}, ${user.password ? await hashPassword(user.password) : null}, ${user.type}, ${
+					user.group ?? null
+				}, ${user.age ?? null}, ${user.away}) RETURNING id;`;
 			}
 		});
 

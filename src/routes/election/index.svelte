@@ -8,7 +8,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export const load: Load = buildLoad('election.json', {
 		pagination_limit: '50',
-		'sorting[]': ['rank:up', 'id:down-up', 'title:down-up']
+		'sorting[]': ['rank:ASC', 'id:down-up', 'title:down-up']
 	});
 </script>
 
@@ -36,7 +36,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{fullInvalidationUrl}
 		{initialQuery}
 		title="Wahl"
-		createUrl="/404"
+		createUrl={null}
 	>
 		<thead slot="filter" let:headerClick let:currentSortValue let:query>
 			<tr>

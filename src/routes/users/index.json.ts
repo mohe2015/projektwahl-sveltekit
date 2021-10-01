@@ -17,7 +17,7 @@ export type UsersResponseBody = {
 };
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']);
 	return await buildGet(
 		['id', 'name', 'type'],
 		fakeTT<SerializableParameter>`SELECT ${sql(['id', 'name', 'type'])} FROM ${sql('users')}`,

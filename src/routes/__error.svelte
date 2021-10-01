@@ -3,14 +3,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script context="module" lang="ts">
+	import type { HTTPError } from '$lib/authorization';
+
 	import type { LoadOutput } from '@sveltejs/kit';
 
 	export const load = function ({ error, status }: LoadOutput): LoadOutput {
 		// there seems to be some client server inconsistency...
 		// https://github.com/sveltejs/kit/issues/1161
 		// https://github.com/sveltejs/kit/issues/1199
-		if (error.name === 'HTTPError') {
-			status = error.status;
+		// we probably can't check instanceof as this could be a serialized value
+		if ((error as Error).name === 'HTTPError') {
+			status = (error as HTTPError).status;
 		}
 		return {
 			props: {
@@ -19,18 +22,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			}
 		};
 	};
-
-	/*
-
-class MyError extends Error {
-	test = "hi"
-}
-
-	var error = new MyError();
-var { name, message, stack } = error;
-console.log({ ...error, name, message, stack })
-
-*/
 </script>
 
 <script lang="ts">

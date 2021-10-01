@@ -16,7 +16,7 @@ export type CreateResponse = {
 };
 
 export const post: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']); // TODO FIXME don't allow everyone to edit others projects
 	const { body } = request;
 
 	let errors: { [index: string]: string } = {};
@@ -53,8 +53,22 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 	}
 
 	try {
-		const [row] = await sql.begin('READ WRITE', async (sql) => {
-			if ('id' in project) {
+		let row;
+		if ('id' in project) {
+			if (
+				request.locals.user?.type !== 'admin' &&
+				request.locals.user?.project_leader_id !== project.id
+			) {
+				const response: MyEndpointOutput<CreateResponse> = {
+					body: {
+						errors: {
+							permissions: 'Du kannst keine fremden Projekte ändern!'
+						}
+					}
+				};
+				return response;
+			}
+			[row] = await sql.begin('READ WRITE', async (sql) => {
 				return await sql`UPDATE projects SET title = ${project.title}, info = ${
 					project.info
 				}, place = ${project.place}, costs = ${project.costs}, min_age = ${
@@ -66,10 +80,13 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 				}, requirements = ${project.requirements}, random_assignments = ${
 					project.random_assignments
 				} WHERE id = ${project.id!} RETURNING id;`;
-			} else {
+			});
+		} else {
+			// TODO FIXME also allow adding project leaders and in_project people
+			[row] = await sql.begin('READ WRITE', async (sql) => {
 				return await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${project.title}, ${project.info}, ${project.place}, ${project.costs}, ${project.min_age}, ${project.max_age}, ${project.min_participants}, ${project.max_participants}, ${project.presentation_type}, ${project.requirements}, ${project.random_assignments}) RETURNING id;`;
-			}
-		});
+			});
+		}
 
 		const response: MyEndpointOutput<CreateResponse> = {
 			body: {

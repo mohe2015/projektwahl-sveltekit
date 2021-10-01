@@ -6,7 +6,7 @@ ALTER DATABASE projektwahl SET default_transaction_isolation = 'serializable';
 ALTER DATABASE projektwahl SET default_transaction_read_only = true;
 
 CREATE TABLE IF NOT EXISTS projects (
-  id SERIAL PRIMARY KEY NOT NULL,
+  id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   title VARCHAR(255) NOT NULL,
   info VARCHAR(4096) NOT NULL,
   place VARCHAR(256) NOT NULL,
@@ -20,15 +20,20 @@ CREATE TABLE IF NOT EXISTS projects (
   random_assignments BOOLEAN NOT NULL
 );
 
+CREATE TYPE user_type AS ENUM ('admin', 'helper', 'voter');
+
 CREATE TABLE IF NOT EXISTS users (
-  id VARCHAR(256) PRIMARY KEY NOT NULL,
+  id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   name VARCHAR(64) UNIQUE NOT NULL,
-  type VARCHAR(16) NOT NULL,
-  project_leader_id INTEGER,
-  class VARCHAR(8),
+  password_hash VARCHAR(512),
+  type user_type NOT NULL,
+  project_leader_id UUID, -- TODO FIXME maybe m:n as somebody could theoretically be in multiple projects?
+  class VARCHAR(8), -- TODO RENAME TO group
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
-  in_project_id INTEGER, -- this should still be stored here even with openid as we can't join on it otherwise
+  password_changed BOOLEAN NOT NULL DEFAULT FALSE,
+  in_project_id UUID, -- this should still be stored here even with openid as we can't join on it otherwise
+  -- TODO maybe add computed_in_project_id so you can manually force people in a project and this doesn't break when calculating
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT
@@ -44,8 +49,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
-  project_id INTEGER NOT NULL,
-  user_id VARCHAR(256) NOT NULL,
+  project_id UUID NOT NULL,
+  user_id UUID NOT NULL,
   PRIMARY KEY(user_id,project_id),
   FOREIGN KEY (project_id)
     REFERENCES projects(id)
@@ -61,7 +66,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   session_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user_id INTEGER NOT NULL,
+  user_id UUID NOT NULL,
   FOREIGN KEY (user_id)
     REFERENCES users(id)
     ON UPDATE RESTRICT

@@ -2,23 +2,25 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 export type UserVoterType = {
-	id: number;
+	id?: number; // TODO FIXME separate this into two types
 	name: string;
 	password: string;
 	type: 'voter';
 	group: string;
 	age: number;
 	away: boolean;
+	project_leader_id?: string;
 };
 
 export type UserHelperAdminType = {
-	id: number;
+	id?: number;
 	name: string;
 	password: string;
 	type: 'helper' | 'admin';
 	group: never;
 	age: never;
 	away: boolean;
+	project_leader_id?: string;
 };
 
 export type UserType = UserVoterType | UserHelperAdminType;

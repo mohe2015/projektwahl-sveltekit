@@ -14,13 +14,11 @@ export type ProjectsResponseBody = {
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<ProjectsResponseBody>> {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']);
 	const { params } = request;
 
 	const [entity]: [ProjectType?] =
 		await sql`SELECT id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments FROM projects WHERE id = ${params.id} LIMIT 1`;
-
-	console.log(entity);
 
 	return {
 		body: {
