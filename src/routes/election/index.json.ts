@@ -37,7 +37,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			'presentation_type',
 			'requirements',
 			'random_assignments',
-			'rank',
+			'choices.rank',
 			'choices.project_id',
 			'choices.user_id'
 		])} FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = ${

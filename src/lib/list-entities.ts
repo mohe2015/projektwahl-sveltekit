@@ -74,9 +74,13 @@ export const buildGet = (
 										paginationCursor != null ? paginationCursor[value[0]] ?? null : null
 									}`,
 									fakeLiteralTT(
-										` ${index == array.length - 1 ? (value[1] == 'ASC' ? '<' : '>') : '='} ${
-											value[0]
-										}`
+										` ${
+											index == array.length - 1
+												? value[1] == 'ASC'
+													? '<'
+													: '>'
+												: 'IS NOT DISTINCT FROM'
+										} ${value[0]}`
 									)
 								);
 							})

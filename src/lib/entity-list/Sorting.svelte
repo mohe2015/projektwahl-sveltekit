@@ -12,11 +12,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let headerClick: (sortType: string) => void;
 	export let currentSortValue: (sorting: string[], sortingType: string) => string;
 	export let query: Writable<BaseQueryType>;
+
+	let curr = currentSortValue($query['sorting[]'], name);
+
+	$: {
+		curr = currentSortValue($query['sorting[]'], name);
+	}
 </script>
 
 <th on:click={() => headerClick(name)} class="table-cell-hover" scope="col"
 	>{title}<i
-		class="bi-arrow-{currentSortValue($query['sorting[]'], name)}"
+		class="bi-arrow-{curr == 'ASC' ? 'up' : curr == 'DESC' ? 'down' : 'down-up'}"
 		role="img"
 		aria-label="Nach {title} sortieren"
 	/></th
