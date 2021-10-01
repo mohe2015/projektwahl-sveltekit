@@ -21,11 +21,13 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	const parser = Readable.from(body as string).pipe(
 		parse({
-			trim: true
+			trim: true,
+			columns: true
 		})
 	);
 
 	for await (const body of parser) {
+		console.log(body);
 		// TODO FIXME duplicate code with create-or-update
 		let user: UserType;
 		let errors: { [index: string]: string } = {};
