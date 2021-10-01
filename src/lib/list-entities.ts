@@ -22,7 +22,8 @@ export const buildGet = (
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
 
-		let the_query: BaseQuery = JSON.parse(atob(query.toString())) // TODO FIXME validate
+		console.log( query.toString())
+		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))) // TODO FIXME validate
 		console.log(the_query)
 
 		// TODO FIXME better validation and null/undefined
