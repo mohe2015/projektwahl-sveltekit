@@ -52,7 +52,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</thead>
 		<tbody slot="response" let:response>
 			{#each response.entities as entity (entity.id)}
-				<tr animate:flip={{ duration: 500 }} transition:scale|local={{ duration: 500 }}>
+				<tr animate:flip={{ duration: 500 }}>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>

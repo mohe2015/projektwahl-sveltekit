@@ -69,20 +69,29 @@ export const buildGet = (
 						fakeLiteralTT('('),
 						value
 							.map((value, index, array) => {
-								return concTT(
-									fakeTT<SerializableParameter>`${
-										paginationCursor != null ? paginationCursor[value[0]] ?? null : null
-									}`,
-									fakeLiteralTT(
-										` ${
-											index == array.length - 1
-												? value[1] == 'ASC'
-													? '<'
-													: '>'
-												: 'IS NOT DISTINCT FROM'
-										} ${value[0]}`
-									)
-								);
+								// TODO FIXME
+								if (
+									(paginationCursor != null ? paginationCursor[value[0]] ?? null : null) === null &&
+									index == array.length - 1 &&
+									value[1] == 'ASC'
+								) {
+									return fakeLiteralTT(`${value[0]} IS NULL`);
+								} else {
+									return concTT(
+										fakeTT<SerializableParameter>`${
+											paginationCursor != null ? paginationCursor[value[0]] ?? null : null
+										}`,
+										fakeLiteralTT(
+											` ${
+												index == array.length - 1
+													? value[1] == 'ASC'
+														? '<' // TODO FIXME null is neither < nor > than any value so look at how order-by orders null and do this here accordingly
+														: '>'
+													: 'IS NOT DISTINCT FROM'
+											} ${value[0]}`
+										)
+									);
+								}
 							})
 							.reduce((prev, curr) => {
 								return concTT(concTT(prev, fakeLiteralTT(' AND ')), curr);
