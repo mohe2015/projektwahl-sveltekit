@@ -52,7 +52,6 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@types/node-fetch": "^3.0.2",
 		"argon2": "^0.28.2",
 		"bootstrap": "^5.1.1",
 		"csv-parse": "^4.16.3",
