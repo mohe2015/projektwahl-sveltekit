@@ -66,10 +66,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <div class="row justify-content-between">
 	<div class="col-auto">
 		<a class="btn btn-primary" href={createUrl} role="button">{title} erstellen</a>
+		<slot name="buttons" />
 	</div>
-
-	<!-- filter (for filtering by name, type, ..) <i class="bi-filter" role="img" aria-label="Filter" />
-	-->
 
 	<div class="col-3">
 		<!-- svelte-ignore a11y-no-onchange -->

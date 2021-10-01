@@ -37,6 +37,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		title="Nutzer"
 		createUrl="/users/create"
 	>
+		<a slot="buttons" class="btn btn-primary" href="/users/import" role="button"
+			>Nutzer importieren</a
+		>
 		<thead slot="filter" let:headerClick let:currentSortValue let:query>
 			<tr>
 				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
