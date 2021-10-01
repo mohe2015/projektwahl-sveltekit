@@ -20,11 +20,13 @@ CREATE TABLE IF NOT EXISTS projects (
   random_assignments BOOLEAN NOT NULL
 );
 
+CREATE TYPE user_type AS ENUM ('admin', 'helper', 'voter');
+
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   name VARCHAR(64) UNIQUE NOT NULL,
   password_hash VARCHAR(512),
-  type VARCHAR(16) NOT NULL,
+  type user_type NOT NULL,
   project_leader_id UUID,
   class VARCHAR(8), -- TODO RENAME TO group
   age INTEGER,

@@ -37,7 +37,7 @@ export const buildGet = (
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 		const paginationCursorQueryValue = query.get('pagination_cursor');
 
-		// TODO FIXME fix that this could return an array or so
+		// TODO FIXME fix that this could return an array or so (not any and validate it)
 		const paginationCursor: any | null =
 			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : null; // WARNING JSON.parse can throw SyntaxError
 
@@ -75,6 +75,7 @@ export const buildGet = (
 			return array.slice(0, index + 1);
 		});
 
+		// probably can't use https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON because up and down can be mixed here
 		const queryStringPart1 = concTT(
 			concTT(
 				fakeLiteralTT(' WHERE ('),
