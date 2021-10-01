@@ -46,14 +46,12 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		(query) =>
 			fakeTT<SerializableParameter>`AND title LIKE ${
 				'%' + (query.filters.title ?? '') + '%'
-			} AND (${!('id' in query.filters)} OR id = ${query.filters.id}) AND info LIKE ${
+			} AND (${!('id' in query.filters)} OR id = ${query.filters.id ?? null}) AND info LIKE ${
 				'%' + (query.filters.info ?? '') + '%'
-			} AND place LIKE ${
-				'%' + (query.filters.place ?? '') + '%'
-			} AND presentation_type LIKE ${
+			} AND place LIKE ${'%' + (query.filters.place ?? '') + '%'} AND presentation_type LIKE ${
 				'%' + (query.filters.presentation_type ?? '') + '%'
-			} AND requirements LIKE ${
-				'%' + (query.filters.requirements ?? '') + '%'
-			} AND (${!('rank' in query.filters)} OR rank = ${query.filters.rank})`
+			} AND requirements LIKE ${'%' + (query.filters.requirements ?? '') + '%'} AND (${!(
+				'rank' in query.filters
+			)} OR rank = ${query.filters.rank ?? null})`
 	)(request);
 };
