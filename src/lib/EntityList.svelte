@@ -35,10 +35,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
 			case 'down-up':
-				newElement = 'up';
+				newElement = 'ASC';
 				break;
-			case 'up':
-				newElement = 'down';
+			case 'ASC':
+				newElement = 'DESC';
 				break;
 			default:
 				newElement = 'down-up';
