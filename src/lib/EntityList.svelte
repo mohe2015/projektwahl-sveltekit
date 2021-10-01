@@ -113,14 +113,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<ul class="pagination justify-content-center">
 			<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 				<a
-					on:click|preventDefault={async () => {
-						await goto($page.path + '?' + $page.query, {
-							state: {
-								paginationCursor: response.previousCursor,
-								paginationDirection: 'backwards'
-							}
-						});
-						await refresh(); // TODO FIXME backwards pagination should also invalidate
+					on:click|preventDefault={() => {
+						($query.paginationCursor = response.previousCursor),
+							($query.paginationDirection = 'backwards');
 					}}
 					class="page-link"
 					href="/"
@@ -133,14 +128,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</li>
 			<li class="page-item {response.nextCursor ? '' : 'disabled'}">
 				<a
-					on:click|preventDefault={async () => {
-						await goto($page.path + '?' + $page.query, {
-							state: {
-								paginationCursor: response.nextCursor,
-								paginationDirection: 'forwards'
-							}
-						});
-						await refresh();
+					on:click|preventDefault={() => {
+						($query.paginationCursor = response.nextCursor),
+							($query.paginationDirection = 'forwards');
 					}}
 					class="page-link"
 					href="/"
