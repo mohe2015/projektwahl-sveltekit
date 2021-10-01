@@ -3,7 +3,6 @@
 import { browser } from '$app/env';
 import type { Load } from '@sveltejs/kit/types';
 import { HTTPError } from './authorization';
-import { location2query, query2location } from './writable_url';
 
 export type BaseEntityType = {
 	id: number;
@@ -21,59 +20,3 @@ export type BaseQueryType = {
 	pagination_limit: string;
 	[x: string]: string | string[];
 };
-
-export async function loadEntites(
-	fetch: (info: RequestInfo, init?: RequestInit | undefined) => Promise<Response>,
-	url: string,
-	query: BaseQueryType,
-	paginationDirection: 'forwards' | 'backwards' | null,
-	paginationCursor: BaseEntityType | null
-): Promise<[any, string]> {
-	const urlSearchParams = new URLSearchParams(query2location(query));
-	if (paginationDirection !== null) {
-		urlSearchParams.set('pagination_direction', paginationDirection);
-	}
-	if (paginationCursor !== null) {
-		urlSearchParams.set('pagination_cursor', JSON.stringify(paginationCursor));
-	}
-	const fullUrl = `/${url}?${urlSearchParams}`;
-	const res = await fetch(fullUrl, {
-		credentials: 'same-origin'
-	});
-	if (!res.ok) {
-		throw new HTTPError(res.status, res.statusText);
-	}
-	return [await res.json(), fullUrl];
-}
-
-export function buildLoad(url: string, initialQuery: BaseQueryType) {
-	const load: Load = async ({ page, fetch, session, context }) => {
-		try {
-			const [response, fullInvalidationUrl] = await loadEntites(
-				fetch,
-				url,
-				{
-					...initialQuery,
-					...(location2query(page) as BaseQueryType)
-				},
-				browser ? history.state?.paginationDirection ?? null : null,
-				browser ? history.state?.paginationCursor ?? null : null
-			);
-			const res = {
-				props: {
-					theResponse: response,
-					fullInvalidationUrl,
-					initialQuery
-				}
-			};
-			return res;
-		} catch (error) {
-			// I hate this but I don't want to send 500s - maybe I should create a generic wrapper around load instead
-			return {
-				error,
-				status: error.status
-			};
-		}
-	};
-	return load;
-}

@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import type { Writable } from 'svelte/store';
 
-	export let query: Writable<BaseQueryType>;
+	export let filters: Writable<any>;
 	export let name: string;
 	export let type: 'text' | 'number' = 'text';
 </script>
@@ -16,7 +16,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 {#if type === 'text'}
 	<th scope="col">
 		<input
-			bind:value={$query[`filter_${name}`]}
+			bind:value={$filters[name]}
 			type="text"
 			class="form-control"
 			id="projects-filter-{name}"
@@ -25,7 +25,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 {:else if type === 'number'}
 	<th scope="col">
 		<input
-			bind:value={$query[`filter_${name}`]}
+			bind:value={$filters[name]}
 			type="number"
 			class="form-control"
 			id="projects-filter-{name}"
