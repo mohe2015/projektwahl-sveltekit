@@ -15,7 +15,7 @@ export type UsersResponseBody = {
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<UsersResponseBody>> {
-	allowUserType(request, ['admin']);
+	allowUserType(request, ['admin', 'helper']);
 	const { params } = request;
 
 	// TODO FIXME same database column names like attributes so this doesn't happen again
