@@ -3,14 +3,12 @@
 import { goto } from '$app/navigation';
 import type { Subscriber, Unsubscriber, Updater, Writable } from 'svelte/store';
 import { page } from '$app/stores';
-import type { Location } from '@sveltejs/kit/types/helper';
 import { get } from 'svelte/store';
+import type { Page } from '@sveltejs/kit';
 
 declare type Invalidator<T> = (value?: T) => void;
 
-export const location2query = <T extends Record<string, string | string[]>>(value: Location): T => {
-	// the type casts here are needes as this can't be proven correctly.
-	//console.log(value.query.toString());
+export const location2query = <T extends Record<string, string | string[]>>(value: Page): T => {
 	const currentQuery: T = {} as T;
 	value.query.forEach((_, key) => {
 		if (key.endsWith('[]')) {
@@ -43,22 +41,15 @@ export const query2location = <T extends Record<string, string | string[]>>(
 export const query = <T extends Record<string, string | string[]>>(
 	defaultValue: T
 ): Writable<T> => {
-	/**
-	 * Subscribe on value changes.
-	 * @param run subscription callback
-	 * @param invalidate cleanup callback
-	 */
 	const subscribe = (run: Subscriber<T>, invalidate?: Invalidator<T>): Unsubscriber => {
 		return page.subscribe(
 			(value) => {
-				//console.log('subscribe.run');
 				if (value) {
 					run({ ...defaultValue, ...location2query(value) });
 				}
 			},
 			invalidate
 				? (value) => {
-						//console.log('subscribe.invalidate');
 						if (value) {
 							invalidate({ ...defaultValue, ...location2query(value) });
 						}
@@ -66,26 +57,15 @@ export const query = <T extends Record<string, string | string[]>>(
 				: undefined
 		);
 	};
-	/**
-	 * Set value and inform subscribers.
-	 * @param value to set
-	 */
 	const set = (value: T): void => {
 		const actualValue: T = { ...defaultValue, ...value };
-		//console.log('set', actualValue);
-		// https://github.com/sveltejs/kit/blob/fc19b6313f6e457d8fe78b251ca95d9ba3a1dcc2/packages/kit/src/runtime/client/router.js#L256 bruh focus
 		goto(`?${query2location(actualValue).toString()}`, {
 			replaceState: true,
 			noscroll: true,
 			keepfocus: true
 		});
 	};
-	/**
-	 * Update value using callback and inform subscribers.
-	 * @param updater callback
-	 */
 	const update = (updater: Updater<T>): void => {
-		//console.log('update');
 		set(updater({ ...defaultValue, ...location2query(get(page)) }));
 	};
 	return {
