@@ -14,8 +14,6 @@ export const buildGet = (
 	params: (query: URLSearchParams) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
-		console.log(query);
-
 		// TODO FIXME better validation and null/undefined
 
 		// AUDIT START
@@ -109,7 +107,6 @@ export const buildGet = (
 		const queryStringParts01234 = concTT(select, queryStringParts1234);
 		const queryString = toTT(queryStringParts01234);
 
-		//console.log(queryString);
 		console.log(TTToString(...queryString));
 
 		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);

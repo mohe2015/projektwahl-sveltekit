@@ -48,7 +48,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 
 	export async function refresh() {
-		console.log('invalidate');
 		await invalidate(fullInvalidationUrl);
 	}
 

@@ -59,6 +59,7 @@ export const query = <T extends Record<string, string | string[]>>(
 	};
 	const set = (value: T): void => {
 		const actualValue: T = { ...defaultValue, ...value };
+		console.log('jo', actualValue);
 		goto(`?${query2location(actualValue).toString()}`, {
 			replaceState: true,
 			noscroll: true,
