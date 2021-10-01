@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { BaseQueryType } from '$lib/entites';
-import type { BaseQuery } from '$lib/EntityList.svelte';
+	import type { BaseQuery } from '$lib/list-entities';
 
 	import type { Writable } from 'svelte/store';
 

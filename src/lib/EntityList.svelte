@@ -8,10 +8,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { HTTPError } from './authorization';
+	import type { BaseQuery } from './list-entities';
+	import { browser } from '$app/env';
 
 	export let title: string;
 	export let createUrl: string | null;
-	let response: Promise<EntityResponseBody> = new Promise((a,b)=>{});
+	let response: Promise<EntityResponseBody> = new Promise((a, b) => {
+		// empty
+	});
 	export let fullInvalidationUrl: string;
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -53,16 +57,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};
 
-	$: response = (async () => {
-		const fullUrl = "http://" + $page.host + $page.path + `/${url}?${btoa(JSON.stringify($query))}`;
-		const res = await fetch(fullUrl, {
-			credentials: 'same-origin'
-		});
-		if (!res.ok) {
-			throw new HTTPError(res.status, res.statusText);
-		}
-		return (await res.json()) as EntityResponseBody;
-	})();
+	$: if (browser) {
+		// TODO FIXME SSR?
+		response = (async () => {
+			const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+			console.log(fullUrl);
+			const res = await fetch(fullUrl, {
+				credentials: 'same-origin'
+			});
+			if (!res.ok) {
+				throw new HTTPError(res.status, res.statusText);
+			}
+			return (await res.json()) as EntityResponseBody;
+		})();
+	}
 </script>
 
 <svelte:head>
