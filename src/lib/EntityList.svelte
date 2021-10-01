@@ -2,27 +2,16 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script lang="ts" context="module">
-	export type BaseQuery = {
-		paginationDirection: 'forwards' | 'backwards' | null;
-		paginationCursor: BaseEntityType | null;
-		sorting: string[]; // TODO FIXME format
-		paginationLimit: number;
-		filters: any;
-	};
-</script>
-
 <script lang="ts">
 	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
-	import { writable } from 'svelte/store';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { HTTPError } from './authorization';
 
 	export let title: string;
 	export let createUrl: string | null;
-	export let response: Promise<EntityResponseBody>;
+	let response: Promise<EntityResponseBody> = new Promise((a,b)=>{});
 	export let fullInvalidationUrl: string;
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
@@ -65,7 +54,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 
 	$: response = (async () => {
-		const fullUrl = `/${url}?${JSON.stringify(query)}`;
+		const fullUrl = "http://" + $page.host + $page.path + `/${url}?${btoa(JSON.stringify($query))}`;
 		const res = await fetch(fullUrl, {
 			credentials: 'same-origin'
 		});

@@ -15,19 +15,21 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
-	export let theResponse: EntityResponseBody;
 	export let fullInvalidationUrl: string;
-	export let initialQuery: BaseQueryType;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		response={theResponse}
 		{fullInvalidationUrl}
 		url={'election.json'}
-		sorting={writable(['rank:ASC', 'id:down-up', 'title:down-up'])}
-		paginationLimit={50}
+		query={writable({
+			sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
+			paginationLimit: 50,
+			paginationDirection: null,
+			paginationCursor: null,
+			filters: {}
+		})}
 		title="Wahl"
 		createUrl={null}
 	>
@@ -44,6 +46,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</tr>
 		</thead>
 		<tbody slot="response" let:response>
+{#await response}
+Wird geladen...
+{:then response}
 			{#each response.entities as entity (entity.id)}
 				<tr animate:flip={{ duration: 500 }}>
 					<th scope="row">{entity.id}</th>
@@ -53,6 +58,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					</td>
 				</tr>
 			{/each}
+{/await}
 		</tbody>
 	</EntityList>
 </main>

@@ -4,6 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { BaseQueryType } from '$lib/entites';
+import type { BaseQuery } from '$lib/EntityList.svelte';
 
 	import type { Writable } from 'svelte/store';
 
@@ -11,12 +12,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let name: string;
 	export let headerClick: (sortType: string) => void;
 	export let currentSortValue: (sorting: string[], sortingType: string) => string;
-	export let query: Writable<BaseQueryType>;
+	export let query: Writable<BaseQuery>;
 
-	let curr = currentSortValue($query['sorting[]'], name);
+	let curr = currentSortValue($query.sorting, name);
 
 	$: {
-		curr = currentSortValue($query['sorting[]'], name);
+		curr = currentSortValue($query.sorting, name);
 	}
 </script>
 

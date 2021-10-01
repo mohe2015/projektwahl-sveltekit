@@ -6,14 +6,25 @@ import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { BaseEntityType, EntityResponseBody } from './entites';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
-import { query2location } from './writable_url';
+
+export type BaseQuery = {
+	paginationDirection: 'forwards' | 'backwards' | null;
+	paginationCursor: BaseEntityType | null;
+	sorting: string[]; // TODO FIXME format
+	paginationLimit: number;
+	filters: any;
+};
 
 export const buildGet = (
 	allowedFilters: string[],
 	select: [TemplateStringsArray, SerializableParameter[]],
-	params: (query: URLSearchParams) => [TemplateStringsArray, SerializableParameter[]]
+	params: (query: BaseQuery) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
+
+		let the_query: BaseQuery = JSON.parse(atob(query.toString())) // TODO FIXME validate
+		console.log(the_query)
+
 		// TODO FIXME better validation and null/undefined
 
 		// AUDIT START
@@ -21,8 +32,8 @@ export const buildGet = (
 		// this is based on the assumption that two rows are never exactly equal (e.g. uuid is different) and therefore the cursor can always be maintained
 		// this creates arbitrary results when elements are changed while holding a cursor
 
-		const paginationDirection: string | null = query.get('pagination_direction');
-		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
+		const paginationDirection: string | null = the_query.paginationDirection;
+		const paginationLimit: number = the_query.paginationLimit;
 		if (isNaN(paginationLimit)) {
 			throw new Error('invalid pagination_limit');
 		}
@@ -31,14 +42,12 @@ export const buildGet = (
 		}
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
-		const paginationCursorQueryValue = query.get('pagination_cursor');
 
+		
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
-		const paginationCursor: any | null =
-			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : null; // WARNING JSON.parse can throw SyntaxError
+		const paginationCursor: any | null = the_query.paginationCursor;
 
-		const sortingQuery: [string, string][] = query
-			.getAll('sorting[]')
+		const sortingQuery: [string, string][] = the_query.sorting
 			.map((e) => e.split(':', 2))
 			.map<[string, string]>((e) => [e[0], e[1]])
 			.filter((e) => allowedFilters.includes(e[0]))
@@ -111,7 +120,7 @@ export const buildGet = (
 			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
 		);
 
-		const queryStringPart2 = params(query);
+		const queryStringPart2 = params(the_query);
 		const queryStringPart3 = fakeLiteralTT(orderBy);
 		const queryStringPart4 = fakeTT<SerializableParameter>` LIMIT (${paginationLimit} + 1);`;
 		const queryStringParts12 = concTT(queryStringPart1, queryStringPart2);

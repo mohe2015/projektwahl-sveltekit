@@ -45,15 +45,15 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		})`,
 		(query) =>
 			fakeTT<SerializableParameter>`AND title LIKE ${
-				'%' + (query.get('filter_title') ?? '') + '%'
-			} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND info LIKE ${
-				'%' + (query.get('filter_info') ?? '') + '%'
+				'%' + (query.filters.title ?? '') + '%'
+			} AND (${!('id' in query.filters)} OR id = ${query.filters.id}) AND info LIKE ${
+				'%' + (query.filters.info ?? '') + '%'
 			} AND place LIKE ${
-				'%' + (query.get('filter_place') ?? '') + '%'
+				'%' + (query.filters.place ?? '') + '%'
 			} AND presentation_type LIKE ${
-				'%' + (query.get('filter_presentation_type') ?? '') + '%'
+				'%' + (query.filters.presentation_type ?? '') + '%'
 			} AND requirements LIKE ${
-				'%' + (query.get('filter_requirements') ?? '') + '%'
-			} AND (${!query.has('filter_rank')} OR rank = ${query.get('filter_rank')})`
+				'%' + (query.filters.requirements ?? '') + '%'
+			} AND (${!('rank' in query.filters)} OR rank = ${query.filters.rank})`
 	)(request);
 };
