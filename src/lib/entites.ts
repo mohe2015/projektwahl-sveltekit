@@ -11,7 +11,7 @@ export type BaseEntityType = {
 
 export type FetchResponse<T> = {
 	success?: T;
-	error?: Error;
+	error?: any;
 };
 
 export type EntityResponseBody = {

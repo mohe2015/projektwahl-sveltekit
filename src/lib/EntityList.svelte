@@ -44,12 +44,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						credentials: 'include'
 					});
 					if (!res.ok) {
-						throw new HTTPError(res.status, res.statusText);
+						set({
+							success: undefined,
+							error: res.status + ' ' + res.statusText
+						} as FetchResponse<EntityResponseBody>);
+					} else {
+						set({
+							success: (await res.json()) as EntityResponseBody,
+							error: undefined
+						} as FetchResponse<EntityResponseBody>);
 					}
-					set({
-						success: (await res.json()) as EntityResponseBody,
-						error: undefined
-					} as FetchResponse<EntityResponseBody>);
 					loading.set(false);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
 				})();
