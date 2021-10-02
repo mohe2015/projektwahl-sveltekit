@@ -109,10 +109,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					is_project_leader: false
 				},
 				paginationLimit: 10,
-				sorting: ['project_leader_id:DESC', 'id:down-up', 'name:down-up', 'type:down-up'],
+				sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
 				paginationCursor: null,
-				paginationDirection: null,
-				project_leader_id: entity.id
+				paginationDirection: null
+				//project_leader_id: entity.id
 			})}
 			title="Projektleitende"
 			createUrl={null}
@@ -120,20 +120,20 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			<thead slot="filter" let:headerClick let:currentSortValue let:query>
 				<tr>
 					<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
-					<Sorting
+					<!--	<Sorting
 						name="is_project_leader"
 						title="Projektleiter"
 						{headerClick}
 						{currentSortValue}
 						{query}
-					/>
+					/>-->
 					<Sorting name="name" title="Name" {headerClick} {currentSortValue} {query} />
 					<Sorting name="type" title="Typ" {headerClick} {currentSortValue} {query} />
 					<th>Aktionen</th>
 				</tr>
 				<tr class="align-middle">
 					<Filtering name="id" type="number" {query} />
-					<Filtering name="is_project_leader" type="boolean" {query} />
+					<!--<Filtering name="is_project_leader" type="boolean" {query} />-->
 					<Filtering name="name" type="text" {query} />
 					<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
 					<th scope="col" />
@@ -153,7 +153,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>
-								<ProjectLeaderButton project_id={entity.id} entity={user} />
+								<!--	<ProjectLeaderButton project_id={entity.id} entity={user} />-->
 							</td>
 							<td>{user.name}</td>
 							<td>{user.type}</td>
