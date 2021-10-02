@@ -10,7 +10,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export let query: Writable<BaseQuery>;
 	export let name: string;
-	export let type: 'text' | 'number' = 'text';
+	export let type: 'text' | 'number' | 'boolean' = 'text';
 </script>
 
 <!-- because of a limitation of svelte (binding with dynamic type not possible) we need to duplicate the code here -->
@@ -29,6 +29,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			bind:value={$query.filters[name]}
 			type="number"
 			class="form-control"
+			id="projects-filter-{name}"
+		/>
+	</th>
+{:else if type === 'boolean'}
+	<th scope="col">
+		<input
+			bind:value={$query.filters[name]}
+			type="checkbox"
+			class="form-check-input"
 			id="projects-filter-{name}"
 		/>
 	</th>

@@ -17,6 +17,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { ProjectType } from '$lib/types';
 	import { Readable, writable } from 'svelte/store';
+	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
 	export let entity: Partial<ProjectType>;
 
@@ -93,72 +94,79 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		bind:the_value={entity.requirements}
 		{feedback}
 	/>
-	<EntityList
-		bind:this={list}
-		bind:response
-		url="users.json"
-		query={writable({
-			filters: {
-				types: ['admin', 'helper', 'voter']
-			},
-			paginationLimit: 10,
-			sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
-			paginationCursor: null,
-			paginationDirection: null
-		})}
-		title="Projektleitende"
-		createUrl={null}
-	>
-		<thead slot="filter" let:headerClick let:currentSortValue let:query>
-			<tr>
-				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
-				<Sorting name="name" title="Name" {headerClick} {currentSortValue} {query} />
-				<Sorting name="type" title="Typ" {headerClick} {currentSortValue} {query} />
-				<th>Aktionen</th>
-			</tr>
-			<tr class="align-middle">
-				<Filtering name="id" type="number" {query} />
-				<Filtering name="name" type="text" {query} />
-				<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
-				<th scope="col" />
-			</tr>
-		</thead>
-		<tbody slot="response">
-			{#if $response?.error}
+	{#if entity.id}
+		<!-- for now only implement this on updating -->
+		<!-- also take care that you cant override somebody else if there are already project leader somewhere else -->
+		<!-- TODO FIXME do we want to allow this at creation? then the approach needs to be different -->
+		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
+		<EntityList
+			bind:this={list}
+			bind:response
+			url="project_leaders.json"
+			query={writable({
+				filters: {
+					types: ['admin', 'helper', 'voter']
+				},
+				paginationLimit: 10,
+				sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
+				paginationCursor: null,
+				paginationDirection: null
+			})}
+			title="Projektleitende"
+			createUrl={null}
+		>
+			<thead slot="filter" let:headerClick let:currentSortValue let:query>
 				<tr>
-					<td colspan="4">
-						<div class="alert alert-danger w-100" role="alert">
-							Fehler {$response.error}
-						</div>
-					</td>
+					<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
+					<Sorting
+						name="project_leader_id"
+						title="Projektleiter"
+						{headerClick}
+						{currentSortValue}
+						{query}
+					/>
+					<Sorting name="name" title="Name" {headerClick} {currentSortValue} {query} />
+					<Sorting name="type" title="Typ" {headerClick} {currentSortValue} {query} />
+					<th>Aktionen</th>
 				</tr>
-			{:else}
-				{#each $response?.success?.entities ?? [] as entity (entity.id)}
+				<tr class="align-middle">
+					<Filtering name="id" type="number" {query} />
+					<Filtering name="project_leader_id" type="boolean" {query} />
+					<Filtering name="name" type="text" {query} />
+					<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
+					<th scope="col" />
+				</tr>
+			</thead>
+			<tbody slot="response">
+				{#if $response?.error}
 					<tr>
-						<th scope="row">{entity.id}</th>
-						<td>{entity.name}</td>
-						<td>{entity.type}</td>
-						<td>
-							<a class="btn btn-secondary" href="/users/edit/{entity.id}" role="button">
-								<i class="bi bi-pen" />
-							</a>
-
-							<button class="btn btn-secondary" type="button">
-								<i class="bi bi-box-arrow-in-right" />
-							</button>
-
-							<DeleteButton
-								entityId={entity.id}
-								entityName={entity.name}
-								path="users"
-								refreshList={() => list.refresh()}
-							/>
+						<td colspan="4">
+							<div class="alert alert-danger w-100" role="alert">
+								Fehler {$response.error}
+							</div>
 						</td>
 					</tr>
-				{/each}
-			{/if}
-		</tbody>
-	</EntityList>
+				{:else}
+					{#each $response?.success?.entities ?? [] as user (user.id)}
+						<tr>
+							<th scope="row">{user.id}</th>
+							<td>
+								<ProjectLeaderButton entity={user} project_id={entity.id} />
+							</td>
+							<td>{user.name}</td>
+							<td>{user.type}</td>
+							<td />
+						</tr>
+					{/each}
+				{/if}
+			</tbody>
+		</EntityList>
+	{:else}
+		<p>
+			Projektleitende können erst nach Erstellung des Projekts hinzugefügt werden. Du wirst jedoch
+			automatisch hinzugefügt.
+		</p>
+	{/if}
 	<div class="mb-3 form-check">
 		<input
 			bind:checked={entity.random_assignments}
