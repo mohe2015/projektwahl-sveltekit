@@ -18,6 +18,7 @@ export type UsersResponseBody = {
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	allowUserType(request, ['admin', 'helper']);
+	// TODO FIXME SELECT id,name,type,project_leader_id FROM users ORDER BY (project_leader_id = '0001dadc-357b-4f03-bb39-7bf81666dc10') ASC LIMIT (10 + 1);
 	return await buildGet(
 		['id', 'name', 'type', 'project_leader_id'],
 		fakeTT<SerializableParameter>`SELECT ${sql(['id', 'name', 'type'])} FROM ${sql('users')}`,
