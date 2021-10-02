@@ -4,17 +4,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { BaseQueryType } from '$lib/entites';
+	import type { BaseQuery } from '$lib/list-entities';
 
 	import type { Writable } from 'svelte/store';
 
-	export let query: Writable<BaseQueryType>;
+	export let query: Writable<BaseQuery>;
 	export let name: string;
 	export let options: string[];
 </script>
 
 <th scope="col">
 	<select
-		bind:value={$query[`filter_${name}`]}
+		bind:value={$query.filters[name]}
 		class="form-select form-select-sm"
 		multiple
 		size={options.length}

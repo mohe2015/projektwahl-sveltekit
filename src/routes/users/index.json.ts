@@ -25,9 +25,11 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			query // TODO FIXME validation
 		) =>
 			fakeTT<SerializableParameter>`AND name LIKE ${
-				'%' + (query.get('filter_name') ?? '') + '%'
-			} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND type in (${query
-				.getAll('filter_types[]')
-				.filter((t) => ['admin', 'helper', 'voter'].includes(t))})`
+				'%' + (query.filters.name ?? '') + '%'
+			} AND (${!query.filters.id} OR id = ${
+				query.filters.id ?? null
+			}) AND type in (${query.filters.types.filter((t: string) =>
+				['admin', 'helper', 'voter'].includes(t)
+			)})`
 	)(request);
 };
