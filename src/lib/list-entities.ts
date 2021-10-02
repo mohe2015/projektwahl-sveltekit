@@ -77,6 +77,7 @@ export const buildGet = (
 						fakeLiteralTT('('),
 						value
 							.map((value, index, array) => {
+								// TODO FIXME this probably needs to be specifiable per field as you should be able to decide whether null comes before or after everything (also needs adjusting for order by)
 								// for election we need 1, 2, 3, 4, 5, null, null, null as order
 								// second page:
 								// SELECT id,title,info,place,costs,min_age,max_age,min_participants,max_participants,presentation_type,requirements,random_assignments,choices.rank,choices.project_id,choices.user_id FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = '0002d638-4bd6-4c3a-a86a-919a9eddaab1') WHERE
