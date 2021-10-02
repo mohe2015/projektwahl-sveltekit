@@ -23,6 +23,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	let list: EntityList;
 	let response: Readable<FetchResponse<EntityResponseBody>>;
+
+	let query = writable({
+		filters: {
+			types: ['admin', 'helper', 'voter'],
+			is_project_leader: false
+		},
+		paginationLimit: 10,
+		sorting: ['id:down-up', 'is_project_leader:DESC', 'name:down-up', 'type:down-up'],
+		paginationCursor: null,
+		paginationDirection: null,
+		project_leader_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
+	});
 </script>
 
 <CreateForm
@@ -103,17 +115,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			bind:this={list}
 			bind:response
 			url="project_leaders.json"
-			query={writable({
-				filters: {
-					types: ['admin', 'helper', 'voter'],
-					is_project_leader: false
-				},
-				paginationLimit: 10,
-				sorting: ['id:down-up', 'is_project_leader:DESC', 'name:down-up', 'type:down-up'],
-				paginationCursor: null,
-				paginationDirection: null
-				//project_leader_id: entity.id // it's this lines fault?
-			})}
+			{query}
 			title="Projektleitende"
 			createUrl={null}
 		>
