@@ -10,6 +10,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let checked: boolean = entity.project_leader_id == project_id;
 
 	let disabled = false;
+
+	let feedback: Map<string, string> = new Map();
 </script>
 
 <input
@@ -18,7 +20,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	type="checkbox"
 	class="form-check-input"
 	on:click={async (e) => {
-		let feedback;
 		disabled = true;
 		// TODO edit user set project_leader_id
 		const response = await fetch(`/users/create-or-update.json`, {
@@ -39,10 +40,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			let json = await response.json();
 			feedback = new Map(Object.entries(json.errors));
 			if (feedback.size == 0) {
-				disabled = false;
 				// TODO refresh list
 			}
 		}
-		console.log(feedback);
+		disabled = false;
 	}}
 />
+{#if feedback.size != 0}
+	<div class="alert alert-danger" role="alert">
+		Einige Eingaben sind nicht gültig.
+		{#each [...feedback.entries()] as [attribute, message]}
+			{attribute}: {message}<br />
+		{/each}
+	</div>
+{/if}

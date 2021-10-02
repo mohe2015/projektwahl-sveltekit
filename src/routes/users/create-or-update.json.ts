@@ -45,8 +45,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		} else if (user4.type === 'helper' || user4.type === 'admin') {
 			const user5: UserHelperAdminType = user4 as unknown as UserHelperAdminType;
 			user = user5;
-		} else {
-			throw new Error('unreachable');
 		}
 		errors = {
 			...errors,
