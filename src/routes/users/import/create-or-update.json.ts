@@ -30,7 +30,6 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 
 	const response = await sql.begin('READ WRITE', async (sql) => {
 		for await (const body of parser) {
-			console.log(body);
 			let user: UserType = undefined!;
 			let errors: { [index: string]: string } = {};
 			if (typeof body === 'object') {
@@ -68,8 +67,6 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 				throw new Error('wrong request format');
 			}
 
-			console.log(errors);
-
 			if (Object.keys(errors).length !== 0) {
 				const response: MyEndpointOutput<CreateResponse> = {
 					status: 200,
@@ -104,7 +101,6 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 						return response;
 					}
 				}
-				console.log(error);
 				const response: MyEndpointOutput<CreateResponse> = {
 					status: 500
 				};
@@ -117,7 +113,6 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 			}
 		};
 	});
-	console.log(response);
 
 	return response;
 };

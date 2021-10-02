@@ -73,7 +73,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 			//let roles = (claims.realm_access as any).roles as string[];
 			//roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
 			//if (roles.length != 1) {
-			//	console.log('no role found');
 			//} else {
 			// locals seem to only be available server side
 			request.locals.session_id = session_id!;

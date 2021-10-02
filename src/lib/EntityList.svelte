@@ -3,20 +3,20 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import { query as query2 } from './writable_url';
 	import type { Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
-	import { writable } from 'svelte/store';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { HTTPError } from './authorization';
+	import type { BaseQuery } from './list-entities';
+	import { browser } from '$app/env';
 
-	export let initialQuery: BaseQueryType; // TODO FIXME we need generic components
 	export let title: string;
 	export let createUrl: string | null;
-	export let response: EntityResponseBody;
+	let response: Promise<EntityResponseBody> = new Promise((a, b) => {
+		// empty
+	});
 	export let fullInvalidationUrl: string;
-
-	export let query: Writable<BaseQueryType> = query2<BaseQueryType>(initialQuery);
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -24,13 +24,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TODO FIXME should sorting order change reset to page 1
 	// TODO FIXMe should filter change reset to page 1?
 
-	let paginationDirection: Writable<'forwards' | 'backwards' | null> = writable(null);
-	let paginationCursor: Writable<BaseEntityType | null> = writable(null);
+	// TODO FIXME pagination add "first" and "last"
+
+	export let query: Writable<BaseQuery>;
+
+	export let url: string;
 
 	export const headerClick = (sortType: string): void => {
-		let value = $query['sorting[]'];
-		let oldElementIndex = value.findIndex((e) => e.startsWith(sortType + ':'));
-		let oldElement = value.splice(oldElementIndex, 1)[0];
+		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
+		let oldElement = $query.sorting.splice(oldElementIndex, 1)[0];
 
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
@@ -44,17 +46,31 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				newElement = 'down-up';
 		}
 
-		$query['sorting[]'] = [...value, oldElement.split(':')[0] + ':' + newElement];
+		$query.sorting = [...$query.sorting, oldElement.split(':')[0] + ':' + newElement];
 	};
 
 	export async function refresh() {
-		console.log('invalidate');
 		await invalidate(fullInvalidationUrl);
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
 		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};
+
+	$: if (browser) {
+		// TODO FIXME SSR?
+		response = (async () => {
+			const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+			console.log(fullUrl);
+			const res = await fetch(fullUrl, {
+				credentials: 'same-origin'
+			});
+			if (!res.ok) {
+				throw new HTTPError(res.status, res.statusText);
+			}
+			return (await res.json()) as EntityResponseBody;
+		})();
+	}
 </script>
 
 <svelte:head>
@@ -73,7 +89,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<div class="col-3">
 		<!-- svelte-ignore a11y-no-onchange -->
 		<select
-			bind:value={$query.pagination_limit}
+			bind:value={$query.paginationLimit}
 			class="form-select"
 			aria-label="Default select example"
 		>
@@ -89,48 +105,74 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<slot name="filter" {headerClick} {currentSortValue} {query} />
 	<slot name="response" {response} />
 </table>
-
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<li class="page-item {response.previousCursor ? '' : 'disabled'}">
-			<a
-				on:click|preventDefault={async () => {
-					await goto($page.path + '?' + $page.query, {
-						state: {
-							paginationCursor: response.previousCursor,
-							paginationDirection: 'backwards'
-						}
-					});
-					await refresh(); // TODO FIXME backwards pagination should also invalidate
-				}}
-				class="page-link"
-				href="/"
-				aria-label="Vorherige Seite"
-				tabindex={response.previousCursor ? undefined : -1}
-				aria-disabled={!response.previousCursor}
-			>
-				<span aria-hidden="true">&laquo;</span>
-			</a>
-		</li>
-		<li class="page-item {response.nextCursor ? '' : 'disabled'}">
-			<a
-				on:click|preventDefault={async () => {
-					await goto($page.path + '?' + $page.query, {
-						state: {
-							paginationCursor: response.nextCursor,
-							paginationDirection: 'forwards'
-						}
-					});
-					await refresh();
-				}}
-				class="page-link"
-				href="/"
-				aria-label="Nächste Seite"
-				tabindex={response.nextCursor ? undefined : -1}
-				aria-disabled={!response.nextCursor}
-			>
-				<span aria-hidden="true">&raquo;</span>
-			</a>
-		</li>
+		<!-- await only works in blocks -->
+		{#await response}
+			<li class="page-item disabled">
+				<a
+					class="page-link"
+					href="/"
+					aria-label="Vorherige Seite"
+					tabindex={-1}
+					aria-disabled={true}
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li class="page-item disabled">
+				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{:then response}
+			<li class="page-item {response.previousCursor ? '' : 'disabled'}">
+				<a
+					on:click|preventDefault={() => {
+						($query.paginationCursor = response.previousCursor),
+							($query.paginationDirection = 'backwards');
+					}}
+					class="page-link"
+					href="/"
+					aria-label="Vorherige Seite"
+					tabindex={response.previousCursor ? undefined : -1}
+					aria-disabled={!response.previousCursor}
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li class="page-item {response.nextCursor ? '' : 'disabled'}">
+				<a
+					on:click|preventDefault={() => {
+						($query.paginationCursor = response.nextCursor),
+							($query.paginationDirection = 'forwards');
+					}}
+					class="page-link"
+					href="/"
+					aria-label="Nächste Seite"
+					tabindex={response.nextCursor ? undefined : -1}
+					aria-disabled={!response.nextCursor}
+				>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{:catch}
+			<li class="page-item disabled">
+				<a
+					class="page-link"
+					href="/"
+					aria-label="Vorherige Seite"
+					tabindex={-1}
+					aria-disabled={true}
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li class="page-item disabled">
+				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{/await}
 	</ul>
 </nav>

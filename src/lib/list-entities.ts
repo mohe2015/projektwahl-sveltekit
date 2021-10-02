@@ -6,15 +6,25 @@ import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { BaseEntityType, EntityResponseBody } from './entites';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
-import { query2location } from './writable_url';
+
+export type BaseQuery = {
+	paginationDirection: 'forwards' | 'backwards' | null;
+	paginationCursor: BaseEntityType | null;
+	sorting: string[]; // TODO FIXME format
+	paginationLimit: number;
+	filters: any;
+};
 
 export const buildGet = (
 	allowedFilters: string[],
 	select: [TemplateStringsArray, SerializableParameter[]],
-	params: (query: URLSearchParams) => [TemplateStringsArray, SerializableParameter[]]
+	params: (query: BaseQuery) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
-		console.log(query);
+
+		console.log( query.toString())
+		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))) // TODO FIXME validate
+		console.log(the_query)
 
 		// TODO FIXME better validation and null/undefined
 
@@ -23,8 +33,8 @@ export const buildGet = (
 		// this is based on the assumption that two rows are never exactly equal (e.g. uuid is different) and therefore the cursor can always be maintained
 		// this creates arbitrary results when elements are changed while holding a cursor
 
-		const paginationDirection: string | null = query.get('pagination_direction');
-		const paginationLimit: number = parseInt(query.get('pagination_limit') ?? '10');
+		const paginationDirection: string | null = the_query.paginationDirection;
+		const paginationLimit: number = the_query.paginationLimit;
 		if (isNaN(paginationLimit)) {
 			throw new Error('invalid pagination_limit');
 		}
@@ -33,14 +43,12 @@ export const buildGet = (
 		}
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
-		const paginationCursorQueryValue = query.get('pagination_cursor');
 
+		
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
-		const paginationCursor: any | null =
-			paginationCursorQueryValue !== null ? JSON.parse(paginationCursorQueryValue) : null; // WARNING JSON.parse can throw SyntaxError
+		const paginationCursor: any | null = the_query.paginationCursor;
 
-		const sortingQuery: [string, string][] = query
-			.getAll('sorting[]')
+		const sortingQuery: [string, string][] = the_query.sorting
 			.map((e) => e.split(':', 2))
 			.map<[string, string]>((e) => [e[0], e[1]])
 			.filter((e) => allowedFilters.includes(e[0]))
@@ -71,16 +79,29 @@ export const buildGet = (
 						fakeLiteralTT('('),
 						value
 							.map((value, index, array) => {
-								return concTT(
-									fakeTT<SerializableParameter>`${
-										paginationCursor != null ? paginationCursor[value[0]] ?? null : null
-									}`,
-									fakeLiteralTT(
-										` ${index == array.length - 1 ? (value[1] == 'ASC' ? '<' : '>') : '='} ${
-											value[0]
-										}`
-									)
-								);
+								// TODO FIXME
+								if (
+									(paginationCursor != null ? paginationCursor[value[0]] ?? null : null) === null &&
+									index == array.length - 1 &&
+									value[1] == 'ASC'
+								) {
+									return fakeLiteralTT(`${value[0]} IS NULL`);
+								} else {
+									return concTT(
+										fakeTT<SerializableParameter>`${
+											paginationCursor != null ? paginationCursor[value[0]] ?? null : null
+										}`,
+										fakeLiteralTT(
+											` ${
+												index == array.length - 1
+													? value[1] == 'ASC'
+														? '<' // TODO FIXME null is neither < nor > than any value so look at how order-by orders null and do this here accordingly
+														: '>'
+													: 'IS NOT DISTINCT FROM'
+											} ${value[0]}`
+										)
+									);
+								}
 							})
 							.reduce((prev, curr) => {
 								return concTT(concTT(prev, fakeLiteralTT(' AND ')), curr);
@@ -100,7 +121,7 @@ export const buildGet = (
 			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
 		);
 
-		const queryStringPart2 = params(query);
+		const queryStringPart2 = params(the_query);
 		const queryStringPart3 = fakeLiteralTT(orderBy);
 		const queryStringPart4 = fakeTT<SerializableParameter>` LIMIT (${paginationLimit} + 1);`;
 		const queryStringParts12 = concTT(queryStringPart1, queryStringPart2);
@@ -109,7 +130,6 @@ export const buildGet = (
 		const queryStringParts01234 = concTT(select, queryStringParts1234);
 		const queryString = toTT(queryStringParts01234);
 
-		//console.log(queryString);
 		console.log(TTToString(...queryString));
 
 		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);

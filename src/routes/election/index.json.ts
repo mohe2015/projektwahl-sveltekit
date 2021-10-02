@@ -37,7 +37,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			'presentation_type',
 			'requirements',
 			'random_assignments',
-			'rank',
+			'choices.rank',
 			'choices.project_id',
 			'choices.user_id'
 		])} FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = ${
@@ -45,14 +45,13 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		})`,
 		(query) =>
 			fakeTT<SerializableParameter>`AND title LIKE ${
-				'%' + (query.get('filter_title') ?? '') + '%'
-			} AND (${!query.has('filter_id')} OR id = ${query.get('filter_id')}) AND info LIKE ${
-				'%' + (query.get('filter_info') ?? '') + '%'
-			} AND place LIKE ${
-				'%' + (query.get('filter_place') ?? '') + '%'
-			} AND presentation_type LIKE ${
-				'%' + (query.get('filter_presentation_type') ?? '') + '%'
-			} AND requirements LIKE ${'%' + (query.get('filter_requirements') ?? '') + '%'}
-			AND (${!query.has('filter_rank')} OR rank = ${query.get('filter_rank')})`
+				'%' + (query.filters.title ?? '') + '%'
+			} AND (${!('id' in query.filters)} OR id = ${query.filters.id ?? null}) AND info LIKE ${
+				'%' + (query.filters.info ?? '') + '%'
+			} AND place LIKE ${'%' + (query.filters.place ?? '') + '%'} AND presentation_type LIKE ${
+				'%' + (query.filters.presentation_type ?? '') + '%'
+			} AND requirements LIKE ${'%' + (query.filters.requirements ?? '') + '%'} AND (${!(
+				'rank' in query.filters
+			)} OR rank = ${query.filters.rank ?? null})`
 	)(request);
 };

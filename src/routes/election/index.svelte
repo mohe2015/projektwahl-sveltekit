@@ -2,16 +2,6 @@
 SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
-<script context="module" lang="ts">
-	import { buildLoad } from '$lib/entites';
-	import type { Load } from '@sveltejs/kit';
-
-	export const load: Load = buildLoad('election.json', {
-		pagination_limit: '50',
-		'sorting[]': ['rank:ASC', 'id:down-up', 'title:down-up']
-	});
-</script>
-
 <script lang="ts">
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
@@ -20,21 +10,26 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { EntityResponseBody, BaseQueryType } from '$lib/entites';
 	import { flip } from 'svelte/animate';
 	import { scale } from 'svelte/transition';
+	import { writable } from 'svelte/store';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
-	export let theResponse: EntityResponseBody;
 	export let fullInvalidationUrl: string;
-	export let initialQuery: BaseQueryType;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		response={theResponse}
 		{fullInvalidationUrl}
-		{initialQuery}
+		url={'election.json'}
+		query={writable({
+			sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
+			paginationLimit: 50,
+			paginationDirection: null,
+			paginationCursor: null,
+			filters: {}
+		})}
 		title="Wahl"
 		createUrl={null}
 	>
@@ -51,8 +46,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</tr>
 		</thead>
 		<tbody slot="response" let:response>
+{#await response}
+Wird geladen...
+{:then response}
 			{#each response.entities as entity (entity.id)}
-				<tr animate:flip={{ duration: 500 }} transition:scale|local={{ duration: 500 }}>
+				<tr animate:flip={{ duration: 500 }}>
 					<th scope="row">{entity.id}</th>
 					<td>{entity.title}</td>
 					<td>
@@ -60,6 +58,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					</td>
 				</tr>
 			{/each}
+{/await}
 		</tbody>
 	</EntityList>
 </main>
