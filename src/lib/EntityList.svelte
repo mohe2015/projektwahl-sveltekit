@@ -105,12 +105,27 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<slot name="filter" {headerClick} {currentSortValue} {query} />
 	<slot name="response" {response} />
 </table>
-
-{#await response}
-	Wird geladen...
-{:then response}
-	<nav aria-label="Navigation der Nutzerliste">
-		<ul class="pagination justify-content-center">
+<nav aria-label="Navigation der Nutzerliste">
+	<ul class="pagination justify-content-center">
+		<!-- await only works in blocks -->
+		{#await response}
+			<li class="page-item disabled">
+				<a
+					class="page-link"
+					href="/"
+					aria-label="Vorherige Seite"
+					tabindex={-1}
+					aria-disabled={true}
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li class="page-item disabled">
+				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{:then response}
 			<li class="page-item {response.previousCursor ? '' : 'disabled'}">
 				<a
 					on:click|preventDefault={() => {
@@ -141,6 +156,23 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					<span aria-hidden="true">&raquo;</span>
 				</a>
 			</li>
-		</ul>
-	</nav>
-{/await}
+		{:catch}
+			<li class="page-item disabled">
+				<a
+					class="page-link"
+					href="/"
+					aria-label="Vorherige Seite"
+					tabindex={-1}
+					aria-disabled={true}
+				>
+					<span aria-hidden="true">&laquo;</span>
+				</a>
+			</li>
+			<li class="page-item disabled">
+				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
+					<span aria-hidden="true">&raquo;</span>
+				</a>
+			</li>
+		{/await}
+	</ul>
+</nav>
