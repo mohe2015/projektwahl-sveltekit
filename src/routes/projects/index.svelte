@@ -7,17 +7,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/EntityList.svelte';
-	import type { BaseQueryType, EntityResponseBody } from '$lib/entites';
 	import { writable } from 'svelte/store';
 
 	let list: EntityList;
-	export let fullInvalidationUrl: string;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		{fullInvalidationUrl}
 		url={'projects.json'}
 		query={writable({
 			paginationLimit: 10,

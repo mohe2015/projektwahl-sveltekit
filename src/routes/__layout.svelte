@@ -34,12 +34,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		let json;
 		const response = await fetch(`/logout.json`, {
 			method: 'POST',
-			body: null,
 			headers: {
-				'Content-Type': 'application/json',
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
+		// TODO FIXME show error in UI
 		if (!response.ok) {
 			throw new Error(response.status + ' ' + response.statusText);
 		} else {

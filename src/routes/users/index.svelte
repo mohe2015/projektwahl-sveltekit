@@ -11,13 +11,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { writable } from 'svelte/store';
 
 	let list: EntityList;
-	export let fullInvalidationUrl: string;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		{fullInvalidationUrl}
 		url="users.json"
 		query={writable({
 			filters: {

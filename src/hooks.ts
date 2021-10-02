@@ -4,12 +4,7 @@ import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { UserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
-import { IdTokenClaims, Issuer, TokenSet } from 'openid-client';
 import dotenv from 'dotenv';
-
-export type SessionUserType = IdTokenClaims & {
-	type: string;
-};
 
 export type MyLocals = {
 	session_id: string | null;
@@ -20,6 +15,8 @@ export type MyLocals = {
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	// TODO FIXME hack because VITE doesn't load all env vars
 	dotenv.config();
+
+	// TODO FIXME session invalidation
 
 	let session_id = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases

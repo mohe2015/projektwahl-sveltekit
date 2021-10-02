@@ -16,7 +16,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let response: Promise<EntityResponseBody> = new Promise((a, b) => {
 		// empty
 	});
-	export let fullInvalidationUrl: string;
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -50,7 +49,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 
 	export async function refresh() {
-		await invalidate(fullInvalidationUrl);
+		$query = $query;
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {

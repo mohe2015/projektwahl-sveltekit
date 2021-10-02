@@ -16,6 +16,8 @@ export type LogoutResponse = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<MyEndpointOutput<LogoutResponse>> {
+	console.log('logout');
+
 	allowAnyone(request); // you could argue that this should only be available to logged in users but I think this makes it more user friendly if you're actually already logged out e.g. because you logged out in another tab.
 	const { locals } = request;
 
