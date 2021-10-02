@@ -17,6 +17,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	const { body } = request;
 
 	// TODO FIXME when implementing update don't accidentially destroy the password
+	// TODO FIXME if you erase the field you get an empty password - we need a way to reset the password and one to leave it like it was
 
 	const user = checkPermissions(permissions, request.locals.user, body);
 
@@ -24,17 +25,43 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		// TODO FIXME allow helper to change this but only specific fields (NOT type)
 		const [row] = await sql.begin('READ WRITE', async (sql) => {
 			if ('id' in user) {
-				return await sql`UPDATE users SET name = ${user.name}, password_hash = COALESCE(${
+				// TODO FIXME undefined should be interpreted as not update
+
+				console.log(`UPDATE users SET
+				name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
+				password_hash = CASE WHEN ${user.password !== undefined} THEN ${
 					user.password ? await hashPassword(user.password) : null
-				}, password_hash), type = ${user.type}, class = ${user.group ?? null}, age = ${
-					user.age ?? null
-				}, away = ${user.away} WHERE id = ${user.id!} RETURNING id;`;
+				} ELSE password_hash END,
+				type = CASE WHEN ${user.type !== undefined} THEN ${user.type ?? null} ELSE type END,
+				class = CASE WHEN ${user.group !== undefined} THEN ${user.group ?? null} ELSE class END,
+				age = CASE WHEN ${user.age !== undefined} THEN ${user.age ?? null} ELSE age END,
+				away = CASE WHEN ${user.away !== undefined} THEN ${user.away ?? null} ELSE away END,
+				WHERE id = ${user.id!} RETURNING id;`);
+
+				return await sql`UPDATE users SET
+name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
+password_hash = CASE WHEN ${user.password !== undefined} THEN ${
+					user.password ? await hashPassword(user.password) : null
+				} ELSE password_hash END,
+type = CASE WHEN ${user.type !== undefined} THEN ${user.type ?? null} ELSE type END,
+class = CASE WHEN ${user.group !== undefined} THEN ${user.group ?? null} ELSE class END,
+age = CASE WHEN ${user.age !== undefined} THEN ${user.age ?? null} ELSE age END,
+away = CASE WHEN ${user.away !== undefined} THEN ${user.away ?? null} ELSE away END,
+WHERE id = ${user.id!} RETURNING id;`;
 			} else {
+				console.log(
+					`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
+						user.name ?? null
+					}, ${user.password ? await hashPassword(user.password) : null}, ${user.type ?? null}, ${
+						user.group ?? null
+					}, ${user.age ?? null}, ${user.away ?? false}) RETURNING id;`
+				);
+
 				return await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
-					user.name
-				}, ${user.password ? await hashPassword(user.password) : null}, ${user.type}, ${
+					user.name ?? null
+				}, ${user.password ? await hashPassword(user.password) : null}, ${user.type ?? null}, ${
 					user.group ?? null
-				}, ${user.age ?? null}, ${user.away}) RETURNING id;`;
+				}, ${user.age ?? null}, ${user.away ?? false}) RETURNING id;`;
 			}
 		});
 

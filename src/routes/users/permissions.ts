@@ -8,8 +8,28 @@ import type { JSONValue } from '@sveltejs/kit/types/helper';
 export const permissions: PermissionsType = new Map(
 	Object.entries({
 		name: {
-			view: (user: UserType | null, entity: JSONValue) => false,
-			edit: (user: UserType | null, entity: JSONValue) => false
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},
+		/*password: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},*/
+		type: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},
+		class: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},
+		age: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},
+		away: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
 		}
 	})
 );

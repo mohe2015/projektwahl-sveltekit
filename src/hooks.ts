@@ -13,7 +13,6 @@ export type MyLocals = {
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
-	console.log(request.path);
 	if (request.path == '/no-javascript') {
 		request.method = 'GET'; // Potentially dangerous as POST may still be somewhere else
 	}
@@ -22,8 +21,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	dotenv.config();
 
 	// TODO FIXME session invalidation
-
-	console.log(request.headers);
 
 	let session_id = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases

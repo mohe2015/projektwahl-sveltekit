@@ -54,7 +54,7 @@ export const checkPermissions = (
 	} = {};
 	for (const [key, checker] of permissions) {
 		if (!checker.edit(user, body)) {
-			throw new HTTPError(401, `allowed to change ${key}`);
+			throw new HTTPError(401, `not allowed to change ${key}`);
 		}
 		const val = body[key];
 		if (val && (typeof val === 'object' || Array.isArray(val))) {
@@ -62,5 +62,6 @@ export const checkPermissions = (
 		}
 		sanitizedValue[key] = val;
 	}
+	// TODO FIXME check that no unchecked values are in the original thing - otherwise we could accidentially loose data
 	return sanitizedValue;
 };
