@@ -7,14 +7,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import Ranking from './_Ranking.svelte';
 	import { flip } from 'svelte/animate';
-	import { Readable, writable } from 'svelte/store';
+	import { Readable, Writable, writable } from 'svelte/store';
 	import EntityList from '$lib/EntityList.svelte';
-	import type { EntityResponseBody } from '$lib/entites';
+	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
-	let response: Readable<EntityResponseBody>;
+	let response: Readable<FetchResponse<EntityResponseBody>>;
 </script>
 
 <main class="container">
@@ -45,15 +45,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</tr>
 		</thead>
 		<tbody slot="response">
-			{#each $response?.entities ?? [] as entity (entity.id)}
-				<tr animate:flip={{ duration: 500 }}>
-					<th scope="row">{entity.id}</th>
-					<td>{entity.title}</td>
-					<td>
-						<Ranking {list} {entity} />
-					</td>
-				</tr>
-			{/each}
+			{#if $response?.error}
+				Fehler: {$response.error}
+			{:else}
+				{#each $response?.success?.entities ?? [] as entity (entity.id)}
+					<tr animate:flip={{ duration: 500 }}>
+						<th scope="row">{entity.id}</th>
+						<td>{entity.title}</td>
+						<td>
+							<Ranking {list} {entity} />
+						</td>
+					</tr>
+				{/each}
+			{/if}
 		</tbody>
 	</EntityList>
 </main>
