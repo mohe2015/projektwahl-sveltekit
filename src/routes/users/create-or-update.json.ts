@@ -3,17 +3,17 @@
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<MyEndpointOutput<CreateResponse>> {
+): Promise<EndpointOutput<CreateResponse>> {
 	allowUserType(request, ['admin']);
 	const { body } = request;
 
@@ -57,7 +57,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	}
 
 	if (Object.keys(errors).length !== 0) {
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			body: {
 				errors: errors
 			}
@@ -83,7 +83,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			}
 		});
 
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			body: {
 				errors: {},
 				id: row.id
@@ -95,7 +95,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			const postgresError = error as PostgresError;
 			if (postgresError.code === '23505' && postgresError.constraint_name === 'users_name_key') {
 				// unique violation
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					body: {
 						errors: {
 							name: 'Nutzer mit diesem Namen existiert bereits!'
@@ -106,7 +106,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			}
 		}
 		console.log(error);
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			status: 500
 		};
 		return response;

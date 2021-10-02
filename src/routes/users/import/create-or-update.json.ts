@@ -3,20 +3,20 @@
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../../projects/create-or-update.json';
 import parse from 'csv-parse';
 import { Readable } from 'stream';
+import type { PostgresError } from 'postgres';
 
 export type UserImportRequest = { [x: string]: any; fileInput?: string; id?: number | undefined };
 
 export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request
-): Promise<MyEndpointOutput<CreateResponse>> {
+): Promise<EndpointOutput<CreateResponse>> {
 	allowUserType(request, ['admin']);
 
 	const parser = Readable.from(request.body.fileInput!).pipe(
@@ -67,7 +67,7 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 			}
 
 			if (Object.keys(errors).length !== 0) {
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					status: 200,
 					body: {
 						errors: errors
@@ -90,7 +90,7 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 						postgresError.constraint_name === 'users_name_key'
 					) {
 						// unique violation
-						const response: MyEndpointOutput<CreateResponse> = {
+						const response: EndpointOutput<CreateResponse> = {
 							body: {
 								errors: {
 									name: 'Nutzer mit diesem Namen existiert bereits!'
@@ -100,7 +100,7 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 						return response;
 					}
 				}
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					status: 500
 				};
 				return response;

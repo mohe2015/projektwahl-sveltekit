@@ -3,10 +3,10 @@
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
 export type CreateResponse = {
@@ -43,7 +43,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 	};
 
 	if (Object.keys(errors).length !== 0) {
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			body: {
 				errors: errors
 			}
@@ -58,7 +58,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 				request.locals.user?.type !== 'admin' &&
 				request.locals.user?.project_leader_id !== project.id
 			) {
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					body: {
 						errors: {
 							permissions: 'Du kannst keine fremden Projekte ändern!'
@@ -87,7 +87,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 			});
 		}
 
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			body: {
 				errors: {},
 				id: row.id
@@ -99,7 +99,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 			const postgresError = error as PostgresError;
 			if (postgresError.code === '23505' && postgresError.constraint_name === 'users_name_key') {
 				// unique violation
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					body: {
 						errors: {
 							name: 'Nutzer mit diesem Namen existiert bereits!'
@@ -110,7 +110,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 			}
 			if (postgresError.code === '22003') {
 				// numeric_value_out_of_range
-				const response: MyEndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<CreateResponse> = {
 					body: {
 						errors: {
 							costs: 'Die Kosten sind zu hoch!'
@@ -121,7 +121,7 @@ export const post: RequestHandler<MyLocals, EntityResponseBody> = async function
 			}
 		}
 		console.log(error);
-		const response: MyEndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<CreateResponse> = {
 			status: 500
 		};
 		return response;

@@ -3,10 +3,9 @@
 import { allowAnyone, allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
-import type { RequestHandler } from '@sveltejs/kit';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import { Issuer } from 'openid-client';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -18,7 +17,7 @@ export type LoginResponse = {
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<MyEndpointOutput<LoginResponse>> {
+): Promise<EndpointOutput<LoginResponse>> {
 	allowAnyone(request);
 
 	/*
@@ -54,7 +53,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
 
 	if (Object.keys(errors).length !== 0) {
-		const response: MyEndpointOutput<LoginResponse> = {
+		const response: EndpointOutput<LoginResponse> = {
 			body: {
 				errors: errors
 			}
