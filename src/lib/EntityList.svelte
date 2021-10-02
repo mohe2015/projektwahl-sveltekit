@@ -29,17 +29,21 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let response: Readable<EntityResponseBody> = derived(
 		query,
 		($query, set) => {
-			(async () => {
-				const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
-				console.log(fullUrl);
-				const res = await fetch(fullUrl, {
-					credentials: 'same-origin'
-				});
-				if (!res.ok) {
-					throw new HTTPError(res.status, res.statusText);
-				}
-				set((await res.json()) as EntityResponseBody);
-			})();
+			if (browser) {
+				// TODO FIXME
+				(async () => {
+					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+					console.log(fullUrl);
+					const res = await fetch(fullUrl, {
+						method: 'GET',
+						credentials: 'include'
+					});
+					if (!res.ok) {
+						throw new HTTPError(res.status, res.statusText);
+					}
+					set((await res.json()) as EntityResponseBody);
+				})();
+			}
 		},
 		{
 			entities: [],
