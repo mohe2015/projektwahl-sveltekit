@@ -44,9 +44,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</thead>
 		<tbody slot="response">
 			{#if $response?.error}
-				<div class="alert alert-danger" role="alert">
-					Fehler {$response.error}
-				</div>
+				<tr>
+					<td colspan="3">
+						<div class="alert alert-danger w-100" role="alert">
+							Fehler {$response.error}
+						</div>
+					</td>
+				</tr>
 			{:else}
 				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr>
