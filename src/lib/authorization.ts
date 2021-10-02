@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { ServerRequest } from '@sveltejs/kit/types/hooks';
-import type { MyLocals, SessionUserType } from 'src/hooks';
+import type { MyLocals } from 'src/hooks';
 import type { UserType } from './types';
 
 export class HTTPError extends Error {

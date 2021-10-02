@@ -6,8 +6,8 @@ import { hashPassword } from '$lib/password';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
 import { hasEnumProperty, hasPropertyType } from '$lib/validation';
-import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
-import type { PostgresError } from 'postgres';
+import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 

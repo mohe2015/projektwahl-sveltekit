@@ -4,7 +4,8 @@ import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
-import type { JSONValue, RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
 
 export type ProjectsResponseBody = {

@@ -7,9 +7,9 @@ import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { JSONValue } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
 import { Issuer } from 'openid-client';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };

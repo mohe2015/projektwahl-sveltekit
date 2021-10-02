@@ -5,7 +5,7 @@ import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
-import type { JSONValue } from '@sveltejs/kit/types/endpoint';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
 
 export type UsersResponseBody = {

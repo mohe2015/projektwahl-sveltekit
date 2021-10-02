@@ -4,13 +4,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { derived, Readable, writable, Writable } from 'svelte/store';
-	import type { BaseEntityType, BaseQueryType, EntityResponseBody, FetchResponse } from './entites';
-	import { goto, invalidate } from '$app/navigation';
+	import type { EntityResponseBody, FetchResponse } from './entites';
 	import { page } from '$app/stores';
-	import { HTTPError } from './authorization';
 	import type { BaseQuery } from './list-entities';
 	import { browser } from '$app/env';
-	import { update_await_block_branch } from 'svelte/internal';
 
 	export let title: string;
 	export let createUrl: string | null;

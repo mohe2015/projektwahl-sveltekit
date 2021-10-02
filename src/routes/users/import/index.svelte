@@ -4,8 +4,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
-	import TextInput from '$lib/form/TextInput.svelte';
-	import type { PartialUser, UserType } from '$lib/types';
 	import { FormGroup, FormText, Input, Label } from 'sveltestrap';
 	import type { UserImportRequest } from './create-or-update.json';
 

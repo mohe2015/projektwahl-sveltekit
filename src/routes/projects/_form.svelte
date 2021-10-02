@@ -4,7 +4,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
-	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';

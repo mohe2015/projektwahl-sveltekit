@@ -7,7 +7,6 @@ import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
-import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
 export type CreateResponse = {
