@@ -13,6 +13,11 @@ export type MyLocals = {
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
+	console.log(request.path);
+	if (request.path == '/no-javascript') {
+		request.method = 'GET'; // Potentially dangerous as POST may still be somewhere else
+	}
+
 	// TODO FIXME hack because VITE doesn't load all env vars
 	dotenv.config();
 

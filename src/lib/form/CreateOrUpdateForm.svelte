@@ -62,7 +62,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <div class="row justify-content-center">
 	<div class="col-md-7 col-lg-8">
-		<form on:submit|preventDefault={() => (submitPromise = create())} id="{randomId}-form">
+		<form
+			method="POST"
+			action="/no-javascript"
+			on:submit|preventDefault={() => (submitPromise = create())}
+			id="{randomId}-form"
+		>
 			{#if unknownFeedback.length != 0 || feedback.size != 0}
 				<div class="alert alert-danger" role="alert">
 					Einige Eingaben sind nicht gültig.
