@@ -15,8 +15,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
+	import type { BaseQuery } from '$lib/list-entities';
 	import type { ProjectType } from '$lib/types';
-	import { Readable, writable } from 'svelte/store';
+	import { Readable, Writable, writable } from 'svelte/store';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
 	export let entity: Partial<ProjectType>;
@@ -24,7 +25,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let list: EntityList;
 	let response: Readable<FetchResponse<EntityResponseBody>>;
 
-	let query = writable({
+	let query: Writable<BaseQuery> = writable({
 		filters: {
 			types: ['admin', 'helper', 'voter'],
 			is_project_leader: false
@@ -119,7 +120,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			title="Projektleitende"
 			createUrl={null}
 		>
-			<thead slot="filter" let:headerClick let:currentSortValue let:query>
+			<thead slot="filter" let:headerClick let:currentSortValue>
 				<tr>
 					<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 					<Sorting

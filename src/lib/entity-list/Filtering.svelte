@@ -35,7 +35,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 {:else if type === 'boolean'}
 	<th scope="col">
 		<input
-			bind:value={$query.filters[name]}
+			bind:checked={$query.filters[name]}
 			type="checkbox"
 			class="form-check-input"
 			id="projects-filter-{name}"
