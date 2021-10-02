@@ -46,7 +46,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		</thead>
 		<tbody slot="response">
 			{#if $response?.error}
-				Fehler: {$response.error}
+				<div class="alert alert-danger" role="alert">
+					Fehler {$response.error}
+				</div>
 			{:else}
 				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr animate:flip={{ duration: 500 }}>

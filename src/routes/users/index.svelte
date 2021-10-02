@@ -8,14 +8,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '../../lib/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
-	import { writable } from 'svelte/store';
+	import { Readable, writable } from 'svelte/store';
+	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
 
 	let list: EntityList;
+	let response: Readable<FetchResponse<EntityResponseBody>>;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
+		bind:response
 		url="users.json"
 		query={writable({
 			filters: {
@@ -46,11 +49,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<th scope="col" />
 			</tr>
 		</thead>
-		<tbody slot="response" let:response>
-			{#await response}
-				Wird geladen...
-			{:then response}
-				{#each response.entities as entity (entity.id)}
+		<tbody slot="response">
+			{#if $response?.error}
+				<div class="alert alert-danger" role="alert">
+					Fehler {$response.error}
+				</div>
+			{:else}
+				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>
 						<td>{entity.name}</td>
@@ -91,7 +96,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						</td>
 					</tr>
 				{/each}
-			{/await}
+			{/if}
 		</tbody>
 	</EntityList>
 </main>
