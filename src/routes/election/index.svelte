@@ -5,21 +5,22 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
-	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
-	import type { EntityResponseBody, BaseQueryType } from '$lib/entites';
 	import { flip } from 'svelte/animate';
-	import { scale } from 'svelte/transition';
-	import { writable } from 'svelte/store';
+	import { Readable, writable } from 'svelte/store';
+	import EntityList from '$lib/EntityList.svelte';
+	import type { EntityResponseBody } from '$lib/entites';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
+	let response: Readable<EntityResponseBody>;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
+		bind:response
 		url={'election.json'}
 		query={writable({
 			sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
@@ -43,20 +44,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<Filtering name="rank" type="number" {query} />
 			</tr>
 		</thead>
-		<tbody slot="response" let:response>
-			{#await response}
-				Wird geladen...
-			{:then response}
-				{#each response.entities as entity (entity.id)}
-					<tr animate:flip={{ duration: 500 }}>
-						<th scope="row">{entity.id}</th>
-						<td>{entity.title}</td>
-						<td>
-							<Ranking {list} {entity} />
-						</td>
-					</tr>
-				{/each}
-			{/await}
+		<tbody slot="response">
+			{#each $response?.entities ?? [] as entity (entity.id)}
+				<tr animate:flip={{ duration: 500 }}>
+					<th scope="row">{entity.id}</th>
+					<td>{entity.title}</td>
+					<td>
+						<Ranking {list} {entity} />
+					</td>
+				</tr>
+			{/each}
 		</tbody>
 	</EntityList>
 </main>

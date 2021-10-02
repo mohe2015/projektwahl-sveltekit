@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
+	import { derived, Readable, Writable } from 'svelte/store';
 	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -13,9 +13,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export let title: string;
 	export let createUrl: string | null;
-	let response: Promise<EntityResponseBody> = new Promise((a, b) => {
-		// empty
-	});
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -28,6 +25,28 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let query: Writable<BaseQuery>;
 
 	export let url: string;
+
+	export let response: Readable<EntityResponseBody> = derived(
+		query,
+		($query, set) => {
+			(async () => {
+				const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+				console.log(fullUrl);
+				const res = await fetch(fullUrl, {
+					credentials: 'same-origin'
+				});
+				if (!res.ok) {
+					throw new HTTPError(res.status, res.statusText);
+				}
+				set((await res.json()) as EntityResponseBody);
+			})();
+		},
+		{
+			entities: [],
+			nextCursor: null,
+			previousCursor: null
+		} as EntityResponseBody
+	);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
@@ -55,21 +74,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
 		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};
-
-	$: if (browser) {
-		// TODO FIXME SSR?
-		response = (async () => {
-			const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
-			console.log(fullUrl);
-			const res = await fetch(fullUrl, {
-				credentials: 'same-origin'
-			});
-			if (!res.ok) {
-				throw new HTTPError(res.status, res.statusText);
-			}
-			return (await res.json()) as EntityResponseBody;
-		})();
-	}
 </script>
 
 <svelte:head>
@@ -106,72 +110,36 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </table>
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<!-- await only works in blocks -->
-		{#await response}
-			<li class="page-item disabled">
-				<a
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={-1}
-					aria-disabled={true}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item disabled">
-				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{:then response}
-			<li class="page-item {response.previousCursor ? '' : 'disabled'}">
-				<a
-					on:click|preventDefault={() => {
-						($query.paginationCursor = response.previousCursor),
-							($query.paginationDirection = 'backwards');
-					}}
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={response.previousCursor ? undefined : -1}
-					aria-disabled={!response.previousCursor}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item {response.nextCursor ? '' : 'disabled'}">
-				<a
-					on:click|preventDefault={() => {
-						($query.paginationCursor = response.nextCursor),
-							($query.paginationDirection = 'forwards');
-					}}
-					class="page-link"
-					href="/"
-					aria-label="Nächste Seite"
-					tabindex={response.nextCursor ? undefined : -1}
-					aria-disabled={!response.nextCursor}
-				>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{:catch}
-			<li class="page-item disabled">
-				<a
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={-1}
-					aria-disabled={true}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item disabled">
-				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{/await}
+		<!-- { # await only works in blocks -->
+		<li class="page-item {$response.previousCursor ? '' : 'disabled'}">
+			<a
+				on:click|preventDefault={() => {
+					($query.paginationCursor = $response.previousCursor),
+						($query.paginationDirection = 'backwards');
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Vorherige Seite"
+				tabindex={$response.previousCursor ? undefined : -1}
+				aria-disabled={!$response.previousCursor}
+			>
+				<span aria-hidden="true">&laquo;</span>
+			</a>
+		</li>
+		<li class="page-item {$response.nextCursor ? '' : 'disabled'}">
+			<a
+				on:click|preventDefault={() => {
+					($query.paginationCursor = $response.nextCursor),
+						($query.paginationDirection = 'forwards');
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Nächste Seite"
+				tabindex={$response.nextCursor ? undefined : -1}
+				aria-disabled={!$response.nextCursor}
+			>
+				<span aria-hidden="true">&raquo;</span>
+			</a>
+		</li>
 	</ul>
 </nav>
