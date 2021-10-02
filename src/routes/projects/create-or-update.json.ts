@@ -1,55 +1,25 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType } from '$lib/authorization';
+import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import type { ProjectType } from '$lib/types';
-import { hasPropertyType } from '$lib/validation';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
+import { permissions } from '../users/permissions';
 
 export type CreateResponse = {
 	errors: { [x: string]: string };
 	id?: number;
 };
 
-export const post: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
 	allowUserType(request, ['admin', 'helper']); // TODO FIXME don't allow everyone to edit others projects
 	const { body } = request;
 
-	let errors: { [index: string]: string } = {};
-	if (typeof body !== 'object') {
-		throw new Error('wrong request format');
-	}
-	const project1 = body;
-	const [project2, errors2] = hasPropertyType(
-		project1,
-		['title', 'info', 'place', 'presentation_type', 'requirements'],
-		''
-	);
-	const [project3, errors3] = hasPropertyType(
-		project2,
-		['costs', 'min_age', 'max_age', 'min_participants', 'max_participants'],
-		0
-	);
-	const [project4, errors4] = hasPropertyType(project3, ['random_assignments'], true);
-	const project: ProjectType = project4;
-	errors = {
-		...errors,
-		...errors2,
-		...errors3,
-		...errors4
-	};
-
-	if (Object.keys(errors).length !== 0) {
-		const response: EndpointOutput<CreateResponse> = {
-			body: {
-				errors: errors
-			}
-		};
-		return response;
-	}
+	const project = checkPermissions(permissions, request.locals.user, body);
 
 	try {
 		let row;

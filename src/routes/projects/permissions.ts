@@ -7,7 +7,7 @@ import type { JSONValue } from '@sveltejs/kit/types/helper';
 
 export const permissions: PermissionsType = new Map(
 	Object.entries({
-		name: {
+		title: {
 			view: (user: UserType | null, entity: JSONValue) => false,
 			edit: (user: UserType | null, entity: JSONValue) => false
 		}

@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType } from '$lib/authorization';
+import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { UserHelperAdminType, UserType, UserVoterType } from '$lib/types';
-import { hasEnumProperty, hasPropertyType } from '$lib/validation';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
+import { permissions } from './permissions';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
@@ -19,51 +18,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	// TODO FIXME when implementing update don't accidentially destroy the password
 
-	let user: UserType;
-	let errors: { [index: string]: string } = {};
-	if (typeof body === 'object') {
-		const user1 = body;
-		const [user2, errors2] = hasPropertyType(user1, ['name', 'password'], ''); // TODO name nonempty
-		//const user3 = hasPropertyType(user2, ['id'], 0); // TODO FIXME
-		const [user3, errors3] = hasPropertyType(user2, ['away'], true);
-		const types = ['voter' as const, 'helper' as const, 'admin' as const];
-		const [user4, errors4] = hasEnumProperty<typeof user3, 'type', 'voter' | 'helper' | 'admin'>(
-			user3,
-			['type'],
-			types
-		);
-		if (user4.type === 'voter') {
-			const [user5, errors5] = hasPropertyType(user4, ['group'], ''); // TODO nonempty
-			const [user6, errors6] = hasPropertyType(user5, ['age'], 0);
-			const user7: UserVoterType = user6 as unknown as UserVoterType;
-			user = user7;
-			errors = {
-				...errors,
-				...errors5,
-				...errors6
-			};
-		} else if (user4.type === 'helper' || user4.type === 'admin') {
-			const user5: UserHelperAdminType = user4 as unknown as UserHelperAdminType;
-			user = user5;
-		}
-		errors = {
-			...errors,
-			...errors2,
-			...errors3,
-			...errors4
-		};
-	} else {
-		throw new Error('wrong request format');
-	}
-
-	if (Object.keys(errors).length !== 0) {
-		const response: EndpointOutput<CreateResponse> = {
-			body: {
-				errors: errors
-			}
-		};
-		return response;
-	}
+	const user = checkPermissions(permissions, request.locals.user, body);
 
 	try {
 		// TODO FIXME allow helper to change this but only specific fields (NOT type)
