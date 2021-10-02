@@ -9,6 +9,11 @@ export type BaseEntityType = {
 	[x: string]: string | number | null;
 };
 
+export type FetchResponse<T> = {
+	success?: T;
+	error?: any;
+};
+
 export type EntityResponseBody = {
 	entities: Array<BaseEntityType>;
 	previousCursor: BaseEntityType | null;

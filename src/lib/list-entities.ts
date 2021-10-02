@@ -21,10 +21,9 @@ export const buildGet = (
 	params: (query: BaseQuery) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
-
-		console.log( query.toString())
-		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))) // TODO FIXME validate
-		console.log(the_query)
+		console.log(query.toString());
+		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))); // TODO FIXME validate
+		console.log(the_query);
 
 		// TODO FIXME better validation and null/undefined
 
@@ -44,7 +43,6 @@ export const buildGet = (
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 
-		
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
 		const paginationCursor: any | null = the_query.paginationCursor;
 
@@ -79,13 +77,21 @@ export const buildGet = (
 						fakeLiteralTT('('),
 						value
 							.map((value, index, array) => {
-								// TODO FIXME
+								// TODO FIXME this probably needs to be specifiable per field as you should be able to decide whether null comes before or after everything (also needs adjusting for order by)
+								// for election we need 1, 2, 3, 4, 5, null, null, null as order
+								// second page:
+								// SELECT id,title,info,place,costs,min_age,max_age,min_participants,max_participants,presentation_type,requirements,random_assignments,choices.rank,choices.project_id,choices.user_id FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = '0002d638-4bd6-4c3a-a86a-919a9eddaab1') WHERE
+								// ((null < rank) OR (null IS NOT DISTINCT FROM rank AND '00d1edee-c84d-4810-834e-9a679088af80' < id) OR (NOT true AND NOT false)) AND title LIKE '%%' AND (true OR id = null) AND info LIKE '%%' AND place LIKE '%%' AND presentation_type LIKE '%%' AND requirements LIKE '%%' AND (true OR rank = null) ORDER BY rank ASC,id ASC LIMIT (50 + 1);
+
+								// back
+								// SELECT id,title,info,place,costs,min_age,max_age,min_participants,max_participants,presentation_type,requirements,random_assignments,choices.rank,choices.project_id,choices.user_id FROM projects LEFT OUTER JOIN choices ON (projects.id = choices.project_id AND choices.user_id = '0002d638-4bd6-4c3a-a86a-919a9eddaab1') WHERE
+								// ((null > rank) OR (null IS NOT DISTINCT FROM rank AND '00d663d0-77c1-4c58-9205-6441b6022e6c' > id) OR (NOT false AND NOT true)) AND title LIKE '%%' AND (true OR id = null) AND info LIKE '%%' AND place LIKE '%%' AND presentation_type LIKE '%%' AND requirements LIKE '%%' AND (true OR rank = null) ORDER BY rank DESC,id DESC LIMIT (50 + 1);
 								if (
 									(paginationCursor != null ? paginationCursor[value[0]] ?? null : null) === null &&
 									index == array.length - 1 &&
-									value[1] == 'ASC'
+									value[1] == 'DESC'
 								) {
-									return fakeLiteralTT(`${value[0]} IS NULL`);
+									return fakeLiteralTT(`${value[0]} IS NOT NULL`);
 								} else {
 									return concTT(
 										fakeTT<SerializableParameter>`${
@@ -137,7 +143,12 @@ export const buildGet = (
 		let nextCursor: BaseEntityType | null = null;
 		let previousCursor: BaseEntityType | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
-		if (isForwardsPagination || (!isForwardsPagination && !isBackwardsPagination)) {
+		if (!isForwardsPagination && !isBackwardsPagination) {
+			if (entities.length > paginationLimit) {
+				entities.pop();
+				nextCursor = entities[entities.length - 1] ?? null;
+			}
+		} else if (isForwardsPagination) {
 			previousCursor = entities[0];
 			if (entities.length > paginationLimit) {
 				entities.pop();

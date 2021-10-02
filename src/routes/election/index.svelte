@@ -5,23 +5,22 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
-	import EntityList from '$lib/EntityList.svelte';
 	import Ranking from './_Ranking.svelte';
-	import type { EntityResponseBody, BaseQueryType } from '$lib/entites';
 	import { flip } from 'svelte/animate';
-	import { scale } from 'svelte/transition';
-	import { writable } from 'svelte/store';
+	import { Readable, Writable, writable } from 'svelte/store';
+	import EntityList from '$lib/EntityList.svelte';
+	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
-	export let fullInvalidationUrl: string;
+	let response: Readable<FetchResponse<EntityResponseBody>>;
 </script>
 
 <main class="container">
 	<EntityList
 		bind:this={list}
-		{fullInvalidationUrl}
+		bind:response
 		url={'election.json'}
 		query={writable({
 			sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
@@ -45,20 +44,26 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<Filtering name="rank" type="number" {query} />
 			</tr>
 		</thead>
-		<tbody slot="response" let:response>
-{#await response}
-Wird geladen...
-{:then response}
-			{#each response.entities as entity (entity.id)}
-				<tr animate:flip={{ duration: 500 }}>
-					<th scope="row">{entity.id}</th>
-					<td>{entity.title}</td>
-					<td>
-						<Ranking {list} {entity} />
+		<tbody slot="response">
+			{#if $response?.error}
+				<tr>
+					<td colspan="3">
+						<div class="alert alert-danger w-100" role="alert">
+							Fehler {$response.error}
+						</div>
 					</td>
 				</tr>
-			{/each}
-{/await}
+			{:else}
+				{#each $response?.success?.entities ?? [] as entity (entity.id)}
+					<tr animate:flip={{ duration: 500 }}>
+						<th scope="row">{entity.id}</th>
+						<td>{entity.title}</td>
+						<td>
+							<Ranking {list} {entity} />
+						</td>
+					</tr>
+				{/each}
+			{/if}
 		</tbody>
 	</EntityList>
 </main>

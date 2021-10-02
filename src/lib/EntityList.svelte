@@ -3,20 +3,17 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { Writable } from 'svelte/store';
-	import type { BaseEntityType, BaseQueryType, EntityResponseBody } from './entites';
+	import { derived, Readable, writable, Writable } from 'svelte/store';
+	import type { BaseEntityType, BaseQueryType, EntityResponseBody, FetchResponse } from './entites';
 	import { goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { HTTPError } from './authorization';
 	import type { BaseQuery } from './list-entities';
 	import { browser } from '$app/env';
+	import { update_await_block_branch } from 'svelte/internal';
 
 	export let title: string;
 	export let createUrl: string | null;
-	let response: Promise<EntityResponseBody> = new Promise((a, b) => {
-		// empty
-	});
-	export let fullInvalidationUrl: string;
 
 	// TODO FIXME A/B testing for sorting (whether to priority first or last chosen option)
 	// you wanna sort for type then name
@@ -29,6 +26,44 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let query: Writable<BaseQuery>;
 
 	export let url: string;
+
+	export let loading: Writable<boolean> = writable(true);
+
+	export let response: Readable<FetchResponse<EntityResponseBody>> = derived(
+		query,
+		($query, set) => {
+			if (browser) {
+				// TODO FIXME
+				(async () => {
+					loading.set(true);
+
+					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+					console.log(fullUrl);
+					const res = await fetch(fullUrl, {
+						method: 'GET',
+						credentials: 'include'
+					});
+					if (!res.ok) {
+						set({
+							success: undefined,
+							error: res.status + ' ' + res.statusText
+						} as FetchResponse<EntityResponseBody>);
+					} else {
+						set({
+							success: (await res.json()) as EntityResponseBody,
+							error: undefined
+						} as FetchResponse<EntityResponseBody>);
+					}
+					loading.set(false);
+					// TODO FIXME we probably need to unset previous set to prevent race conditions
+				})();
+			}
+		},
+		{
+			success: undefined,
+			error: undefined
+		} as FetchResponse<EntityResponseBody>
+	);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
@@ -50,32 +85,25 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	};
 
 	export async function refresh() {
-		await invalidate(fullInvalidationUrl);
+		$query = $query;
 	}
 
 	export const currentSortValue = (sorting: string[], sortingType: string): string => {
 		return sorting.find((e) => e.startsWith(sortingType + ':'))?.split(':')[1] ?? '';
 	};
-
-	$: if (browser) {
-		// TODO FIXME SSR?
-		response = (async () => {
-			const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
-			console.log(fullUrl);
-			const res = await fetch(fullUrl, {
-				credentials: 'same-origin'
-			});
-			if (!res.ok) {
-				throw new HTTPError(res.status, res.statusText);
-			}
-			return (await res.json()) as EntityResponseBody;
-		})();
-	}
 </script>
 
 <svelte:head>
 	<title>{title}</title>
 </svelte:head>
+
+<div style="position: absolute; top: 50%; left: 50%;">
+	{#if $loading}
+		<div class="spinner-grow text-primary" role="status">
+			<span class="visually-hidden">Loading...</span>
+		</div>
+	{/if}
+</div>
 
 <h1 class="text-center">{title}</h1>
 
@@ -107,72 +135,36 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </table>
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
-		<!-- await only works in blocks -->
-		{#await response}
-			<li class="page-item disabled">
-				<a
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={-1}
-					aria-disabled={true}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item disabled">
-				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{:then response}
-			<li class="page-item {response.previousCursor ? '' : 'disabled'}">
-				<a
-					on:click|preventDefault={() => {
-						($query.paginationCursor = response.previousCursor),
-							($query.paginationDirection = 'backwards');
-					}}
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={response.previousCursor ? undefined : -1}
-					aria-disabled={!response.previousCursor}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item {response.nextCursor ? '' : 'disabled'}">
-				<a
-					on:click|preventDefault={() => {
-						($query.paginationCursor = response.nextCursor),
-							($query.paginationDirection = 'forwards');
-					}}
-					class="page-link"
-					href="/"
-					aria-label="Nächste Seite"
-					tabindex={response.nextCursor ? undefined : -1}
-					aria-disabled={!response.nextCursor}
-				>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{:catch}
-			<li class="page-item disabled">
-				<a
-					class="page-link"
-					href="/"
-					aria-label="Vorherige Seite"
-					tabindex={-1}
-					aria-disabled={true}
-				>
-					<span aria-hidden="true">&laquo;</span>
-				</a>
-			</li>
-			<li class="page-item disabled">
-				<a class="page-link" href="/" aria-label="Nächste Seite" tabindex={-1} aria-disabled={true}>
-					<span aria-hidden="true">&raquo;</span>
-				</a>
-			</li>
-		{/await}
+		<!-- { # await only works in blocks -->
+		<li class="page-item {$response.success?.previousCursor ? '' : 'disabled'}">
+			<a
+				on:click|preventDefault={() => {
+					($query.paginationCursor = $response.success?.previousCursor ?? null),
+						($query.paginationDirection = 'backwards');
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Vorherige Seite"
+				tabindex={$response.success?.previousCursor ? undefined : -1}
+				aria-disabled={!$response.success?.previousCursor}
+			>
+				<span aria-hidden="true">&laquo;</span>
+			</a>
+		</li>
+		<li class="page-item {$response.success?.nextCursor ? '' : 'disabled'}">
+			<a
+				on:click|preventDefault={() => {
+					($query.paginationCursor = $response.success?.nextCursor ?? null),
+						($query.paginationDirection = 'forwards');
+				}}
+				class="page-link"
+				href="/"
+				aria-label="Nächste Seite"
+				tabindex={$response.success?.nextCursor ? undefined : -1}
+				aria-disabled={!$response.success?.nextCursor}
+			>
+				<span aria-hidden="true">&raquo;</span>
+			</a>
+		</li>
 	</ul>
 </nav>

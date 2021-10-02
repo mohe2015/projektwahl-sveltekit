@@ -3,6 +3,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 
+https://github.com/sveltejs/svelte/issues/2118
+
 ```bash
 nix develop
 # TODO FIXME check that this is set - if we use it.
