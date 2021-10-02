@@ -32,8 +32,9 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			fakeTT<SerializableParameter>`AND name LIKE ${
 				'%' + (query.filters.name ?? '') + '%'
 			} AND (${!query.filters.id} OR id = ${query.filters.id ?? null}) AND (${!query.filters
-				.project_leader_id} OR project_leader_id = ${
-				query.filters.project_leader_id ?? null
+				.is_project_leader} OR project_leader_id = ${
+				// @ts-expect-error need to ues generics
+				query.project_leader_id ?? null
 			}) AND type in (${query.filters.types.filter((t: string) =>
 				['admin', 'helper', 'voter'].includes(t)
 			)})`

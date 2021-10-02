@@ -105,12 +105,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			url="project_leaders.json"
 			query={writable({
 				filters: {
-					types: ['admin', 'helper', 'voter']
+					types: ['admin', 'helper', 'voter'],
+					is_project_leader: false
 				},
 				paginationLimit: 10,
-				sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
+				sorting: ['project_leader_id:DESC', 'id:down-up', 'name:down-up', 'type:down-up'],
 				paginationCursor: null,
-				paginationDirection: null
+				paginationDirection: null,
+				project_leader_id: entity.id
 			})}
 			title="Projektleitende"
 			createUrl={null}
@@ -119,7 +121,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				<tr>
 					<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 					<Sorting
-						name="project_leader_id"
+						name="is_project_leader"
 						title="Projektleiter"
 						{headerClick}
 						{currentSortValue}
@@ -131,7 +133,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</tr>
 				<tr class="align-middle">
 					<Filtering name="id" type="number" {query} />
-					<Filtering name="project_leader_id" type="boolean" {query} />
+					<Filtering name="is_project_leader" type="boolean" {query} />
 					<Filtering name="name" type="text" {query} />
 					<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
 					<th scope="col" />
@@ -151,7 +153,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>
-								<ProjectLeaderButton entity={user} project_id={entity.id} />
+								<ProjectLeaderButton project_id={entity.id} entity={user} />
 							</td>
 							<td>{user.name}</td>
 							<td>{user.type}</td>
