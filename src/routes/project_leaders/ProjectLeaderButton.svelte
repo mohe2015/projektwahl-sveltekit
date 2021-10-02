@@ -16,10 +16,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 <input
 	{disabled}
-	{checked}
+	bind:checked
 	type="checkbox"
 	class="form-check-input"
-	on:click={async (e) => {
+	on:change={async (e) => {
 		disabled = true;
 		// TODO edit user set project_leader_id
 		const response = await fetch(`/users/create-or-update.json`, {
