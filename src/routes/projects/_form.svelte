@@ -111,8 +111,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				paginationLimit: 10,
 				sorting: ['id:down-up', 'is_project_leader:DESC', 'name:down-up', 'type:down-up'],
 				paginationCursor: null,
-				paginationDirection: null,
-				project_leader_id: entity.id
+				paginationDirection: null
+				//project_leader_id: entity.id // it's this lines fault?
 			})}
 			title="Projektleitende"
 			createUrl={null}
