@@ -44,7 +44,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			<tr class="align-middle">
 				<Filtering name="id" type="number" {query} />
 				<Filtering name="name" type="text" {query} />
-				<ListFiltering name="types[]" options={['admin', 'helper', 'voter']} {query} />
+				<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
 				<th scope="col" />
 			</tr>
 		</thead>
