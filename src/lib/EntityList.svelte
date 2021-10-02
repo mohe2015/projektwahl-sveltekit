@@ -67,7 +67,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
-		let oldElement = $query.sorting.splice(oldElementIndex, 1)[0];
+		let oldElement: string;
+		if (oldElementIndex == -1) {
+			oldElement = `${sortType}:down-up`;
+		} else {
+			oldElement = $query.sorting.splice(oldElementIndex, 1)[0];
+		}
 
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
