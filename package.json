@@ -16,6 +16,7 @@
 	},
 	"description": "Software to manage choosing projects and assigning people to projects.",
 	"scripts": {
+		"svelte-check": "svelte-check",
 		"dev": "svelte-kit dev",
 		"build": "svelte-kit build",
 		"preview": "svelte-kit preview",
@@ -44,6 +45,7 @@
 		"prettier": "~2.4.1",
 		"prettier-plugin-svelte": "^2.4.0",
 		"svelte": "^3.43.1",
+		"svelte-check": "^2.2.6",
 		"svelte-jester": "^2.1.5",
 		"svelte-preprocess": "^4.9.8",
 		"ts-jest": "^27.0.5",

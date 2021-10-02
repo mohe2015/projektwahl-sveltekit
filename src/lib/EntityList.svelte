@@ -4,13 +4,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { derived, Readable, writable, Writable } from 'svelte/store';
-	import type { BaseEntityType, BaseQueryType, EntityResponseBody, FetchResponse } from './entites';
-	import { goto, invalidate } from '$app/navigation';
+	import type { EntityResponseBody, FetchResponse } from './entites';
 	import { page } from '$app/stores';
-	import { HTTPError } from './authorization';
 	import type { BaseQuery } from './list-entities';
 	import { browser } from '$app/env';
-	import { update_await_block_branch } from 'svelte/internal';
 
 	export let title: string;
 	export let createUrl: string | null;
@@ -67,7 +64,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
-		let oldElement = $query.sorting.splice(oldElementIndex, 1)[0];
+		let oldElement: string;
+		if (oldElementIndex == -1) {
+			oldElement = `${sortType}:down-up`;
+		} else {
+			oldElement = $query.sorting.splice(oldElementIndex, 1)[0];
+		}
 
 		let newElement: string;
 		switch (oldElement.split(':')[1]) {
@@ -97,7 +99,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<title>{title}</title>
 </svelte:head>
 
-<div style="position: absolute; top: 50%; left: 50%;">
+<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	{#if $loading}
 		<div class="spinner-grow text-primary" role="status">
 			<span class="visually-hidden">Loading...</span>
@@ -121,10 +123,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			class="form-select"
 			aria-label="Default select example"
 		>
-			<option value="10">10 pro Seite</option>
-			<option value="25">25 pro Seite</option>
-			<option value="50">50 pro Seite</option>
-			<option value="100">100 pro Seite</option>
+			<option value={10}>10 pro Seite</option>
+			<option value={25}>25 pro Seite</option>
+			<option value={50}>50 pro Seite</option>
+			<option value={100}>100 pro Seite</option>
 		</select>
 	</div>
 </div>

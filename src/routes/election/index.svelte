@@ -7,7 +7,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import Ranking from './_Ranking.svelte';
 	import { flip } from 'svelte/animate';
-	import { Readable, Writable, writable } from 'svelte/store';
+	import { Readable, writable } from 'svelte/store';
 	import EntityList from '$lib/EntityList.svelte';
 	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
 

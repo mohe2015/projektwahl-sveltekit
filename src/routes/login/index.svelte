@@ -72,7 +72,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</div>
 			{/await}
 
-			<form on:submit|preventDefault={() => (loginPromise = login())}>
+			<form
+				method="POST"
+				action="/no-javascript"
+				on:submit|preventDefault={() => (loginPromise = login())}
+			>
 				<!-- TODO FIXME extract this pattern -->
 				{#await loginPromise}
 					<TextInput

@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
@@ -8,10 +7,6 @@ import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
-
-function between(min: number, max: number) {
-	return Math.floor(Math.random() * (max - min) + min);
-}
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	//allowUserType(request, []);

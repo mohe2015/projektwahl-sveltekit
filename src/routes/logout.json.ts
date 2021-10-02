@@ -3,8 +3,6 @@
 import { allowAnyone } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { MyEndpointOutput } from '$lib/request_helpers';
-import type { UserType } from '$lib/types';
-import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
