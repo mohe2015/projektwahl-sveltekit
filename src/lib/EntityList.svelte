@@ -121,10 +121,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			class="form-select"
 			aria-label="Default select example"
 		>
-			<option value="10">10 pro Seite</option>
-			<option value="25">25 pro Seite</option>
-			<option value="50">50 pro Seite</option>
-			<option value="100">100 pro Seite</option>
+			<option value={10}>10 pro Seite</option>
+			<option value={25}>25 pro Seite</option>
+			<option value={50}>50 pro Seite</option>
+			<option value={100}>100 pro Seite</option>
 		</select>
 	</div>
 </div>
