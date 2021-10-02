@@ -102,7 +102,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<title>{title}</title>
 </svelte:head>
 
-<div style="position: absolute; top: 50%; left: 50%;">
+<div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 	{#if $loading}
 		<div class="spinner-grow text-primary" role="status">
 			<span class="visually-hidden">Loading...</span>
