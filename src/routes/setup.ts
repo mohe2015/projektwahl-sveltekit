@@ -41,7 +41,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 
 			console.log(projects);
 
-			for (let i = 0; i < 100_000; i++) {
+			for (let i = 0; i < 10_000; i++) {
 				if (i % 1000 == 0) {
 					console.log(i);
 				}
