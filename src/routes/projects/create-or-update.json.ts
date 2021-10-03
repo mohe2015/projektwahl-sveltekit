@@ -4,7 +4,6 @@ import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
-import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import { permissions } from './permissions';
 

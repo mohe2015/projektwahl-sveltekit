@@ -4,10 +4,8 @@ import { allowAnyone, allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
 import type { UserType } from '$lib/types';
-import { hasPropertyType } from '$lib/validation';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
-import { Issuer } from 'openid-client';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 
 export type LoginResponse = {
@@ -50,16 +48,8 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		}
 	};*/
 
-	const [user, errors] = hasPropertyType(request.body, ['name', 'password'], '');
-
-	if (Object.keys(errors).length !== 0) {
-		const response: EndpointOutput<LoginResponse> = {
-			body: {
-				errors: errors
-			}
-		};
-		return response;
-	}
+	// TODO FIXME validation using new permission system
+	const user: any = request.body;
 
 	const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;

@@ -17,9 +17,9 @@
 	"description": "Software to manage choosing projects and assigning people to projects.",
 	"scripts": {
 		"svelte-check": "svelte-check",
-		"dev": "svelte-kit dev",
+		"dev": "NODE_OPTIONS=--enable-source-maps svelte-kit dev",
 		"build": "svelte-kit build",
-		"preview": "svelte-kit preview",
+		"preview": "NODE_OPTIONS=--enable-source-maps svelte-kit preview",
 		"lint": "prettier --check --plugin-search-dir=. . && eslint --ignore-path .gitignore .",
 		"format": "prettier --write --plugin-search-dir=. .",
 		"prepare": "husky install",
