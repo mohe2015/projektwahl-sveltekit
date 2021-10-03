@@ -37,17 +37,33 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 				return response;
 			}
 			[row] = await sql.begin('READ WRITE', async (sql) => {
-				return await sql`UPDATE projects SET title = ${project.title}, info = ${
-					project.info
-				}, place = ${project.place}, costs = ${project.costs}, min_age = ${
-					project.min_age
-				}, max_age = ${project.max_age}, min_participants = ${
-					project.min_participants
-				}, max_participants = ${project.max_participants}, presentation_type = ${
-					project.presentation_type
-				}, requirements = ${project.requirements}, random_assignments = ${
-					project.random_assignments
-				} WHERE id = ${project.id!} RETURNING id;`;
+				return await sql`UPDATE projects SET
+title = CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE title END,
+info = CASE WHEN ${project.info !== undefined} THEN ${project.info ?? null} ELSE info END,
+place = CASE WHEN ${project.place !== undefined} THEN ${project.place ?? null} ELSE place END,
+costs = CASE WHEN ${project.costs !== undefined} THEN ${project.costs ?? null} ELSE costs END,
+min_age = CASE WHEN ${project.min_age !== undefined} THEN ${
+					project.min_age ?? null
+				} ELSE min_age END,
+max_age = CASE WHEN ${project.max_age !== undefined} THEN ${
+					project.max_age ?? null
+				} ELSE max_age END,
+min_participants = CASE WHEN ${project.min_participants !== undefined} THEN ${
+					project.min_participants ?? null
+				} ELSE max_participants END,
+max_participants = CASE WHEN ${project.max_participants !== undefined} THEN ${
+					project.max_participants ?? null
+				} ELSE max_participants END,
+presentation_type = CASE WHEN ${project.presentation_type !== undefined} THEN ${
+					project.presentation_type ?? null
+				} ELSE presentation_type END,
+requirements = CASE WHEN ${project.requirements !== undefined} THEN ${
+					project.requirements ?? null
+				} ELSE requirements END,
+random_assignments = CASE WHEN ${project.random_assignments !== undefined} THEN ${
+					project.random_assignments ?? null
+				} ELSE random_assignments END
+WHERE id = ${project.id!} RETURNING id;`;
 			});
 		} else {
 			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,
