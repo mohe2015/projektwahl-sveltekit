@@ -8,7 +8,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export const sql = postgres(process.env['DATABASE_URL']!, {
-	database: process.env['DATABASE_NAME'],
-	debug: true /*(connection, query, params) => {
-	}*/
+	debug: (connection, query, params) => {
+		console.log(query);
+		console.log(params);
+	}
 });

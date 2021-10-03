@@ -13,7 +13,6 @@ export type MyLocals = {
 
 // maybe use bearer token / oauth?
 export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
-	console.log(request.path);
 	if (request.path == '/no-javascript') {
 		request.method = 'GET'; // Potentially dangerous as POST may still be somewhere else
 	}
@@ -22,8 +21,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	dotenv.config();
 
 	// TODO FIXME session invalidation
-
-	console.log(request.headers);
 
 	let session_id = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
@@ -52,7 +49,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	if (session_id) {
 		try {
 			const [session]: [UserType?] =
-				await sql`SELECT users.id, users.name, users.type, users.class AS group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+				await sql`SELECT users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 			request.locals.session_id = session_id!;
 			request.locals.user = session ?? null;

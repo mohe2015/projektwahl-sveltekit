@@ -18,13 +18,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	keys={['name', 'password', 'group', 'age']}
 >
 	<TextInput name="name" label="Name" bind:the_value={entity.name} {feedback} />
-	<TextInput
+	<!--<TextInput
 		name="password"
 		label="Passwort"
 		type="password"
 		bind:the_value={entity.password}
 		{feedback}
-	/>
+	/>-->
 
 	<div class="mb-3">
 		<label for="users-type" class="form-label">Nutzerart:</label>

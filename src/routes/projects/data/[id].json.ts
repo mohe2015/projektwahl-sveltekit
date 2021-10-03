@@ -2,7 +2,6 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { ProjectType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -14,7 +13,7 @@ export type ProjectsResponseBody = {
 
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<MyEndpointOutput<ProjectsResponseBody>> {
+): Promise<EndpointOutput<ProjectsResponseBody>> {
 	allowUserType(request, ['admin', 'helper']);
 	const { params } = request;
 

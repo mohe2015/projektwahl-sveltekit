@@ -6,6 +6,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Form from './_form.svelte';
 </script>
 
+<svelte:head>
+	<title>Projekt erstellen</title>
+</svelte:head>
+
 <main class="container">
 	<Form
 		entity={{

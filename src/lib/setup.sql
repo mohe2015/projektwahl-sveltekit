@@ -6,7 +6,7 @@ ALTER DATABASE projektwahl SET default_transaction_isolation = 'serializable';
 ALTER DATABASE projektwahl SET default_transaction_read_only = true;
 
 CREATE TABLE IF NOT EXISTS projects (
-  id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  id SERIAL PRIMARY KEY NOT NULL,
   title VARCHAR(255) NOT NULL,
   info VARCHAR(4096) NOT NULL,
   place VARCHAR(256) NOT NULL,
@@ -17,28 +17,33 @@ CREATE TABLE IF NOT EXISTS projects (
   max_participants INTEGER NOT NULL,
   presentation_type VARCHAR(512) NOT NULL,
   requirements VARCHAR(1024) NOT NULL,
-  random_assignments BOOLEAN NOT NULL
+  random_assignments BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TYPE user_type AS ENUM ('admin', 'helper', 'voter');
 
 CREATE TABLE IF NOT EXISTS users (
-  id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
+  id SERIAL PRIMARY KEY NOT NULL,
   name VARCHAR(64) UNIQUE NOT NULL,
   password_hash VARCHAR(512),
   type user_type NOT NULL,
-  project_leader_id UUID, -- TODO FIXME maybe m:n as somebody could theoretically be in multiple projects?
-  class VARCHAR(8), -- TODO RENAME TO group
+  project_leader_id INTEGER, -- TODO FIXME maybe m:n as somebody could theoretically be in multiple projects?
+  "group" VARCHAR(16),
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
   password_changed BOOLEAN NOT NULL DEFAULT FALSE,
-  in_project_id UUID, -- this should still be stored here even with openid as we can't join on it otherwise
+  force_in_project_id INTEGER, -- this should still be stored here even with openid as we can't join on it otherwise
+  computed_in_project_id INTEGER, -- this should still be stored here even with openid as we can't join on it otherwise
   -- TODO maybe add computed_in_project_id so you can manually force people in a project and this doesn't break when calculating
   FOREIGN KEY (project_leader_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT,
-  FOREIGN KEY (in_project_id)
+  FOREIGN KEY (force_in_project_id)
+    REFERENCES projects(id)
+    ON UPDATE RESTRICT
+    ON DELETE RESTRICT,
+  FOREIGN KEY (computed_in_project_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT
@@ -49,8 +54,8 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS choices (
   rank INTEGER NOT NULL,
-  project_id UUID NOT NULL,
-  user_id UUID NOT NULL,
+  project_id INTEGER NOT NULL,
+  user_id INTEGER NOT NULL,
   PRIMARY KEY(user_id,project_id),
   FOREIGN KEY (project_id)
     REFERENCES projects(id)
@@ -66,7 +71,7 @@ CREATE TABLE IF NOT EXISTS sessions (
   session_id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
   created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  user_id UUID NOT NULL,
+  user_id INTEGER NOT NULL,
   FOREIGN KEY (user_id)
     REFERENCES users(id)
     ON UPDATE RESTRICT
@@ -74,7 +79,7 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 
 CREATE TABLE IF NOT EXISTS settings (
-  id INTEGER PRIMARY KEY,
+  id INTEGER PRIMARY KEY NOT NULL,
   election_running BOOLEAN NOT NULL
 );
 

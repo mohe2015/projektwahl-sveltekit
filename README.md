@@ -5,6 +5,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 https://github.com/sveltejs/svelte/issues/2118
 
+set default_transaction_read_only = false;
+CREATE DATABASE projektwahl;
+
+INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES ('', '', '', 0, 0, 0, 0, 0, '', '', NULL);
+
+SELECT column_default FROM information_schema.columns WHERE table_name = 'projects' AND column_name = 'random_assignments';
+
+CREATE INDEX users_type_index ON users (type);
+CREATE INDEX users_project_leader_id_index ON users (project_leader_id);
+
 ```bash
 nix develop
 # TODO FIXME check that this is set - if we use it.
@@ -13,8 +23,7 @@ PROJEKTWAHL_ADMIN_ACCESS_TOKEN=`curl --data "grant_type=password&username=admin&
 
 # set in .env - warning: the .env file is stupid - don't quote anything and don't use comments
 THE_BASE_URL=http://localhost:3000/
-DATABASE_URL=postgres://projektwahl:changeme@localhost:54321
-DATABASE_NAME=projektwahl
+DATABASE_URL=postgres://projektwahl:changeme@localhost:54321/projektwahl
 OPENID_URL=http://localhost:8888/auth/realms/projektwahl
 CLIENT_ID=projektwahl
 CLIENT_SECRET=
@@ -67,8 +76,6 @@ in AND umschreiben?
 
 
 mit tricks in ROW umschreiben:
-
-CREATE INDEX users_type_index ON users (type);
 
 sure, das wird jetzt natürlich nen seq scan, weil type...
 EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ROW(type, 'user0.04651659117602724', id) < ROW('wter', name, '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44') ORDER BY type DESC, name ASC,id DESC LIMIT (10 + 1);

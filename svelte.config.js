@@ -13,7 +13,6 @@ const config = {
 	preprocess: preprocess({
 		sourceMap: true, // if this works this is stupid
 	}),
-	compilerOptions: {},
 	kit: {
 		// hydrate the <div id="svelte"> element in src/app.html
 		target: '#svelte',
@@ -32,6 +31,9 @@ const config = {
 			},
 			ssr: {
 				external: ['fs/promises']
+			},
+			build: {
+				sourcemap: true
 			}
 		}
 	}

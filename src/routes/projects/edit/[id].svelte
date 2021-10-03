@@ -29,6 +29,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let entity: ProjectType;
 </script>
 
+<svelte:head>
+	<title>Projekt ändern</title>
+</svelte:head>
+
 <main class="container">
 	<Form {entity} />
 </main>

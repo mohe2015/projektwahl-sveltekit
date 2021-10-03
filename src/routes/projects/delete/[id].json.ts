@@ -2,9 +2,9 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { MyEndpointOutput } from '$lib/request_helpers';
-import type { RequestHandler } from '@sveltejs/kit';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
 export type ProjectDeleteResponse = {
@@ -13,7 +13,7 @@ export type ProjectDeleteResponse = {
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<MyEndpointOutput<ProjectDeleteResponse>> {
+): Promise<EndpointOutput<ProjectDeleteResponse>> {
 	allowUserType(request, ['admin']);
 	const { params } = request;
 	try {
@@ -34,7 +34,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 				postgresError.constraint_name === 'choices_project_id_fkey'
 			) {
 				// unique violation
-				const response: MyEndpointOutput<ProjectDeleteResponse> = {
+				const response: EndpointOutput<ProjectDeleteResponse> = {
 					body: {
 						errors: {
 							user: 'Jemand hat das Projekt noch gewählt!'
@@ -45,7 +45,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			}
 		}
 		console.log(error);
-		const response: MyEndpointOutput<ProjectDeleteResponse> = {
+		const response: EndpointOutput<ProjectDeleteResponse> = {
 			status: 500
 		};
 		return response;

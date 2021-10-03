@@ -3,7 +3,6 @@
 import { allowAnyone, allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { MyEndpointOutput } from '$lib/request_helpers';
 import type { UserType } from '$lib/types';
 import { hasPropertyType } from '$lib/validation';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -18,7 +17,7 @@ export type LoginResponse = {
 
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<MyEndpointOutput<any>> {
+): Promise<EndpointOutput<any>> {
 	allowAnyone(request);
 
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
