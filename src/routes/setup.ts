@@ -12,18 +12,6 @@ import type { MyLocals } from 'src/hooks';
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	//allowUserType(request, []);
 
-	const nodbsql = postgres(process.env['DATABASE_URL']!, {
-		database: 'postgres',
-		debug: true
-	});
-
-	try {
-		await nodbsql`CREATE DATABASE projektwahl`;
-	} catch (err) {
-		console.log(err);
-		console.log("couldn't create database - possibly it already exists then ignore this");
-	}
-
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql.file('src/lib/setup.sql', undefined!, {
 			cache: false // TODO FIXME doesnt seem to work properly

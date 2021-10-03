@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 https://github.com/sveltejs/svelte/issues/2118
 
 set default_transaction_read_only = false;
+CREATE DATABASE projektwahl;
 
 INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES ('', '', '', 0, 0, 0, 0, 0, '', '', NULL);
 
@@ -22,8 +23,7 @@ PROJEKTWAHL_ADMIN_ACCESS_TOKEN=`curl --data "grant_type=password&username=admin&
 
 # set in .env - warning: the .env file is stupid - don't quote anything and don't use comments
 THE_BASE_URL=http://localhost:3000/
-DATABASE_URL=postgres://projektwahl:changeme@localhost:54321
-DATABASE_NAME=projektwahl
+DATABASE_URL=postgres://projektwahl:changeme@localhost:54321/projektwahl
 OPENID_URL=http://localhost:8888/auth/realms/projektwahl
 CLIENT_ID=projektwahl
 CLIENT_SECRET=

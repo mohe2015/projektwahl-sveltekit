@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS projects (
   max_participants INTEGER NOT NULL,
   presentation_type VARCHAR(512) NOT NULL,
   requirements VARCHAR(1024) NOT NULL,
-  random_assignments BOOLEAN NOT NULL DEFAULT FALSE,
+  random_assignments BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE TYPE user_type AS ENUM ('admin', 'helper', 'voter');
@@ -39,7 +39,11 @@ CREATE TABLE IF NOT EXISTS users (
     REFERENCES projects(id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT,
-  FOREIGN KEY (in_project_id)
+  FOREIGN KEY (force_in_project_id)
+    REFERENCES projects(id)
+    ON UPDATE RESTRICT
+    ON DELETE RESTRICT,
+  FOREIGN KEY (computed_in_project_id)
     REFERENCES projects(id)
     ON UPDATE RESTRICT
     ON DELETE RESTRICT
