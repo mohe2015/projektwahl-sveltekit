@@ -18,8 +18,14 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	const { params } = request;
 
 	// TODO FIXME same database column names like attributes so this doesn't happen again
-	const [entity]: [UserType?] =
-		await sql`SELECT id, name, type, class, age, away FROM users WHERE id = ${params.id} LIMIT 1`;
+	const [entity]: [UserType?] = await sql`SELECT ${sql([
+		'id',
+		'name',
+		'type',
+		'group',
+		'age',
+		'away'
+	])} FROM users WHERE id = ${params.id} LIMIT 1`;
 
 	return {
 		body: {

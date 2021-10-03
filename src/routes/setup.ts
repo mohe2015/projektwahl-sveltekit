@@ -92,7 +92,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 
 				const [user] = await sql<
 					[UserType]
-				>`INSERT INTO users (name, type, group, age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
+				>`INSERT INTO users (name, type, "group", age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 				for (let j = 1; j <= 5; j++) {
 					// failed transactions still update the autoincrement count - then this project id here is wrong
 					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${

@@ -28,7 +28,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(512),
   type user_type NOT NULL,
   project_leader_id UUID, -- TODO FIXME maybe m:n as somebody could theoretically be in multiple projects?
-  group VARCHAR(16),
+  "group" VARCHAR(16),
   age INTEGER,
   away BOOLEAN NOT NULL DEFAULT FALSE,
   password_changed BOOLEAN NOT NULL DEFAULT FALSE,

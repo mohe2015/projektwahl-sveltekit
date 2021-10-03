@@ -32,7 +32,7 @@ password_hash = CASE WHEN ${user.password !== undefined} THEN ${
 					user.password ? await hashPassword(user.password) : null
 				} ELSE password_hash END,
 type = CASE WHEN ${user.type !== undefined} THEN ${user.type ?? null} ELSE type END,
-group = CASE WHEN ${user.group !== undefined} THEN ${user.group ?? null} ELSE group END,
+"group" = CASE WHEN ${user.group !== undefined} THEN ${user.group ?? null} ELSE "group" END,
 age = CASE WHEN ${user.age !== undefined} THEN ${user.age ?? null} ELSE age END,
 away = CASE WHEN ${user.away !== undefined} THEN ${user.away ?? null} ELSE away END,
 project_leader_id = CASE WHEN ${user.project_leader_id !== undefined} THEN ${
@@ -40,7 +40,7 @@ project_leader_id = CASE WHEN ${user.project_leader_id !== undefined} THEN ${
 				} ELSE project_leader_id END
 WHERE id = ${user.id!} RETURNING id;`;
 			} else {
-				return await sql`INSERT INTO users (name, password_hash, type, group, age, away) VALUES (${
+				return await sql`INSERT INTO users (name, password_hash, type, "group", age, away) VALUES (${
 					user.name ?? null
 				}, ${user.password ? await hashPassword(user.password) : null}, ${user.type ?? null}, ${
 					user.group ?? null
