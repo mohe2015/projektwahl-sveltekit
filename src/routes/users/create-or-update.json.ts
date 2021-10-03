@@ -11,6 +11,7 @@ import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 import { permissions } from './permissions';
 
+// TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
 	data: AsyncIterable<JSONValue>,
 	loggedInUser: UserType | null
@@ -33,7 +34,10 @@ export const save = async (
 	away = CASE WHEN ${user.away !== undefined} THEN ${user.away ?? null} ELSE away END,
 	project_leader_id = CASE WHEN ${user.project_leader_id !== undefined} THEN ${
 						user.project_leader_id ?? null
-					} ELSE project_leader_id END
+					} ELSE project_leader_id END,
+	force_in_project_id = CASE WHEN ${user.force_in_project_id !== undefined} THEN ${
+						user.force_in_project_id ?? null
+					} ELSE force_in_project_id END
 	WHERE id = ${user.id!} RETURNING id;`;
 				} else {
 					const [row] =

@@ -64,6 +64,11 @@ export const checkPermissions = (
 		}
 		sanitizedValue[key] = val;
 	}
+	for (const [key, value] of Object.entries(body)) {
+		if (!permissions.has(key)) {
+			throw new HTTPError(401, `additional ignored field ${key}`);
+		}
+	}
 	// TODO FIXME check that no unchecked values are in the original thing - otherwise we could accidentially loose data
 	return sanitizedValue;
 };

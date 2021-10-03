@@ -17,6 +17,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { BaseQuery } from '$lib/list-entities';
 	import type { ProjectType } from '$lib/types';
 	import { Readable, Writable, writable } from 'svelte/store';
+	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
 	export let entity: Partial<ProjectType>;
@@ -34,6 +35,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		paginationCursor: null,
 		paginationDirection: null,
 		project_leader_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
+	});
+
+	let force_in_project_list: EntityList;
+	let force_in_project_response: Readable<FetchResponse<EntityResponseBody>>;
+	let force_in_project_query: Writable<BaseQuery> = writable({
+		filters: {
+			types: ['admin', 'helper', 'voter']
+		},
+		paginationLimit: 10,
+		sorting: ['id:down-up', 'is_force_in_project:DESC', 'name:down-up', 'type:down-up'],
+		paginationCursor: null,
+		paginationDirection: null,
+		force_in_project_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
 	});
 </script>
 
@@ -193,6 +207,92 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			automatisch hinzugefügt.
 		</p>
 	{/if}
+
+	{#if entity.id}
+		<!-- for now only implement this on updating -->
+		<!-- TODO FIXME also take care that you cant override somebody else if there are already project leader somewhere else -->
+		<!-- TODO FIXME do we want to allow this at creation? then the approach needs to be different -->
+		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
+		<EntityList
+			bind:this={force_in_project_list}
+			bind:response={force_in_project_response}
+			url="force_in_project.json"
+			query={force_in_project_query}
+			title="garantiert Teilnehmende"
+			createUrl={null}
+		>
+			<thead slot="filter" let:headerClick let:currentSortValue>
+				<tr>
+					<Sorting
+						name="id"
+						title="#"
+						{headerClick}
+						{currentSortValue}
+						query={force_in_project_query}
+					/>
+					<Sorting
+						name="is_force_in_project"
+						title="garantiert Teilnehmende"
+						{headerClick}
+						{currentSortValue}
+						query={force_in_project_query}
+					/>
+					<Sorting
+						name="name"
+						title="Name"
+						{headerClick}
+						{currentSortValue}
+						query={force_in_project_query}
+					/>
+					<Sorting
+						name="type"
+						title="Typ"
+						{headerClick}
+						{currentSortValue}
+						query={force_in_project_query}
+					/>
+					<th>Aktionen</th>
+				</tr>
+				<tr class="align-middle">
+					<Filtering name="id" type="number" query={force_in_project_query} />
+					<Filtering name="is_force_in_project" type="boolean" query={force_in_project_query} />
+					<Filtering name="name" type="text" query={force_in_project_query} />
+					<ListFiltering
+						name="types"
+						options={['admin', 'helper', 'voter']}
+						query={force_in_project_query}
+					/>
+					<th scope="col" />
+				</tr>
+			</thead>
+			<tbody slot="response">
+				{#if $force_in_project_response?.error}
+					<tr>
+						<td colspan="4">
+							<div class="alert alert-danger w-100" role="alert">
+								Fehler {$force_in_project_response.error}
+							</div>
+						</td>
+					</tr>
+				{:else}
+					{#each $force_in_project_response?.success?.entities ?? [] as user (user.id)}
+						<tr>
+							<th scope="row">{user.id}</th>
+							<td>
+								<ForceInProjectButton project_id={entity.id} entity={user} />
+							</td>
+							<td>{user.name}</td>
+							<td>{user.type}</td>
+							<td />
+						</tr>
+					{/each}
+				{/if}
+			</tbody>
+		</EntityList>
+	{:else}
+		<p>Garantiert Teilnehmende können erst nach Erstellung des Projekts hinzugefügt werden.</p>
+	{/if}
+
 	<div class="mb-3 form-check">
 		<input
 			bind:checked={entity.random_assignments}

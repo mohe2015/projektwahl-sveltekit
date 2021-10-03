@@ -43,6 +43,10 @@ export const permissions: PermissionsType = new Map(
 		project_leader_id: {
 			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
 			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
+		},
+		force_in_project_id: {
+			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
+			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
 		}
 	})
 );
