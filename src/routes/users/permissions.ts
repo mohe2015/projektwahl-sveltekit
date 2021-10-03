@@ -5,6 +5,8 @@ import type { BaseEntityType } from '$lib/entites';
 import type { UserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 
+// maybe this could be generic of keyof UserType and then this could also return Partial<UserType>
+
 // TODO FIXME all important checks need to be at the database to prevent race conditions
 export const permissions: PermissionsType = new Map(
 	Object.entries({
@@ -25,7 +27,7 @@ export const permissions: PermissionsType = new Map(
 			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
 			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
 		},
-		class: {
+		group: {
 			view: (user: UserType | null, entity: JSONValue) => user?.type === 'admin',
 			edit: (user: UserType | null, entity: JSONValue) => user?.type === 'admin'
 		},

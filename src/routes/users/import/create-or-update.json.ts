@@ -33,7 +33,7 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 			const user = checkPermissions(permissions, request.locals.user, body);
 
 			try {
-				await sql`INSERT INTO users (name, password_hash, type, class, age, away) VALUES (${
+				await sql`INSERT INTO users (name, password_hash, type, group, age, away) VALUES (${
 					user.name
 				}, ${user.password ? await hashPassword(user.password) : null}, ${user.type}, ${
 					user.group ?? null
