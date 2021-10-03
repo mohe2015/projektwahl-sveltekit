@@ -24,7 +24,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	try {
 		// TODO FIXME allow helper to change this but only specific fields (NOT type)
 		const [row] = await sql.begin('READ WRITE', async (sql) => {
-			if ('id' in user) {
+			if (user.id !== undefined) {
 				return await sql`UPDATE users SET
 name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
 password_hash = CASE WHEN ${user.password !== undefined} THEN ${
