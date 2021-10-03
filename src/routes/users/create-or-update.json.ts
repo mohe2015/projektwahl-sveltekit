@@ -29,7 +29,7 @@ export const save = async (
 					} ELSE password_hash END,
 	type = CASE WHEN ${user.type !== undefined} THEN ${user.type ?? null} ELSE type END,
 	"group" = CASE WHEN ${user.group !== undefined} THEN ${user.group ?? null} ELSE "group" END,
-	age = CASE WHEN ${user.age /*for csv import*/} THEN ${user.age ?? null} ELSE age END,
+	age = CASE WHEN ${!!user.age /*for csv import*/} THEN ${user.age ?? null} ELSE age END,
 	away = CASE WHEN ${user.away !== undefined} THEN ${user.away ?? null} ELSE away END,
 	project_leader_id = CASE WHEN ${user.project_leader_id !== undefined} THEN ${
 						user.project_leader_id ?? null
