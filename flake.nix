@@ -22,6 +22,7 @@
               pkgs.nodePackages.npm-check-updates
               pkgs.cbc
               pkgs.glpk
+              pkgs.lp_solve
               pkgs.nodePackages.node2nix
               pkgs.jq
             ];

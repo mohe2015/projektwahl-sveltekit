@@ -5,6 +5,8 @@
 # glpsol --math src/lib/calculate.mod --wlp test --nopresol --output a
 # --data test.dat
 
+# TODO FIXME maybe it doesnt work if a project doesnt exist at all as we forgot that edge case?
+
 # WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
 
 #If you encounter problems with your MathProg model, you can investigate further by specifying the GLPSOL options --nopresol to disable the LP presolver and --output filename.out to write the final solution to a text file. 

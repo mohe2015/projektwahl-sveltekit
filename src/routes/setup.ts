@@ -25,14 +25,11 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 			)}, 'admin') ON CONFLICT DO NOTHING;`;
 
 			const projects =
-				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 10000)) RETURNING *;`;
+				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 100)) RETURNING *;`;
 
 			console.log(projects);
 
 			for (let i = 0; i < 10_000; i++) {
-				if (i % 1000 == 0) {
-					console.log(i);
-				}
 				// TODO FIXME add user to keycloak / import users from keycloak (probably easier)
 				// https://www.keycloak.org/documentation
 				// https://www.keycloak.org/docs-api/15.0/rest-api/index.html
