@@ -2,13 +2,11 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
-import type { ProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import { permissions } from '../users/permissions';
+import { permissions } from './permissions';
 
 export type CreateResponse = {
 	errors: { [x: string]: string };
@@ -20,10 +18,11 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 	const { body } = request;
 
 	const project = checkPermissions(permissions, request.locals.user, body);
+	console.log('proj: ', project);
 
 	try {
 		let row;
-		if ('id' in project) {
+		if (project.id !== undefined) {
 			if (
 				request.locals.user?.type !== 'admin' &&
 				request.locals.user?.project_leader_id !== project.id
@@ -51,9 +50,22 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 				} WHERE id = ${project.id!} RETURNING id;`;
 			});
 		} else {
-			// TODO FIXME also allow adding project leaders and in_project people
+			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,
+			// would be dream but is a syntax error. we probably need to build the queries custom
 			[row] = await sql.begin('READ WRITE', async (sql) => {
-				return await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES (${project.title}, ${project.info}, ${project.place}, ${project.costs}, ${project.min_age}, ${project.max_age}, ${project.min_participants}, ${project.max_participants}, ${project.presentation_type}, ${project.requirements}, ${project.random_assignments}) RETURNING id;`;
+				return await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES
+(${project.title ?? null},
+${project.info ?? null},
+${project.place ?? null},
+${project.costs ?? 0},
+${project.min_age ?? null},
+${project.max_age ?? null},
+${project.min_participants ?? null},
+${project.max_participants ?? null},
+${project.presentation_type ?? null},
+${project.requirements ?? null},
+${project.random_assignments ?? false})
+RETURNING id;`;
 			});
 		}
 

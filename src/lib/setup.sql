@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS projects (
   max_participants INTEGER NOT NULL,
   presentation_type VARCHAR(512) NOT NULL,
   requirements VARCHAR(1024) NOT NULL,
-  random_assignments BOOLEAN NOT NULL
+  random_assignments BOOLEAN NOT NULL DEFAULT FALSE,
 );
 
 CREATE TYPE user_type AS ENUM ('admin', 'helper', 'voter');

@@ -53,6 +53,8 @@ export const checkPermissions = (
 		[key: string]: string | number | boolean | null;
 	} = {};
 	for (const [key, checker] of permissions) {
+		if (body[key] === undefined) continue;
+
 		if (!checker.edit(user, body)) {
 			throw new HTTPError(401, `not allowed to change ${key}`);
 		}

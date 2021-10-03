@@ -5,6 +5,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 https://github.com/sveltejs/svelte/issues/2118
 
+set default_transaction_read_only = false;
+
+INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) VALUES ('', '', '', 0, 0, 0, 0, 0, '', '', NULL);
+
+SELECT column_default FROM information_schema.columns WHERE table_name = 'projects' AND column_name = 'random_assignments';
+
 CREATE INDEX users_type_index ON users (type);
 CREATE INDEX users_project_leader_id_index ON users (project_leader_id);
 
