@@ -10,6 +10,7 @@ import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 import { permissions } from './permissions';
+import { webcrypto as crypto } from 'crypto'
 
 // TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
@@ -17,13 +18,16 @@ export const save = async (
 	loggedInUser: UserType | null
 ): Promise<EndpointOutput<CreateResponse>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
+		let row;
 		for await (const entry of data) {
 			const user = checkPermissions(permissions, loggedInUser, entry);
+			
+			const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString('hex');
 
 			try {
 				// TODO FIXME allow helper to change this but only specific fields (NOT type)
 				if (user.id !== undefined) {
-					const [row] = await sql`UPDATE users SET
+					[row] = await sql`UPDATE users SET
 	name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
 	password_hash = CASE WHEN ${user.password !== undefined} THEN ${
 						user.password ? await hashPassword(user.password) : null
@@ -40,7 +44,7 @@ export const save = async (
 					} ELSE force_in_project_id END
 	WHERE id = ${user.id!} RETURNING id;`;
 				} else {
-					const [row] =
+					[row] =
 						await sql`INSERT INTO users (name, password_hash, type, "group", age, away) VALUES (${
 							user.name ?? null
 						}, ${user.password ? await hashPassword(user.password) : null}, ${user.type ?? null}, ${
@@ -76,7 +80,8 @@ export const save = async (
 		}
 		return {
 			body: {
-				errors: {}
+				errors: {},
+				id: row.id,
 			}
 		};
 	});
