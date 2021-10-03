@@ -18,11 +18,11 @@ test('check that all rows are returned with pagination', async () => {
 		})
 	});
 	const loginResult: any = await loginResponse.json();
+	console.log(loginResult);
 
 	await fetchPost('http://localhost:3000/tests/setup.json', {
 		method: 'POST',
 		headers: {
-			'Content-Type': 'application/json',
 			'x-csrf-protection': 'projektwahl',
 			cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
 		}
@@ -31,27 +31,31 @@ test('check that all rows are returned with pagination', async () => {
 	let result: TestResponseBody | null = null;
 	const foundIds = new Set(Array.from(new Array(100), (x, i) => i + 1));
 	do {
-		const response: Response = await fetch(
+		const url =
 			'http://localhost:3000/tests/list-entities.json?' +
-				new URLSearchParams([
-					['pagination_limit', '10'],
-					['sorting[]', 'a:ASC'],
-					['sorting[]', 'b:down-up'],
-					['sorting[]', 'c:down-up'],
-					...(result?.nextCursor != null
-						? [
-								['pagination_direction', 'forwards'],
-								['pagination_cursor', JSON.stringify(result.nextCursor)]
-						  ]
-						: [])
-				]),
-			{
-				headers: {
-					'x-csrf-protection': 'projektwahl',
-					cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
-				}
+			new URLSearchParams([
+				['pagination_limit', '10'],
+				['sorting[]', 'a:ASC'],
+				['sorting[]', 'b:down-up'],
+				['sorting[]', 'c:down-up'],
+				...(result?.nextCursor != null
+					? [
+							['pagination_direction', 'forwards'],
+							['pagination_cursor', JSON.stringify(result.nextCursor)]
+					  ]
+					: [])
+			]);
+		const response: Response = await fetch(url, {
+			headers: {
+				'x-csrf-protection': 'projektwahl',
+				cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
 			}
-		);
+		});
+		if (!response.ok) {
+			console.log(`fetching ${url} returned ${response.status} ${response.statusText}`);
+			console.log(await response.text());
+			throw new Error(`fetching ${url} returned ${response.status} ${response.statusText}`);
+		}
 		result = (await response.json()) as TestResponseBody;
 		console.log(result);
 		result?.entities.forEach((e) => {

@@ -10,9 +10,11 @@ import type { JSONValue } from '@sveltejs/kit/types/helper';
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<any>> {
+	console.log('yay');
 	if (!dev) {
 		throw new Error('only available in dev');
 	}
+	console.log('Jo');
 
 	allowUserType(request, ['admin']);
 	const { body } = request;
