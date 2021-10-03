@@ -22,7 +22,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 	// TODO FIXME session invalidation
 
-	let session_id = undefined;
+	let session_id: any = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
@@ -49,10 +49,24 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	if (session_id) {
 		try {
 			const [session]: [UserType?] =
-				await sql`SELECT users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+				await sql`SELECT sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 			request.locals.session_id = session_id!;
 			request.locals.user = session ?? null;
+
+			// @ts-expect-error types above not correct
+			const updated_at: Date = session!.updated_at;
+			const millies = new Date().getTime() - updated_at.getTime();
+			if (!(millies < 60 * 60 * 1000)) {
+				// 1 hour
+				throw new Error('session timeout');
+			}
+
+			await sql.begin('READ WRITE', async (sql) => {
+				await sql`UPDATE sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ${session_id}`;
+			});
+
+			// maybe don't delete sessions for now so we can track back if somebody complains
 
 			/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
 
