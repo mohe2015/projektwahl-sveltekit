@@ -53,7 +53,7 @@ CREATE TABLE IF NOT EXISTS users (
 -- maybe add an index on name and maybe on type (or replace by enum?)
 
 CREATE TABLE IF NOT EXISTS choices (
-  rank INTEGER NOT NULL,
+  rank INTEGER NOT NULL, -- TODO FIXME add checks here and on other places e.g. that this is from 1 - 5
   project_id INTEGER NOT NULL,
   user_id INTEGER NOT NULL,
   PRIMARY KEY(user_id,project_id),

@@ -78,7 +78,9 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 		await fileHandle.write(`param choices`);
 		for (const c of choices) {
-			await fileHandle.write(` [user${c.user_id}, project${c.project_id}] ${c.rank}`);
+			await fileHandle.write(
+				` [user${c.user_id}, project${c.project_id}] ${5 - c.rank /* FIXME improve this */}`
+			);
 		}
 		await fileHandle.write(`;${os.EOL}`);
 

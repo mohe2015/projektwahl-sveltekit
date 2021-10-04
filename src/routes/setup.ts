@@ -89,7 +89,9 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				shuffleArray(projects);
 				for (let j = 0; j < 5; j++) {
 					// TODO FIXME generate users who voted incorrectly (maybe increase/decrease iterations)
-					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${projects[j].id}, ${j});`;
+					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
+						projects[j].id
+					}, ${j + 1});`;
 				}
 			}
 		});

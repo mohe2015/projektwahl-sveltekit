@@ -31,10 +31,10 @@ var user_is_project_leader{u in U} binary;
 
 # TODO FIXME user not in project they are project leader in
 
-maximize total_cost: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
+maximize total_benefits: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
 
 subject to notinprojectyoudidntvote{u in U, p in P}:
-    if choices[u,p] == -1 then user_in_project[u,p] else 0 = 0;
+    if choices[u,p] == -1 then user_in_project[u,p] = 0;
 
 subject to no_project_leader{u in U}: if project_leaders[u] == 'null' then user_is_project_leader[u] else 0 = 0;
 
