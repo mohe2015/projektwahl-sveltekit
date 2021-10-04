@@ -2,14 +2,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # http://gusek.sourceforge.net/gmpl.pdf
 # https://ampl.com/resources/the-ampl-book/chapter-downloads/
-# glpsol --math src/lib/calculate.mod --wlp test --nopresol --output a
-# --data test.dat
 
 # TODO FIXME maybe it doesnt work if a project doesnt exist at all as we forgot that edge case?
 
-# WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
-
 #If you encounter problems with your MathProg model, you can investigate further by specifying the GLPSOL options --nopresol to disable the LP presolver and --output filename.out to write the final solution to a text file. 
+# glpsol --math src/lib/calculate.mod --data /tmp/nix-shell.BEclKU/projektwahl-Ms1tfU/data.dat --wmps problem/wmps --wfreemps problem/wfreemps --wlp problem/wlp --wglp problem/wglp
+# wlp is definitely the best format
+# WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
 
 set U; # users
 
@@ -35,7 +34,7 @@ var user_is_project_leader{u in U} binary;
 maximize total_cost: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
 
 subject to notinprojectyoudidntvote{u in U, p in P}:
-    if choices[u,p] == -1 then user_in_project[u,p] = 0;
+    if choices[u,p] == -1 then user_in_project[u,p] else 0 = 0;
 
 subject to no_project_leader{u in U}: if project_leaders[u] == 'null' then user_is_project_leader[u] else 0 = 0;
 
