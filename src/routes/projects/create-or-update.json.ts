@@ -16,7 +16,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 	allowUserType(request, ['admin', 'helper']); // TODO FIXME don't allow everyone to edit others projects
 	const { body } = request;
 
-	const project = checkPermissions(permissions, request.locals.user, body);
+	const project = checkPermissions(permissions, request.locals.user, body, 'edit');
 	console.log('proj: ', project);
 
 	try {

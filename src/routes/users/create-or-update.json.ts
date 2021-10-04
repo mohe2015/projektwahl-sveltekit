@@ -20,7 +20,7 @@ export const save = async (
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;
 		for await (const entry of data) {
-			const user = checkPermissions(permissions, loggedInUser, entry);
+			const user = checkPermissions(permissions, loggedInUser, entry, 'edit');
 
 			//const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
 			//	'hex'
@@ -29,6 +29,7 @@ export const save = async (
 			try {
 				// TODO FIXME allow helper to change this but only specific fields (NOT type)
 				if (user.id !== undefined) {
+					// eslint-disable-next-line @typescript-eslint/await-thenable
 					[row] = await sql`UPDATE users SET
 	name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
 	password_hash = CASE WHEN ${user.password !== undefined} THEN ${

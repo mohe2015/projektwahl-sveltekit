@@ -14,7 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	let list: EntityList;
-	let response: Readable<FetchResponse<EntityResponseBody>>;
+	let response: Readable<FetchResponse<EntityResponseBody, string>>;
 </script>
 
 <main class="container">

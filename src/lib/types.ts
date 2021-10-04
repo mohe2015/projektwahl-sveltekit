@@ -11,7 +11,7 @@ export type RawUserVoterType = {
 	group: string;
 	age: number;
 	away: boolean;
-	project_leader_id?: string;
+	project_leader_id?: number;
 	force_in_project_id?: number;
 };
 
@@ -22,7 +22,7 @@ export type RawUserHelperAdminType = {
 	group: never;
 	age: never;
 	away: boolean;
-	project_leader_id?: string;
+	project_leader_id?: number;
 };
 
 export type RawUserType =

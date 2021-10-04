@@ -4,7 +4,6 @@ import { dev } from '$app/env';
 import { sql } from '$lib/database';
 import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
@@ -88,6 +87,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				shuffleArray(projects);
 				for (let j = 0; j < 5; j++) {
 					// TODO FIXME generate users who voted incorrectly (maybe increase/decrease iterations)
+					// eslint-disable-next-line @typescript-eslint/await-thenable
 					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
 						projects[j].id
 					}, ${j + 1});`;
