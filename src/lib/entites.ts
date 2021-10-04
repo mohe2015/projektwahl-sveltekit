@@ -11,10 +11,10 @@ export type FetchResponse<T, E> = {
 	error?: E;
 };
 
-export type EntityResponseBody = {
-	entities: Array<BaseEntityType>;
-	previousCursor: BaseEntityType | null;
-	nextCursor: BaseEntityType | null;
+export type EntityResponseBody<T> = {
+	entities: Array<T>;
+	previousCursor: T | null;
+	nextCursor: T | null;
 };
 
 export type BaseQueryType = {

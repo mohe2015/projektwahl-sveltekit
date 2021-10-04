@@ -9,6 +9,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { BaseQuery } from './list-entities';
 	import { browser } from '$app/env';
 
+	type E = $$Generic;
+
 	export let title: string;
 	export let createUrl: string | null;
 
@@ -20,13 +22,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	// TODO FIXME pagination add "first" and "last"
 
-	export let query: Writable<BaseQuery>;
+	export let query: Writable<BaseQuery<E>>;
 
 	export let url: string;
 
 	export let loading: Writable<boolean> = writable(true);
 
-	export let response: Readable<FetchResponse<EntityResponseBody, string>> = derived(
+	export let response: Readable<FetchResponse<EntityResponseBody<E>, string>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
@@ -44,12 +46,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						set({
 							success: undefined,
 							error: res.status + ' ' + res.statusText
-						} as FetchResponse<EntityResponseBody, string>);
+						} as FetchResponse<EntityResponseBody<E>, string>);
 					} else {
 						set({
-							success: (await res.json()) as EntityResponseBody,
+							success: (await res.json()) as EntityResponseBody<E>,
 							error: undefined
-						} as FetchResponse<EntityResponseBody, string>);
+						} as FetchResponse<EntityResponseBody<E>, string>);
 					}
 					loading.set(false);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
@@ -59,7 +61,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{
 			success: undefined,
 			error: undefined
-		} as FetchResponse<EntityResponseBody, string>
+		} as FetchResponse<EntityResponseBody<E>, string>
 	);
 
 	export const headerClick = (sortType: string): void => {

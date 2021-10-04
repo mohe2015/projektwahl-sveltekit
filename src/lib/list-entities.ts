@@ -7,25 +7,25 @@ import type { MyLocals } from 'src/hooks';
 import type { BaseEntityType, EntityResponseBody } from './entites';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 
-export type BaseQuery = {
+export type BaseQuery<C> = {
 	paginationDirection: 'forwards' | 'backwards' | null;
-	paginationCursor: BaseEntityType | null;
+	paginationCursor: C | null;
 	sorting: string[]; // TODO FIXME format
 	paginationLimit: number;
 	filters: any;
 };
 
-export const buildGet = (
+export const buildGet = <E>(
 	allowedFilters: string[],
 	select: [TemplateStringsArray, SerializableParameter[]],
-	params: (query: BaseQuery) => [TemplateStringsArray, SerializableParameter[]]
-): RequestHandler<MyLocals, EntityResponseBody> => {
-	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
+	params: (query: BaseQuery<E>) => [TemplateStringsArray, SerializableParameter[]]
+): RequestHandler<MyLocals, EntityResponseBody<E>> => {
+	const get: RequestHandler<MyLocals, EntityResponseBody<E>> = async function ({ query }) {
 		console.log(query.toString());
 		// TODO FIXME probably use permissions system?
-		const the_query: BaseQuery = JSON.parse(
+		const the_query: BaseQuery<E> = JSON.parse(
 			atob(decodeURIComponent(query.toString()))
-		) as BaseQuery; // TODO FIXME validate
+		) as BaseQuery<E>; // TODO FIXME validate
 		console.log(the_query);
 
 		// TODO FIXME better validation and null/undefined
@@ -47,7 +47,7 @@ export const buildGet = (
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
-		const paginationCursor: BaseEntityType | null = the_query.paginationCursor;
+		const paginationCursor: E | null = the_query.paginationCursor;
 
 		const sortingQuery: [string, string][] = the_query.sorting
 			.map((e) => e.split(':', 2))
