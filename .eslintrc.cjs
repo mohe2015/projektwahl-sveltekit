@@ -3,10 +3,6 @@
 module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
-	parserOptions: {
-		tsconfigRootDir: __dirname,
-		project: 'tsconfig.json'
-	},
 	plugins: ['svelte3', '@typescript-eslint'],
 	extends: [
 		'eslint:recommended',
@@ -14,7 +10,7 @@ module.exports = {
 		'plugin:@typescript-eslint/recommended-requiring-type-checking',
 		'prettier'
 	],
-	ignorePatterns: ['*.cjs'],
+	ignorePatterns: ['*.cjs', 'svelte.config.js'],
 	rules: {
 		'require-await': 'error',
 		'@typescript-eslint/no-unused-vars': [
@@ -31,7 +27,10 @@ module.exports = {
 	},
 	parserOptions: {
 		sourceType: 'module',
-		ecmaVersion: 2019
+		ecmaVersion: 2019,
+		tsconfigRootDir: __dirname,
+		project: ['./tsconfig.json'],
+		extraFileExtensions: ['.svelte']
 	},
 	env: {
 		browser: true,
