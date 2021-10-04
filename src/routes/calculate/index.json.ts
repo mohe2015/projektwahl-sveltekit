@@ -9,6 +9,7 @@ import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
 import { allowUserType } from '$lib/authorization';
+import JSON5 from 'json5';
 
 // TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
 // or not
@@ -129,7 +130,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 			headers: {
 				'Content-Type': 'application/json'
 			},
-			body: await readFile(outputFilePath3, 'utf8')
+			body: JSON.stringify(JSON5.parse(await readFile(outputFilePath3, 'utf8'))) // DONT ASK: trailing commas are cool
 		};
 	} catch (error) {
 		console.log(error);
