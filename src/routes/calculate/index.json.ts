@@ -47,7 +47,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		}
 		await fileHandle.write(`;${os.EOL}`);
 
-		const users = await sql`SELECT id, project_leader_id FROM users;`;
+		const users = await sql`SELECT id, project_leader_id FROM present_voters;`;
 
 		await fileHandle.write(`set U :=`);
 		for (const u of users) {

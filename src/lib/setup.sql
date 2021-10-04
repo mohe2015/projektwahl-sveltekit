@@ -83,6 +83,10 @@ CREATE TABLE IF NOT EXISTS settings (
   election_running BOOLEAN NOT NULL
 );
 
+
+CREATE VIEW present_voters AS SELECT * FROM users WHERE type = 'voter' AND NOT away;
+
+
 -- https://www.cybertec-postgresql.com/en/triggers-to-enforce-constraints/
 -- https://www.bizety.com/2018/09/24/acidrain-concurrency-attacks-on-database-backed-applications/
 -- https://dl.acm.org/doi/10.1145/3035918.3064037

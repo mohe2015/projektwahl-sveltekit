@@ -9,17 +9,24 @@ import type { RequestHandler } from '@sveltejs/kit';
 import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
+const shuffleArray = (array: any[]) => {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		const temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+};
+
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	//allowUserType(request, []);
 
-	await sql.begin('READ WRITE', async (sql) => {
-		await sql.file('src/lib/setup.sql', undefined!, {
-			cache: false // TODO FIXME doesnt seem to work properly
-		});
-	});
-
 	if (dev) {
 		await sql.begin('READ WRITE', async (sql) => {
+			await sql.file('src/lib/setup.sql', undefined!, {
+				cache: false // TODO FIXME doesnt seem to work properly
+			});
+
 			await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
 				'changeme'
 			)}, 'admin') ON CONFLICT DO NOTHING;`;
@@ -79,11 +86,10 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				const [user] = await sql<
 					[UserType]
 				>`INSERT INTO users (name, type, "group", age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
-				for (let j = 1; j <= 5; j++) {
-					// failed transactions still update the autoincrement count - then this project id here is wrong
-					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
-						projects[Math.floor(Math.random() * projects.length)].id
-					}, ${j}) ON CONFLICT DO NOTHING;`;
+				shuffleArray(projects);
+				for (let j = 0; j < 5; j++) {
+					// TODO FIXME generate users who voted incorrectly (maybe increase/decrease iterations)
+					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${projects[j].id}, ${j});`;
 				}
 			}
 		});
