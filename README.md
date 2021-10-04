@@ -141,9 +141,13 @@ BEGIN READ WRITE;
 DROP TABLE IF EXISTS settings;
 DROP TABLE IF EXISTS sessions;
 DROP TABLE IF EXISTS choices;
+DROP VIEW IF EXISTS present_voters;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS projects;
+DROP TYPE IF EXISTS user_type;
 COMMIT;
+
+
 ```
 
 # create-svelte

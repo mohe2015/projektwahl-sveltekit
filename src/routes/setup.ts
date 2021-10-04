@@ -9,30 +9,35 @@ import type { RequestHandler } from '@sveltejs/kit';
 import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
+const shuffleArray = (array: any[]) => {
+	for (let i = array.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		const temp = array[i];
+		array[i] = array[j];
+		array[j] = temp;
+	}
+};
+
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
 	//allowUserType(request, []);
 
-	await sql.begin('READ WRITE', async (sql) => {
-		await sql.file('src/lib/setup.sql', undefined!, {
-			cache: false // TODO FIXME doesnt seem to work properly
-		});
-	});
-
 	if (dev) {
 		await sql.begin('READ WRITE', async (sql) => {
+			await sql.file('src/lib/setup.sql', undefined!, {
+				cache: false // TODO FIXME doesnt seem to work properly
+			});
+
 			await sql`INSERT INTO users (name, password_hash, type) VALUES ('admin', ${await hashPassword(
 				'changeme'
 			)}, 'admin') ON CONFLICT DO NOTHING;`;
 
 			const projects =
-				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 10000)) RETURNING *;`;
+				await sql`INSERT INTO projects (title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments) (SELECT generate_series, '', '', 0, 5, 13, 5, 20, '', '', FALSE FROM generate_series(1, 10)) RETURNING *;`;
 
 			console.log(projects);
 
-			for (let i = 0; i < 10_000; i++) {
-				if (i % 1000 == 0) {
-					console.log(i);
-				}
+			// take care to set this value to project_count * min_participants <= user_count <= project_count * max_participants
+			for (let i = 0; i < 100; i++) {
 				// TODO FIXME add user to keycloak / import users from keycloak (probably easier)
 				// https://www.keycloak.org/documentation
 				// https://www.keycloak.org/docs-api/15.0/rest-api/index.html
@@ -81,11 +86,12 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				const [user] = await sql<
 					[UserType]
 				>`INSERT INTO users (name, type, "group", age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
-				for (let j = 1; j <= 5; j++) {
-					// failed transactions still update the autoincrement count - then this project id here is wrong
+				shuffleArray(projects);
+				for (let j = 0; j < 5; j++) {
+					// TODO FIXME generate users who voted incorrectly (maybe increase/decrease iterations)
 					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
-						projects[Math.floor(Math.random() * projects.length)].id
-					}, ${j}) ON CONFLICT DO NOTHING;`;
+						projects[j].id
+					}, ${j + 1});`;
 				}
 			}
 		});

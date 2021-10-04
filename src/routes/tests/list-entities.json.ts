@@ -19,8 +19,8 @@ export type TestType = {
 
 export type TestResponseBody = {
 	entities: Array<TestType>;
-	previousCursor: number | null;
-	nextCursor: number | null;
+	previousCursor: any | null;
+	nextCursor: any | null;
 };
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {

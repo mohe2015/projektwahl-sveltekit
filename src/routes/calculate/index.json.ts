@@ -9,6 +9,12 @@ import path from 'path';
 import os from 'os';
 import { execFile } from 'child_process';
 import { allowUserType } from '$lib/authorization';
+import JSON5 from 'json5';
+
+// TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
+// or not
+
+// TODO FIXME check for people who didn't vote or are project leaders and didn't get in their project
 
 // https://neos-server.org/neos/cgi-bin/nph-neos-solver.cgi
 // https://neos-server.org/neos/admin.html
@@ -35,34 +41,34 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 		const projects = await sql`SELECT id, min_participants, max_participants FROM projects;`;
 
-		fileHandle.write(`data;${os.EOL}`);
-		fileHandle.write(`set P :=`);
-		projects.forEach((p) => {
-			fileHandle.write(` project${p.id}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`data;${os.EOL}`);
+		await fileHandle.write(`set P :=`);
+		for (const p of projects) {
+			await fileHandle.write(` project${p.id}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		const users = await sql`SELECT id, project_leader_id FROM users;`;
+		const users = await sql`SELECT id, project_leader_id FROM present_voters;`;
 
-		fileHandle.write(`set U :=`);
-		users.forEach((p) => {
-			fileHandle.write(` user${p.id}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`set U :=`);
+		for (const u of users) {
+			await fileHandle.write(` user${u.id}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`param project_leaders`);
-		users.forEach((p) => {
-			fileHandle.write(
-				` [user${p.id}] ${p.project_leader_id ? `project${p.project_leader_id}` : `null`}`
+		await fileHandle.write(`param project_leaders`);
+		for (const u of users) {
+			await fileHandle.write(
+				` [user${u.id}] ${u.project_leader_id ? `project${u.project_leader_id}` : `null`}`
 			);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`param projects : min_participants max_participants :=${os.EOL}`);
-		projects.forEach((p) => {
-			fileHandle.write(`project${p.id} ${p.min_participants} ${p.max_participants}${os.EOL}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`param projects : min_participants max_participants :=${os.EOL}`);
+		for (const p of projects) {
+			await fileHandle.write(`project${p.id} ${p.min_participants} ${p.max_participants}${os.EOL}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
 		// TODO FIXME check random assignments allowed
 
@@ -71,13 +77,15 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
 
-		fileHandle.write(`param choices`);
-		choices.forEach((p) => {
-			fileHandle.write(` [user${p.user_id}, project${p.project_id}] ${p.rank}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`param choices`);
+		for (const c of choices) {
+			await fileHandle.write(
+				` [user${c.user_id}, project${c.project_id}] ${5 - c.rank /* FIXME improve this */}`
+			);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`end;${os.EOL}`);
+		await fileHandle.write(`end;${os.EOL}`);
 	});
 
 	//await unlink(filePath);
@@ -119,7 +127,10 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		console.log(exitCode);
 
 		return {
-			body: await readFile(outputFilePath3, 'utf8')
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(JSON5.parse(await readFile(outputFilePath3, 'utf8'))) // DONT ASK: trailing commas are cool
 		};
 	} catch (error) {
 		console.log(error);
@@ -130,6 +141,15 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		};
 	}
 };
+
+/*
+https://hub.docker.com/r/coinor/coin-or-optimization-suite
+docker start coin-or
+docker cp src/lib/calculate.mod coin-or:/tmp
+docker cp /tmp/nix-shell.c1rX4x/projektwahl-5ClFw2/data.dat coin-or:/tmp
+docker exec coin-or /usr/bin/cbc /tmp/calculate.mod
+docker exec -it coin-or /bin/bash
+*/
 
 // https://ampl.com/products/solvers/open-source/
 // GLPK should also have ampl support

@@ -2,12 +2,13 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # http://gusek.sourceforge.net/gmpl.pdf
 # https://ampl.com/resources/the-ampl-book/chapter-downloads/
-# glpsol --math src/lib/calculate.mod --wlp test --nopresol --output a
-# --data test.dat
 
-# WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
+# TODO FIXME maybe it doesnt work if a project doesnt exist at all as we forgot that edge case?
 
 #If you encounter problems with your MathProg model, you can investigate further by specifying the GLPSOL options --nopresol to disable the LP presolver and --output filename.out to write the final solution to a text file. 
+# glpsol --math src/lib/calculate.mod --data /tmp/nix-shell.BEclKU/projektwahl-Ms1tfU/data.dat --wmps problem/wmps --wfreemps problem/wfreemps --wlp problem/wlp --wglp problem/wglp
+# wlp is definitely the best format
+# WARNING: if a linear conditional evaluates to nothing it will add a fake 0 * somerandomvariable it seems as the lp format probably doesnt support an empty format
 
 set U; # users
 
@@ -30,7 +31,7 @@ var user_is_project_leader{u in U} binary;
 
 # TODO FIXME user not in project they are project leader in
 
-maximize total_cost: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
+maximize total_benefits: sum {u in U, p in P} if choices[u,p] != -1 then choices[u,p] * user_in_project[u,p];
 
 subject to notinprojectyoudidntvote{u in U, p in P}:
     if choices[u,p] == -1 then user_in_project[u,p] = 0;
@@ -47,6 +48,17 @@ subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + proje
 
 solve;
 
-printf{u in U, p in P} choices[u,p] & '\n';
+printf '{\n "projects": {\n';
+
+printf{p in P} '  "' & p & '": {\n   "exists": ' & (1 - project_not_exists[p]) & ',\n   "participants": ' & (sum {u in U} user_in_project[u,p]) & '\n  },\n';
+
+printf ' },\n "users": {\n';
+
+for{u in U, p in P} {
+    printf (if user_in_project[u,p] then '  "' & u & '": {\n   "computed_in_project": "' & p & '"\n  },\n' else '');
+    printf (if user_is_project_leader[u] then '  "' & u & '": {\n   "project_leader": true\n  },\n' else '');
+}
+
+printf ' }\n}\n';
 
 end;
