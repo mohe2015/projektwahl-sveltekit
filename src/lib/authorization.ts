@@ -3,7 +3,7 @@
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 import type { MyLocals } from 'src/hooks';
-import type { UserType } from './types';
+import type { Existing, RawUserType } from './types';
 
 export class HTTPError extends Error {
 	status: number;
@@ -20,7 +20,7 @@ export class HTTPError extends Error {
 export const allowUserType = (
 	request: ServerRequest<MyLocals, unknown>,
 	allowedTypes: ('voter' | 'helper' | 'admin')[]
-): UserType => {
+): Existing<RawUserType> => {
 	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
 		throw new HTTPError(403, 'Forbidden');
 	}
@@ -32,16 +32,17 @@ export const allowAnyone = (_request: ServerRequest<MyLocals, unknown>): void =>
 };
 
 export type PermissionType = {
-	view: (user: UserType | null, entity: JSONValue) => boolean;
-	edit: (user: UserType | null, entity: JSONValue) => boolean;
+	view: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
+	edit: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
 };
 
 export type PermissionsType = Map<string, PermissionType>;
 
 export const checkPermissions = (
 	permissions: PermissionsType,
-	user: UserType | null,
-	body: JSONValue
+	user: Existing<RawUserType> | null,
+	body: JSONValue,
+	mode: "view" | "edit"
 ): {
 	[key: string]: string | number | boolean | null;
 } => {
@@ -54,8 +55,15 @@ export const checkPermissions = (
 	for (const [key, checker] of permissions) {
 		if (body[key] === undefined) continue;
 
-		if (!checker.edit(user, body)) {
-			throw new HTTPError(401, `not allowed to change ${key}`);
+		if (mode === "edit") {
+			if (!checker.edit(user, body)) {
+				throw new HTTPError(401, `not allowed to change ${key}`);
+			}
+		}
+		if (mode === "view") {
+			if (!checker.view(user, body)) {
+				throw new HTTPError(401, `not allowed to view ${key}`);
+			}
 		}
 		const val = body[key];
 		if (val && (typeof val === 'object' || Array.isArray(val))) {

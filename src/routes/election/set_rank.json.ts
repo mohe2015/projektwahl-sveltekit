@@ -19,9 +19,11 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	// TODO FIXME add rank check constraint to sql
 	await sql.begin('READ WRITE', async (sql) => {
 		if (body.rank === null) {
+			// eslint-disable-next-line @typescript-eslint/await-thenable
 			await sql`DELETE FROM choices WHERE user_id = ${user.id} AND project_id = ${body.project}`;
 		} else {
-			sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${body.project}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
+			// eslint-disable-next-line @typescript-eslint/await-thenable
+			await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${body.project}, ${body.rank}) ON CONFLICT (user_id, project_id) DO UPDATE SET rank = ${body.rank};`;
 		}
 	});
 

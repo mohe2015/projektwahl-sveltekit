@@ -2,13 +2,13 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { UserType } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import dotenv from 'dotenv';
 
 export type MyLocals = {
 	session_id: string | null;
-	user: UserType | null;
+	user: Existing<RawUserType> | null;
 };
 
 // maybe use bearer token / oauth?
@@ -19,8 +19,6 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 
 	// TODO FIXME hack because VITE doesn't load all env vars
 	dotenv.config();
-
-	// TODO FIXME session invalidation
 
 	let session_id: string | undefined = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
@@ -48,14 +46,14 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	}
 	if (session_id) {
 		try {
-			const [session]: [UserType?] =
+			const [session]: [(Existing<RawUserType> & RawSessionType)?] =
+				// eslint-disable-next-line @typescript-eslint/await-thenable
 				await sql`SELECT sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 			if (session) {
 				request.locals.session_id = session_id;
 				request.locals.user = session ?? null;
 
-				// @ts-expect-error types above not correct
 				const updated_at: Date = session.updated_at;
 				const millies = new Date().getTime() - updated_at.getTime();
 				if (!(millies < 60 * 60 * 1000)) {
@@ -64,7 +62,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 				}
 
 				await sql.begin('READ WRITE', async (sql) => {
-					await sql`UPDATE sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ${session_id}`;
+					// eslint-disable-next-line @typescript-eslint/await-thenable
+					await sql`UPDATE sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ${session.session_id}`;
 				});
 
 				// maybe don't delete sessions for now so we can track back if somebody complains
@@ -127,13 +126,13 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	}
 };
 
-export const getSession: GetSession = ({ locals }) => {
+export const getSession: GetSession<MyLocals> = ({ locals }) => {
 	// session seems to also be available client-side
 	if (locals.user) {
 		return {
 			user: {
 				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-				id: locals.user.name.id,
+				id: locals.user.id,
 				name: locals.user.name,
 				type: locals.user.type
 			}

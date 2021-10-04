@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone } from '$lib/authorization';
+import { allowAnyone, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import { permissions } from '../users/permissions';
 
 export type LoginResponse = {
 	errors: { [x: string]: string };
-	session?: any;
+	session?: RawSessionType;
 };
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
@@ -49,9 +50,10 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	};*/
 
 	// TODO FIXME validation using new permission system
-	const user = request.body;
+	const user = checkPermissions(permissions, request.locals.user, request.body, "view");
 
-	const [entity]: [UserType?] =
+	const [entity]: [Existing<RawUserType>] =
+		// eslint-disable-next-line @typescript-eslint/await-thenable
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
 
 	if (entity === undefined) {

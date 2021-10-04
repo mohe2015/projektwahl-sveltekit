@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
-export type UserVoterType = {
-	id?: number; // TODO FIXME separate this into two types
+export type New<T> = T & { id?: number };
+export type Existing<T> = T & { id: number };
+
+export type RawUserVoterType = {
 	name: string;
 	password: string;
 	type: 'voter';
@@ -12,8 +14,7 @@ export type UserVoterType = {
 	project_leader_id?: string;
 };
 
-export type UserHelperAdminType = {
-	id?: number;
+export type RawUserHelperAdminType = {
 	name: string;
 	password: string;
 	type: 'helper' | 'admin';
@@ -23,12 +24,11 @@ export type UserHelperAdminType = {
 	project_leader_id?: string;
 };
 
-export type UserType = UserVoterType | UserHelperAdminType;
+export type RawUserType = RawUserVoterType | RawUserHelperAdminType & {
+	password: string;
+};
 
-export type PartialUser = Partial<UserType>;
-
-export type ProjectType = {
-	id?: number;
+export type RawProjectType = {
 	title: string;
 	info: string;
 	place: string;
@@ -40,4 +40,11 @@ export type ProjectType = {
 	presentation_type: string;
 	requirements: string;
 	random_assignments: boolean;
+};
+
+export type RawSessionType = {
+	session_id: string;
+	created_at: Date;
+	updated_at: Date;
+	user_id: number;
 };
