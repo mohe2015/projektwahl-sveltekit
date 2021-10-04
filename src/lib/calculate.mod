@@ -48,6 +48,12 @@ subject to project_max_size{p in P}: (sum {u in U} user_in_project[u,p]) + proje
 
 solve;
 
-printf{u in U, p in P} choices[u,p] & '\n';
+#printf{u in U, p in P} choices[u,p] & '\n';
+
+printf{p in P} p & ': ' & (1 - project_not_exists[p]) & ' Teilnehmer: ' & (sum {u in U} user_in_project[u,p]) & '\n';
+
+for{u in U, p in P} {
+    printf (if user_in_project[u,p] then u & ' in ' & p & '\n' else '');
+}
 
 end;
