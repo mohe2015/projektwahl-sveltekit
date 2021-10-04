@@ -10,6 +10,8 @@ import os from 'os';
 import { execFile } from 'child_process';
 import { allowUserType } from '$lib/authorization';
 import JSON5 from 'json5';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
+import type { Existing, RawChoiceType, RawProjectType, RawUserVoterType } from '$lib/types';
 
 // TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
 // or not
@@ -19,7 +21,7 @@ import JSON5 from 'json5';
 // https://neos-server.org/neos/cgi-bin/nph-neos-solver.cgi
 // https://neos-server.org/neos/admin.html
 
-export const get: RequestHandler<MyLocals, unknown> = async function (request) {
+export const get: RequestHandler<MyLocals, JSONValue> = async function (request) {
 	allowUserType(request, ['admin']);
 
 	// maybe store rank as binary bitfield so every bit represents a rank. then we can sum and compare the count of the summed values and the sum = 0b11111
@@ -39,7 +41,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 	await sql.begin(async (sql) => {
 		// transaction guarantees consistent view of data
 
-		const projects = await sql`SELECT id, min_participants, max_participants FROM projects;`;
+		const projects: Existing<RawProjectType>[] = await sql`SELECT id, min_participants, max_participants FROM projects;`;
 
 		await fileHandle.write(`data;${os.EOL}`);
 		await fileHandle.write(`set P :=`);
@@ -48,7 +50,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		}
 		await fileHandle.write(`;${os.EOL}`);
 
-		const users = await sql`SELECT id, project_leader_id FROM present_voters;`;
+		const users: Existing<RawUserVoterType>[] = await sql`SELECT id, project_leader_id FROM present_voters;`;
 
 		await fileHandle.write(`set U :=`);
 		for (const u of users) {
@@ -73,7 +75,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		// TODO FIXME check random assignments allowed
 
 		// TODO FIXME filter aways and filter type=voter
-		const choices = await sql.file('src/lib/calculate.sql', [], {
+		const choices: RawChoiceType[] = await sql.file('src/lib/calculate.sql', [], {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
 
@@ -140,7 +142,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		console.log(error);
 		return {
 			body: {
-				error
+				error: `TODO FIXME print the error here`
 			}
 		};
 	}

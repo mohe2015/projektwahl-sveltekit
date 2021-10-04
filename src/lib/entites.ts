@@ -6,9 +6,9 @@ export type BaseEntityType = {
 	[x: string]: string | number | null;
 };
 
-export type FetchResponse<T> = {
+export type FetchResponse<T, E> = {
 	success?: T;
-	error?: any;
+	error?: E;
 };
 
 export type EntityResponseBody = {

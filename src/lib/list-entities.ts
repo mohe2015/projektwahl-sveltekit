@@ -22,7 +22,8 @@ export const buildGet = (
 ): RequestHandler<MyLocals, EntityResponseBody> => {
 	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
 		console.log(query.toString());
-		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))); // TODO FIXME validate
+		// TODO FIXME probably use permissions system?
+		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))) as BaseQuery; // TODO FIXME validate
 		console.log(the_query);
 
 		// TODO FIXME better validation and null/undefined
@@ -124,7 +125,7 @@ export const buildGet = (
 		// probably can't use https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON because up and down can be mixed here (also it's inefficient)
 		const queryStringPart1 = concTT(
 			concTT(fakeLiteralTT(' WHERE ('), pagination),
-			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
+			fakeLiteralTT(` OR (NOT ${isForwardsPagination?'true':'false'} AND NOT ${isBackwardsPagination?'true':'false'})) `)
 		);
 
 		const queryStringPart2 = params(the_query);

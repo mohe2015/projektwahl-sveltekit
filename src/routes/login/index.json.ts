@@ -76,15 +76,13 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		};
 	}
 
-	const [session] = await sql.begin('READ WRITE', async (sql) => {
+	const [session]: [RawSessionType] = await sql.begin('READ WRITE', async (sql) => {
 		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id}) RETURNING session_id`;
 	});
 
 	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
 
 	// TODO FIXME CSRF
-
-	// TODO set session
 
 	return {
 		body: {

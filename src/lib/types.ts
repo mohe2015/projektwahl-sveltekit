@@ -51,3 +51,9 @@ export type RawSessionType = {
 	updated_at: Date;
 	user_id: number;
 };
+
+export type RawChoiceType = {
+	user_id: number;
+	project_id: number;
+	rank: number;
+}

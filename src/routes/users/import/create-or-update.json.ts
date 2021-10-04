@@ -8,7 +8,7 @@ import parse from 'csv-parse';
 import { Readable } from 'stream';
 import { save } from '../create-or-update.json';
 
-export type UserImportRequest = { [x: string]: any; fileInput?: string; id?: number | undefined };
+export type UserImportRequest = { fileInput?: string; id: number };
 
 export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request

@@ -26,7 +26,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export let loading: Writable<boolean> = writable(true);
 
-	export let response: Readable<FetchResponse<EntityResponseBody>> = derived(
+	export let response: Readable<FetchResponse<EntityResponseBody, string>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
@@ -44,12 +44,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						set({
 							success: undefined,
 							error: res.status + ' ' + res.statusText
-						} as FetchResponse<EntityResponseBody>);
+						} as FetchResponse<EntityResponseBody, string>);
 					} else {
 						set({
 							success: (await res.json()) as EntityResponseBody,
 							error: undefined
-						} as FetchResponse<EntityResponseBody>);
+						} as FetchResponse<EntityResponseBody, string>);
 					}
 					loading.set(false);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
@@ -59,7 +59,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		{
 			success: undefined,
 			error: undefined
-		} as FetchResponse<EntityResponseBody>
+		} as FetchResponse<EntityResponseBody, string>
 	);
 
 	export const headerClick = (sortType: string): void => {
