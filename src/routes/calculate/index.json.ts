@@ -15,6 +15,8 @@ import { allowUserType } from '$lib/authorization';
 // TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
 // or not
 
+// TODO FIXME check for people who didn't vote or are project leaders and didn't get in their project
+
 // https://neos-server.org/neos/cgi-bin/nph-neos-solver.cgi
 // https://neos-server.org/neos/admin.html
 
