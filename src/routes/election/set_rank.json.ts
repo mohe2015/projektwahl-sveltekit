@@ -14,7 +14,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<SetRankResponse>> {
 	const user = allowUserType(request, ['voter']);
-	const { locals, body }: { locals: MyLocals; body: any } = request;
+	const { body }: { body: any } = request;
 	// TODO FIXME validate rank value range
 	// TODO FIXME add rank check constraint to sql
 	await sql.begin('READ WRITE', async (sql) => {

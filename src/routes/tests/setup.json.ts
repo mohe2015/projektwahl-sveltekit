@@ -9,15 +9,12 @@ import type { JSONValue } from '@sveltejs/kit/types/helper';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<any>> {
-	console.log('yay');
+): Promise<EndpointOutput<Record<string, never>>> {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}
-	console.log('Jo');
 
 	allowUserType(request, ['admin']);
-	const { body } = request;
 
 	await sql.begin('READ WRITE', async (sql) => {
 		await sql`DROP TABLE IF EXISTS test1`;

@@ -73,7 +73,7 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		// TODO FIXME check random assignments allowed
 
 		// TODO FIXME filter aways and filter type=voter
-		const choices = await sql.file('src/lib/calculate.sql', undefined!, {
+		const choices = await sql.file('src/lib/calculate.sql', [], {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
 
@@ -112,15 +112,19 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 			{}
 		);
 
-		for await (const chunk of childProcess.stdout!) {
-			console.log(chunk);
+		if (childProcess.stdout) {
+			for await (const chunk of childProcess.stdout) {
+				console.log(chunk);
+			}
 		}
 
-		for await (const chunk of childProcess.stderr!) {
-			console.error(chunk);
+		if (childProcess.stderr) {
+			for await (const chunk of childProcess.stderr) {
+				console.error(chunk);
+			}
 		}
 
-		const exitCode = await new Promise((resolve, reject) => {
+		const exitCode = await new Promise((resolve, _reject) => {
 			childProcess.on('close', resolve);
 		});
 

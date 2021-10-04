@@ -19,7 +19,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	bind:checked
 	type="checkbox"
 	class="form-check-input"
-	on:change={async (e) => {
+	on:change={async () => {
 		disabled = true;
 		// TODO edit user set project_leader_id
 		const response = await fetch(`/users/create-or-update.json`, {

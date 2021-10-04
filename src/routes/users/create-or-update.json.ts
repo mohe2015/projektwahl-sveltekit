@@ -10,7 +10,7 @@ import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 import { permissions } from './permissions';
-import { webcrypto as crypto } from 'crypto';
+//import { webcrypto as crypto } from 'crypto';
 
 // TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
@@ -22,9 +22,9 @@ export const save = async (
 		for await (const entry of data) {
 			const user = checkPermissions(permissions, loggedInUser, entry);
 
-			const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
-				'hex'
-			);
+			//const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
+			//	'hex'
+			//);
 
 			try {
 				// TODO FIXME allow helper to change this but only specific fields (NOT type)
@@ -44,7 +44,7 @@ export const save = async (
 	force_in_project_id = CASE WHEN ${user.force_in_project_id !== undefined} THEN ${
 						user.force_in_project_id ?? null
 					} ELSE force_in_project_id END
-	WHERE id = ${user.id!} RETURNING id;`;
+	WHERE id = ${user.id} RETURNING id;`;
 				} else {
 					[row] =
 						await sql`INSERT INTO users (name, password_hash, type, "group", age, away) VALUES (${

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import 'jest';
+import type { LoginResponse } from 'src/routes/login/index.json';
 import { fetchPost } from '../../../test_utils';
 
 test('invalid login returns error', async () => {
@@ -32,7 +33,7 @@ test('successful login returns cookie', async () => {
 			password: 'changeme'
 		})
 	});
-	const result: any = await response.json();
+	const result = (await response.json()) as LoginResponse;
 	expect(result.errors).toEqual({});
 	expect(result.session.session_id).toHaveLength(36);
 });

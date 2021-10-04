@@ -44,7 +44,7 @@ export const buildGet = (
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
-		const paginationCursor: any | null = the_query.paginationCursor;
+		const paginationCursor: BaseEntityType | null = the_query.paginationCursor;
 
 		const sortingQuery: [string, string][] = the_query.sorting
 			.map((e) => e.split(':', 2))

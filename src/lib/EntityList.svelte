@@ -86,7 +86,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		$query.sorting = [...$query.sorting, oldElement.split(':')[0] + ':' + newElement];
 	};
 
-	export async function refresh() {
+	export function refresh(): void {
 		$query = $query;
 	}
 

@@ -27,13 +27,11 @@ const config = {
 			build: {
 				rollupOptions: {
 					external: ['fs/promises']
-				}
+				},
+				sourcemap: true
 			},
 			ssr: {
 				external: ['fs/promises']
-			},
-			build: {
-				sourcemap: true
 			}
 		}
 	}

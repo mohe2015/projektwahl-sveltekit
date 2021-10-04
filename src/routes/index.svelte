@@ -5,9 +5,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script context="module" lang="ts">
 	import type { Load } from '@sveltejs/kit';
 
-	const sleep = (milliseconds: number) => {
+	/*const sleep = (milliseconds: number) => {
 		return new Promise((resolve) => setTimeout(resolve, milliseconds));
-	};
+	};*/
 
 	export const load: Load = async () => {
 		//await sleep(1000);

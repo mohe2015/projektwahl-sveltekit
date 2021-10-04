@@ -3,6 +3,7 @@
 import type { BaseQuery } from '$lib/list-entities';
 import 'jest';
 import fetch, { Response } from 'node-fetch';
+import type { LoginResponse } from 'src/routes/login/index.json';
 import type { TestResponseBody } from 'src/routes/tests/list-entities.json';
 import { fetchPost } from '../../../test_utils';
 
@@ -18,7 +19,7 @@ test('check that all rows are returned with pagination', async () => {
 			password: 'changeme'
 		})
 	});
-	const loginResult: any = await loginResponse.json();
+	const loginResult = (await loginResponse.json()) as LoginResponse;
 	console.log(loginResult);
 
 	await fetchPost('http://localhost:3000/tests/setup.json', {

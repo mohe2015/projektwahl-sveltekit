@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
+import type { BaseEntityType, EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
 import type { RequestHandler } from '@sveltejs/kit';
@@ -19,8 +19,8 @@ export type TestType = {
 
 export type TestResponseBody = {
 	entities: Array<TestType>;
-	previousCursor: any | null;
-	nextCursor: any | null;
+	previousCursor: BaseEntityType | null;
+	nextCursor: BaseEntityType | null;
 };
 
 export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
@@ -33,7 +33,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		['id', 'a', 'b', 'c'],
 		fakeTT<SerializableParameter>`SELECT ${sql(['id', 'a', 'b', 'c'])} FROM ${sql('test1')}`,
 		(
-			query // TODO FIXME validation
+			_query // TODO FIXME validation
 		) => fakeTT<SerializableParameter>``
 	)(request);
 };

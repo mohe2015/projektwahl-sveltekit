@@ -6,10 +6,9 @@ import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
 import type { UserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
-import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-const shuffleArray = (array: any[]) => {
+const shuffleArray = <T>(array: T[]) => {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
 		const temp = array[i];
@@ -18,12 +17,12 @@ const shuffleArray = (array: any[]) => {
 	}
 };
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const get: RequestHandler<MyLocals, EntityResponseBody> = async function () {
 	//allowUserType(request, []);
 
 	if (dev) {
 		await sql.begin('READ WRITE', async (sql) => {
-			await sql.file('src/lib/setup.sql', undefined!, {
+			await sql.file('src/lib/setup.sql', [], {
 				cache: false // TODO FIXME doesnt seem to work properly
 			});
 

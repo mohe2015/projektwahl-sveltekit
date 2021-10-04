@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
+import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 import type { MyLocals } from 'src/hooks';
-import type { BaseEntityType } from './entites';
 import type { UserType } from './types';
 
 export class HTTPError extends Error {
@@ -28,7 +27,7 @@ export const allowUserType = (
 	return request.locals.user;
 };
 
-export const allowAnyone = (request: ServerRequest<MyLocals, unknown>) => {
+export const allowAnyone = (_request: ServerRequest<MyLocals, unknown>): void => {
 	// do nothing.
 };
 
@@ -64,7 +63,7 @@ export const checkPermissions = (
 		}
 		sanitizedValue[key] = val;
 	}
-	for (const [key, value] of Object.entries(body)) {
+	for (const [key, _value] of Object.entries(body)) {
 		if (!permissions.has(key)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}

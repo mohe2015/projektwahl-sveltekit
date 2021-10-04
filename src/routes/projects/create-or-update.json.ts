@@ -62,7 +62,7 @@ requirements = CASE WHEN ${project.requirements !== undefined} THEN ${
 random_assignments = CASE WHEN ${project.random_assignments !== undefined} THEN ${
 					project.random_assignments ?? null
 				} ELSE random_assignments END
-WHERE id = ${project.id!} RETURNING id;`;
+WHERE id = ${project.id} RETURNING id;`;
 			});
 		} else {
 			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,

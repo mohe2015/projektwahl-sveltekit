@@ -4,6 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import type { BaseEntityType } from '$lib/entites';
 	import type { CreateResponse } from 'src/routes/projects/create-or-update.json';
 
 	export let label: string;
@@ -13,10 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<void>;
-	export let entity: {
-		id?: number;
-		[key: string]: any;
-	};
+	export let entity: BaseEntityType;
 
 	async function create() {
 		let json: CreateResponse;

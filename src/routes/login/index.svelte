@@ -58,10 +58,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{#await loginPromise}
 				<span />
 			{:then result}
-				{#if Object.entries(result.errors).filter(([a, m]) => !['password', 'name'].includes(a)).length > 0}
+				{#if Object.entries(result.errors).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
 					<div class="alert alert-danger" role="alert">
 						Fehler!
-						{#each Object.entries(result.errors).filter(([a, m]) => !['password', 'name'].includes(a)) as [attribute, message]}
+						{#each Object.entries(result.errors).filter(([a, _m]) => !['password', 'name'].includes(a)) as [attribute, message]}
 							{attribute}: {message}<br />
 						{/each}
 					</div>

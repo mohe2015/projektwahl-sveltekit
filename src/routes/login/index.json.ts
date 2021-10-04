@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone, allowUserType } from '$lib/authorization';
+import { allowAnyone } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
 import type { UserType } from '$lib/types';
@@ -49,7 +49,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	};*/
 
 	// TODO FIXME validation using new permission system
-	const user: any = request.body;
+	const user = request.body;
 
 	const [entity]: [UserType?] =
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
@@ -75,7 +75,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	}
 
 	const [session] = await sql.begin('READ WRITE', async (sql) => {
-		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id!}) RETURNING session_id`;
+		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id}) RETURNING session_id`;
 	});
 
 	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html

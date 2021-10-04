@@ -17,8 +17,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		}
 		return {
 			props: {
-				status: status!,
-				error: error!
+				status: status,
+				error: error
 			}
 		};
 	};
