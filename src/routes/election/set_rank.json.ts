@@ -16,7 +16,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 ): Promise<EndpointOutput<SetRankResponse>> {
 	const user = allowUserType(request, ['voter']);
 
-	const entity = checkPermissions(permissions, request.locals.user, request.body, "edit");
+	const entity = checkPermissions(permissions, request.locals.user, request.body, 'edit');
 
 	// TODO FIXME validate rank value range
 	// TODO FIXME add rank check constraint to sql

@@ -13,8 +13,8 @@ export const permissions: PermissionsType<RawChoiceType> = {
 		view: (user: Existing<RawUserType> | null, _entity: JSONValue) => user?.type === 'voter',
 		edit: (user: Existing<RawUserType> | null, _entity: JSONValue) => user?.type === 'voter'
 	},
-    rank: {
+	rank: {
 		view: (user: Existing<RawUserType> | null, _entity: JSONValue) => user?.type === 'voter',
 		edit: (user: Existing<RawUserType> | null, _entity: JSONValue) => user?.type === 'voter'
-	},
+	}
 };

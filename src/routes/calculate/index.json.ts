@@ -41,7 +41,8 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (request)
 	await sql.begin(async (sql) => {
 		// transaction guarantees consistent view of data
 
-		const projects: Existing<RawProjectType>[] = await sql`SELECT id, min_participants, max_participants FROM projects;`;
+		const projects: Existing<RawProjectType>[] =
+			await sql`SELECT id, min_participants, max_participants FROM projects;`;
 
 		await fileHandle.write(`data;${os.EOL}`);
 		await fileHandle.write(`set P :=`);
@@ -50,7 +51,8 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (request)
 		}
 		await fileHandle.write(`;${os.EOL}`);
 
-		const users: Existing<RawUserVoterType>[] = await sql`SELECT id, project_leader_id FROM present_voters;`;
+		const users: Existing<RawUserVoterType>[] =
+			await sql`SELECT id, project_leader_id FROM present_voters;`;
 
 		await fileHandle.write(`set U :=`);
 		for (const u of users) {

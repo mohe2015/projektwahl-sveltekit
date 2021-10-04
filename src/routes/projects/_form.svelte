@@ -15,15 +15,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-	import type { ProjectType } from '$lib/types';
+import type { New, RawProjectType } from '$lib/types';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
-	export let entity: Partial<ProjectType>;
+	export let entity: Partial<New<RawProjectType>>;
 
 	let project_leader_list: EntityList;
-	let project_leader_response: Readable<FetchResponse<EntityResponseBody>>;
+	let project_leader_response: Readable<FetchResponse<EntityResponseBody, string>>;
 
 	let project_leader_query: Writable<BaseQuery> = writable({
 		filters: {
@@ -38,7 +38,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	});
 
 	let force_in_project_list: EntityList;
-	let force_in_project_response: Readable<FetchResponse<EntityResponseBody>>;
+	let force_in_project_response: Readable<FetchResponse<EntityResponseBody, string>>;
 	let force_in_project_query: Writable<BaseQuery> = writable({
 		filters: {
 			types: ['admin', 'helper', 'voter']
