@@ -38,34 +38,34 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 
 		const projects = await sql`SELECT id, min_participants, max_participants FROM projects;`;
 
-		fileHandle.write(`data;${os.EOL}`);
-		fileHandle.write(`set P :=`);
-		projects.forEach((p) => {
-			fileHandle.write(` project${p.id}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`data;${os.EOL}`);
+		await fileHandle.write(`set P :=`);
+		for (const p of projects) {
+			await fileHandle.write(` project${p.id}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
 		const users = await sql`SELECT id, project_leader_id FROM users;`;
 
-		fileHandle.write(`set U :=`);
-		users.forEach((p) => {
-			fileHandle.write(` user${p.id}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`set U :=`);
+		for (const u of users) {
+			await fileHandle.write(` user${u.id}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`param project_leaders`);
-		users.forEach((p) => {
-			fileHandle.write(
-				` [user${p.id}] ${p.project_leader_id ? `project${p.project_leader_id}` : `null`}`
+		await fileHandle.write(`param project_leaders`);
+		for (const u of users) {
+			await fileHandle.write(
+				` [user${u.id}] ${u.project_leader_id ? `project${u.project_leader_id}` : `null`}`
 			);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`param projects : min_participants max_participants :=${os.EOL}`);
-		projects.forEach((p) => {
-			fileHandle.write(`project${p.id} ${p.min_participants} ${p.max_participants}${os.EOL}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`param projects : min_participants max_participants :=${os.EOL}`);
+		for (const p of projects) {
+			await fileHandle.write(`project${p.id} ${p.min_participants} ${p.max_participants}${os.EOL}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
 		// TODO FIXME check random assignments allowed
 
@@ -74,13 +74,13 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 			cache: false // TODO FIXME doesnt seem to work properly
 		});
 
-		fileHandle.write(`param choices`);
-		choices.forEach((p) => {
-			fileHandle.write(` [user${p.user_id}, project${p.project_id}] ${p.rank}`);
-		});
-		fileHandle.write(`;${os.EOL}`);
+		await fileHandle.write(`param choices`);
+		for (const c of choices) {
+			await fileHandle.write(` [user${c.user_id}, project${c.project_id}] ${c.rank}`);
+		}
+		await fileHandle.write(`;${os.EOL}`);
 
-		fileHandle.write(`end;${os.EOL}`);
+		await fileHandle.write(`end;${os.EOL}`);
 	});
 
 	//await unlink(filePath);
