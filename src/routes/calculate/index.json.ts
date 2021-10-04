@@ -10,8 +10,6 @@ import os from 'os';
 import { execFile } from 'child_process';
 import { allowUserType } from '$lib/authorization';
 
-// TODO FIXME the problem is likely that the admin user hasn't voted :(
-
 // TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
 // or not
 
@@ -128,6 +126,9 @@ export const get: RequestHandler<MyLocals, unknown> = async function (request) {
 		console.log(exitCode);
 
 		return {
+			headers: {
+				'Content-Type': 'application/json'
+			},
 			body: await readFile(outputFilePath3, 'utf8')
 		};
 	} catch (error) {
