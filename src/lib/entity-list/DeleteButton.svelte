@@ -14,7 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let modalDelete: Promise<void>;
 	let deleteModalOpen = false;
 
-	async function test(id: number, name: unknown) {
+	function test(id: number, name: unknown) {
 		modalUserId = id;
 		modalUser = name as string;
 		modalDelete = Promise.resolve();

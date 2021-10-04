@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		return new Promise((resolve) => setTimeout(resolve, milliseconds));
 	};*/
 
-	export const load: Load = async () => {
+	export const load: Load = () => {
 		//await sleep(1000);
 
 		return {

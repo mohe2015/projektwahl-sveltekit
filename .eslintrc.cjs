@@ -3,9 +3,28 @@
 module.exports = {
 	root: true,
 	parser: '@typescript-eslint/parser',
-	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'prettier'],
+	parserOptions: {
+		tsconfigRootDir: __dirname,
+		project: 'tsconfig.json'
+	},
 	plugins: ['svelte3', '@typescript-eslint'],
+	extends: [
+		'eslint:recommended',
+		'plugin:@typescript-eslint/recommended',
+		'plugin:@typescript-eslint/recommended-requiring-type-checking',
+		'prettier'
+	],
 	ignorePatterns: ['*.cjs'],
+	rules: {
+		'require-await': 'error',
+		'@typescript-eslint/no-unused-vars': [
+			'warn',
+			{
+				argsIgnorePattern: '^_',
+				varsIgnorePattern: '^_'
+			}
+		]
+	},
 	overrides: [{ files: ['*.svelte'], processor: 'svelte3/svelte3' }],
 	settings: {
 		'svelte3/typescript': () => require('typescript')
