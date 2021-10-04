@@ -12,6 +12,7 @@ export type RawUserVoterType = {
 	age: number;
 	away: boolean;
 	project_leader_id?: string;
+	force_in_project_id?: number;
 };
 
 export type RawUserHelperAdminType = {
@@ -24,9 +25,11 @@ export type RawUserHelperAdminType = {
 	project_leader_id?: string;
 };
 
-export type RawUserType = RawUserVoterType | RawUserHelperAdminType & {
-	password: string;
-};
+export type RawUserType =
+	| RawUserVoterType
+	| (RawUserHelperAdminType & {
+			password: string;
+	  });
 
 export type RawProjectType = {
 	title: string;

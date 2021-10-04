@@ -36,31 +36,31 @@ export type PermissionType = {
 	edit: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
 };
 
-export type PermissionsType = Map<string, PermissionType>;
+export type PermissionsType<T> = {
+	[index in keyof T]: PermissionType;
+};
 
-export const checkPermissions = (
-	permissions: PermissionsType,
+export const checkPermissions = <T>(
+	permissions: PermissionsType<T>,
 	user: Existing<RawUserType> | null,
 	body: JSONValue,
-	mode: "view" | "edit"
-): {
-	[key: string]: string | number | boolean | null;
-} => {
+	mode: 'view' | 'edit'
+): T => {
 	if (typeof body !== 'object' || Array.isArray(body) || body == null) {
 		throw new HTTPError(401, `invalid type`);
 	}
 	const sanitizedValue: {
 		[key: string]: string | number | boolean | null;
 	} = {};
-	for (const [key, checker] of permissions) {
+	for (const [key, checker] of Object.entries<PermissionType>(permissions)) {
 		if (body[key] === undefined) continue;
 
-		if (mode === "edit") {
+		if (mode === 'edit') {
 			if (!checker.edit(user, body)) {
 				throw new HTTPError(401, `not allowed to change ${key}`);
 			}
 		}
-		if (mode === "view") {
+		if (mode === 'view') {
 			if (!checker.view(user, body)) {
 				throw new HTTPError(401, `not allowed to view ${key}`);
 			}
@@ -72,10 +72,10 @@ export const checkPermissions = (
 		sanitizedValue[key] = val;
 	}
 	for (const [key, _value] of Object.entries(body)) {
-		if (!permissions.has(key)) {
+		if (!(key in permissions)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}
 	}
-	// TODO FIXME check that no unchecked values are in the original thing - otherwise we could accidentially loose data
-	return sanitizedValue;
+	// TODO FIXME check types of fields otherwise this is not correct
+	return sanitizedValue as unknown as T;
 };

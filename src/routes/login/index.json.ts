@@ -50,7 +50,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	};*/
 
 	// TODO FIXME validation using new permission system
-	const user = checkPermissions(permissions, request.locals.user, request.body, "view");
+	const user = checkPermissions(permissions, request.locals.user, request.body, 'view');
 
 	const [entity]: [Existing<RawUserType>] =
 		// eslint-disable-next-line @typescript-eslint/await-thenable
