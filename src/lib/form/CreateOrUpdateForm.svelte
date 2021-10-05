@@ -4,51 +4,38 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { BaseEntityType } from '$lib/entites';
-	import type { CreateResponse } from 'src/routes/projects/create-or-update.json';
+	import { hasErrors, myFetch } from '$lib/error-handling';
+import FailureResult from '$lib/FailureResult.svelte';
+	import type { Existing, New, Result } from '$lib/types';
+
+	type E = $$Generic;
 
 	export let label: string;
 	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	let feedback: Map<string, string> = new Map();
 	let unknownFeedback: [string, string][] = [];
-	let submitPromise: Promise<void>;
-	export let entity: BaseEntityType;
+	let submitPromise: Promise<Result<Existing<E>>>;
+	let result: Result<Existing<E>>;
+	export let entity: New<E>;
 
 	async function create() {
-		let json: CreateResponse;
-		try {
-			const response = await fetch(`/${type}/create-or-update.json`, {
-				method: 'POST',
-				body: JSON.stringify(entity),
-				headers: {
-					'Content-Type': 'application/json',
-					'x-csrf-protection': 'projektwahl'
-				}
-			});
-			if (!response.ok) {
-				feedback = new Map();
-				feedback.set(
-					'network_error',
-					'Serverfehler: ' + response.status + ' ' + response.statusText
-				);
-			} else {
-				json = await response.json();
-				feedback = new Map(Object.entries(json.errors));
-				if (feedback.size == 0) {
-					//await goto(`/${type}/edit/${json.id}`);
-					await goto(`/${type.split('/')[0]}`);
-				}
+		result = await myFetch(`/${type}/create-or-update.json`, {
+			method: 'POST',
+			body: JSON.stringify(entity),
+			headers: {
+				'Content-Type': 'application/json',
+				'x-csrf-protection': 'projektwahl'
 			}
-		} catch (error) {
-			feedback = new Map();
-			feedback.set('unknown_error', 'Unbekannter Fehler: ' + error);
-		}
-		unknownFeedback = [...feedback.entries()].filter((e) => !keys.includes(e[0]));
-		if (feedback.size > 0 || unknownFeedback.length > 0) {
+		});
+		if (!hasErrors(result)) {
+			//await goto(`/${type}/edit/${json.id}`);
+			await goto(`/${type.split('/')[0]}`);
+		} else {
+			unknownFeedback = [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0]));
 			window.scrollTo(0, 0);
 		}
+		return result;
 	}
 </script>
 
@@ -66,7 +53,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			on:submit|preventDefault={() => (submitPromise = create())}
 			id="{randomId}-form"
 		>
-			{#if unknownFeedback.length != 0 || feedback.size != 0}
+			{#if hasErrors(result) }
 				<div class="alert alert-danger" role="alert">
 					Einige Eingaben sind nicht gültig.
 					{#each unknownFeedback as [attribute, message]}
@@ -75,20 +62,17 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</div>
 			{/if}
 
-			<slot {feedback} {entity} />
+			<slot failure={result.failure} {entity} />
 
 			{#await submitPromise}
 				<button type="submit" class="btn btn-primary disabled"
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
 				>
 			{:then result}
+				<FailureResult {result} />
 				<button type="submit" class="btn btn-primary"
 					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button
 				>
-			{:catch error}
-				<div class="alert alert-danger" role="alert">
-					Unbekannter Fehler: {error.message}
-				</div>
 			{/await}
 		</form>
 	</div>

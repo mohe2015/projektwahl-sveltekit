@@ -63,3 +63,9 @@ export type Result<T> = {
 	success?: T;
 	failure: { [key: string]: string };
 };
+
+export type EntityResponseBody<T> = {
+	entities: Array<T>;
+	previousCursor: T | null;
+	nextCursor: T | null;
+};

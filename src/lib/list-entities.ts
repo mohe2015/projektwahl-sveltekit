@@ -12,7 +12,9 @@ export type BaseQuery<C> = {
 	paginationCursor: C | null;
 	sorting: string[]; // TODO FIXME format
 	paginationLimit: number;
-	filters: any;
+	filters: {
+		[key in keyof C]: boolean | string | number | string[] | null | undefined // TODO FIXME C[key]
+	};
 };
 
 export const buildGet = <E>(

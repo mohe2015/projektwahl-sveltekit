@@ -7,11 +7,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import type { Writable } from 'svelte/store';
 
+	type E = $$Generic;
+
 	export let title: string;
 	export let name: string;
 	export let headerClick: (sortType: string) => void;
 	export let currentSortValue: (sorting: string[], sortingType: string) => string;
-	export let query: Writable<BaseQuery>;
+	export let query: Writable<BaseQuery<E>>;
 
 	let curr = currentSortValue($query.sorting, name);
 
