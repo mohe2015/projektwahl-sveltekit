@@ -29,7 +29,7 @@ test('check that all rows are returned with pagination', async () => {
 	let result: TestResponseBody | null = null;
 	const foundIds = new Set(Array.from(new Array(100), (x, i) => i + 1));
 	do {
-		const query: BaseQuery<any> = {
+		const query: BaseQuery<unknown> = {
 			filters: {},
 			paginationLimit: 10,
 			sorting: ['a:ASC', 'b:down-up', 'c:down-up'],

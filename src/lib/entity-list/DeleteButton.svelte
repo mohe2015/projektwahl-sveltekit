@@ -3,6 +3,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
+import { hasErrors, myFetch } from '$lib/error-handling';
+import FailureResult from '$lib/FailureResult.svelte';
+import type { Result } from '$lib/types';
+
 	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 
 	export let path: string;
@@ -13,6 +17,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	let modalUserId: number | null = null;
 	let modalDelete: Promise<void>;
 	let deleteModalOpen = false;
+	let result: Result<unknown>;
 
 	function test(id: number, name: unknown) {
 		modalUserId = id;
@@ -22,26 +27,15 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	}
 
 	async function deleteUser() {
-		let json;
-		const response = await fetch(`/${path}/delete/${modalUserId}.json`, {
+		result = await myFetch(`/${path}/delete/${modalUserId}.json`, {
 			method: 'POST',
 			body: null,
 			headers: {
 				'Content-Type': 'application/json',
 				'x-csrf-protection': 'projektwahl'
 			}
-		});
-		if (!response.ok) {
-			throw new Error(response.status + ' ' + response.statusText);
-		} else {
-			json = await response.json();
-			if (Object.entries(json.errors).length > 0) {
-				throw new Error(
-					Object.entries(json.errors)
-						.map((e) => e[1])
-						.join('\n')
-				);
-			}
+		})
+		if (!hasErrors(result)) {
 			await refreshList();
 			deleteModalOpen = false;
 		}
@@ -54,15 +48,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		Möchtest du {modalUser} wirklich löschen?
 
 		<!-- svelte-ignore empty-block -->
-		{#await modalDelete}<div />{:then}<div />{:catch error}
-			<div class="alert alert-danger" role="alert">
-				Löschen fehlgeschlagen: {error}
-			</div>
+		{#await modalDelete}<div />{:then}
+			<FailureResult {result} />
 		{/await}
 	</ModalBody>
 	<ModalFooter>
 		<Button color="danger" on:click={() => (modalDelete = deleteUser())}
-			>{#await modalDelete}Wird gelöscht...{:then}Löschen{:catch}Löschen{/await}</Button
+			>{#await modalDelete}Wird gelöscht...{:then}Löschen{/await}</Button
 		>
 		<Button color="secondary" on:click={() => (deleteModalOpen = false)}>Abbrechen</Button>
 	</ModalFooter>
