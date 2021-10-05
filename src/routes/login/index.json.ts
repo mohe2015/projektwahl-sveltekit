@@ -3,20 +3,19 @@
 import { allowAnyone, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { Existing, RawSessionType, RawUserType } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType, Result } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import { permissions } from '../users/permissions';
 
-export type LoginResponse = {
-	errors: { [x: string]: string };
-	session?: RawSessionType;
+export type Login = {
+	session: RawSessionType;
 };
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<LoginResponse>> {
+): Promise<EndpointOutput<Result<Login>>> {
 	allowAnyone(request);
 
 	/*
@@ -49,7 +48,6 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		}
 	};*/
 
-	// TODO FIXME validation using new permission system
 	const user = checkPermissions(permissions, request.locals.user, request.body, 'view');
 
 	const [entity]: [Existing<RawUserType>] =
@@ -59,7 +57,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity === undefined) {
 		return {
 			body: {
-				errors: {
+				failure: {
 					name: 'Nutzer existiert nicht!'
 				}
 			}
@@ -69,7 +67,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity.password == null || !(await checkPassword(entity.password, user.password))) {
 		return {
 			body: {
-				errors: {
+				failure: {
 					password: 'Falsches Passwort!'
 				}
 			}
@@ -86,8 +84,10 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	return {
 		body: {
-			errors: {},
-			session
+			success: {
+				session
+			},
+			failure: {}
 		},
 		headers: {
 			'Set-Cookie': [
@@ -95,7 +95,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 					48 * 60 * 60
 				}; Secure; HttpOnly; SameSite=Strict`,
 				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
-			] as unknown as string
+			]
 		}
 	};
 };

@@ -57,3 +57,9 @@ export type RawChoiceType = {
 	project_id: number;
 	rank: number;
 };
+
+// TODO FIXME use Either and disallow the other field but this currently doesn't work with JSONValue. Also empty object is probably also fine
+export type Result<T> = {
+	success?: T;
+	failure: { [key: string]: string };
+};

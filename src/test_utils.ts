@@ -1,16 +1,22 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import fetch, { RequestInit, Response } from 'node-fetch';
+import type { Result } from '$lib/types';
+import fetch, { RequestInit } from 'node-fetch';
 
-export const fetchPost = async (
+export const successfulFetch = async <T>(
 	url: string,
 	options: RequestInit | undefined
-): Promise<Response> => {
+): Promise<T> => {
 	const response = await fetch(url, options);
 	if (!response.ok) {
 		console.log(`fetching ${url} returned ${response.status} ${response.statusText}`);
 		console.log(await response.text());
 		throw new Error(`fetching ${url} returned ${response.status} ${response.statusText}`);
 	}
-	return response;
+	const result = (await response.json()) as Result<T>;
+	expect(result.failure).toMatchObject({});
+	if (!result.success) {
+		fail('result does not exist');
+	}
+	return result.success;
 };
