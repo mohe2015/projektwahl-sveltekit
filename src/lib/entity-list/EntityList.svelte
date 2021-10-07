@@ -5,10 +5,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import { derived, Readable, writable, Writable } from 'svelte/store';
 	import { page } from '$app/stores';
-	import type { BaseQuery } from './list-entities';
+	import type { BaseQuery } from '../list-entities';
 	import { browser } from '$app/env';
-import type { EntityResponseBody, Result } from './types';
-import { myFetch } from './error-handling';
+import type { EntityResponseBody, Result } from '../types';
+import { myFetch } from '../error-handling';
 
 	type E = $$Generic;
 

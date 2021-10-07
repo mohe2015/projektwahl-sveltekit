@@ -8,7 +8,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 
-	import EntityList from '$lib/EntityList.svelte';
+	import EntityList from '$lib/entity-list/EntityList.svelte';
 
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';

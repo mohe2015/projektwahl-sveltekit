@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import Filtering from '../../lib/entity-list/Filtering.svelte';
 	import Sorting from '../../lib/entity-list/Sorting.svelte';
-	import EntityList from '../../lib/EntityList.svelte';
+	import EntityList from '../../lib/entity-list/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import { Readable, Writable, writable } from 'svelte/store';

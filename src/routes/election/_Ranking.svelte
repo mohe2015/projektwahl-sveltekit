@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type EntityList from '$lib/EntityList.svelte';
+	import type EntityList from '$lib/entity-list/EntityList.svelte';
 	import type { Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
 
 	let disabled = false;

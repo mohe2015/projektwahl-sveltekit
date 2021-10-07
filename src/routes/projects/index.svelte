@@ -8,7 +8,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
-	import EntityList from '$lib/EntityList.svelte';
+	import EntityList from '$lib/entity-list/EntityList.svelte';
 	import { Readable, writable } from 'svelte/store';
 
 	let list: EntityList;
