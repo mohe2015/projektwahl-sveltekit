@@ -51,7 +51,7 @@ import FailureResult from '$lib/FailureResult.svelte';
 			on:submit|preventDefault={() => (submitPromise = create())}
 			id="{randomId}-form"
 		>
-			<slot failure={result.failure} {entity} />
+			<slot {result} {entity} />
 
 			{#await submitPromise}
 				<button type="submit" class="btn btn-primary disabled"
