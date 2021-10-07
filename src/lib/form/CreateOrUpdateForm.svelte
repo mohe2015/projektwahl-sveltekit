@@ -14,7 +14,6 @@ import FailureResult from '$lib/FailureResult.svelte';
 	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	let unknownFeedback: [string, string][] = [];
 	let submitPromise: Promise<Result<Existing<E>>>;
 	let result: Result<Existing<E>>;
 	export let entity: New<E>;
@@ -32,7 +31,6 @@ import FailureResult from '$lib/FailureResult.svelte';
 			//await goto(`/${type}/edit/${json.id}`);
 			await goto(`/${type.split('/')[0]}`);
 		} else {
-			unknownFeedback = [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0]));
 			window.scrollTo(0, 0);
 		}
 		return result;
@@ -53,15 +51,6 @@ import FailureResult from '$lib/FailureResult.svelte';
 			on:submit|preventDefault={() => (submitPromise = create())}
 			id="{randomId}-form"
 		>
-			{#if hasErrors(result) }
-				<div class="alert alert-danger" role="alert">
-					Einige Eingaben sind nicht gültig.
-					{#each unknownFeedback as [attribute, message]}
-						{attribute}: {message}<br />
-					{/each}
-				</div>
-			{/if}
-
 			<slot failure={result.failure} {entity} />
 
 			{#await submitPromise}
@@ -69,6 +58,15 @@ import FailureResult from '$lib/FailureResult.svelte';
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
 				>
 			{:then result}
+				{#if hasErrors(result) }
+					<div class="alert alert-danger" role="alert">
+						Einige Eingaben sind nicht gültig.
+						{#each [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0])) as [attribute, message]}
+							{attribute}: {message}<br />
+						{/each}
+					</div>
+				{/if}
+
 				<FailureResult {result} />
 				<button type="submit" class="btn btn-primary"
 					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button

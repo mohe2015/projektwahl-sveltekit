@@ -3,8 +3,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
-
 	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 
@@ -15,19 +13,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-import type { New, RawProjectType } from '$lib/types';
+import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Result } from '$lib/types';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
 	export let entity: Partial<New<RawProjectType>>;
 
-	let project_leader_list: EntityList<E>;
-	let project_leader_response: Readable<FetchResponse<EntityResponseBody, string>>;
+	let project_leader_list: EntityList<Existing<RawUserType>>;
+	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>;
 
-	let project_leader_query: Writable<BaseQuery<E>> = writable({
+	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			types: ['admin', 'helper', 'voter'],
+			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined,
 			is_project_leader: false
 		},
 		paginationLimit: 10,
@@ -37,11 +35,11 @@ import type { New, RawProjectType } from '$lib/types';
 		project_leader_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
 	});
 
-	let force_in_project_list: EntityList<E>;
-	let force_in_project_response: Readable<FetchResponse<EntityResponseBody, string>>;
-	let force_in_project_query: Writable<BaseQuery<E>> = writable({
+	let force_in_project_list: EntityList<Existing<RawUserType>>;
+	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>;
+	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			types: ['admin', 'helper', 'voter']
+			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined
 		},
 		paginationLimit: 10,
 		sorting: ['id:down-up', 'is_force_in_project:DESC', 'name:down-up', 'type:down-up'],
