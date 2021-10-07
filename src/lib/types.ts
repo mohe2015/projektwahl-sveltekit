@@ -58,6 +58,12 @@ export type RawChoiceType = {
 	rank: number;
 };
 
+export type ResettableChoiceType = {
+	user_id: number;
+	project_id: number;
+	rank: number | null;
+};
+
 // TODO FIXME use Either and disallow the other field but this currently doesn't work with JSONValue. Also empty object is probably also fine
 export type Result<T> = {
 	success?: T;

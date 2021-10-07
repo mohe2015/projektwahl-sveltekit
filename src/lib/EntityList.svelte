@@ -4,10 +4,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { derived, Readable, writable, Writable } from 'svelte/store';
-	import type { EntityResponseBody, FetchResponse } from './entites';
 	import { page } from '$app/stores';
 	import type { BaseQuery } from './list-entities';
 	import { browser } from '$app/env';
+import type { EntityResponseBody, Result } from './types';
+import { myFetch } from './error-handling';
 
 	type E = $$Generic;
 
@@ -28,7 +29,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	export let loading: Writable<boolean> = writable(true);
 
-	export let response: Readable<FetchResponse<EntityResponseBody<E>, string>> = derived(
+	export let response: Readable<Result<EntityResponseBody<E>>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
@@ -38,21 +39,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
 					console.log(fullUrl);
-					const res = await fetch(fullUrl, {
+					set(await myFetch(fullUrl, {
 						method: 'GET',
 						credentials: 'include'
-					});
-					if (!res.ok) {
-						set({
-							success: undefined,
-							error: res.status + ' ' + res.statusText
-						} as FetchResponse<EntityResponseBody<E>, string>);
-					} else {
-						set({
-							success: (await res.json()) as EntityResponseBody<E>,
-							error: undefined
-						} as FetchResponse<EntityResponseBody<E>, string>);
-					}
+					}));
 					loading.set(false);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
 				})();
@@ -60,8 +50,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		},
 		{
 			success: undefined,
-			error: undefined
-		} as FetchResponse<EntityResponseBody<E>, string>
+			failure: {}
+		} as Result<EntityResponseBody<E>>
 	);
 
 	export const headerClick = (sortType: string): void => {

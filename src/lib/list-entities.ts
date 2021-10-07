@@ -4,8 +4,8 @@ import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import type { BaseEntityType, EntityResponseBody } from './entites';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
+import type { EntityResponseBody } from './types';
 
 export type BaseQuery<C> = {
 	paginationDirection: 'forwards' | 'backwards' | null;
@@ -147,10 +147,10 @@ export const buildGet = <E>(
 
 		console.log(TTToString(...queryString));
 
-		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
+		let entities: E[] = await sql<E[]>(...queryString);
 
-		let nextCursor: BaseEntityType | null = null;
-		let previousCursor: BaseEntityType | null = null;
+		let nextCursor: E | null = null;
+		let previousCursor: E | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
 		if (!isForwardsPagination && !isBackwardsPagination) {
 			if (entities.length > paginationLimit) {
