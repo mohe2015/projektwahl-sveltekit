@@ -3,14 +3,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import Filtering from '../../lib/entity-list/NumberFiltering.svelte';
-	import Sorting from '../../lib/entity-list/Sorting.svelte';
-	import EntityList from '../../lib/entity-list/EntityList.svelte';
-	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
+	import Sorting from '$lib/entity-list/Sorting.svelte';
+	import EntityList from '$lib/entity-list/EntityList.svelte';
+	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import type { EntityResponseBody, Existing, RawUserType, Result } from '$lib/types';
 import type { BaseQuery } from '$lib/list-entities';
+import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 
 	let list: EntityList<Existing<RawUserType>>;
 	let response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
@@ -45,8 +46,8 @@ import type { BaseQuery } from '$lib/list-entities';
 				<th>Aktionen</th>
 			</tr>
 			<tr class="align-middle">
-				<Filtering name="id" type="number" {query} />
-				<Filtering name="name" type="text" {query} />
+				<NumberFiltering name="id" {query} />
+				<TextFiltering name="name" {query} />
 				<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
 				<th scope="col" />
 			</tr>
