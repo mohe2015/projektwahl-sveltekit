@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
 
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
-	import Filtering from '$lib/entity-list/Filtering.svelte';
+	import Filtering from '$lib/entity-list/NumberFiltering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/entity-list/EntityList.svelte';
 	import { Readable, writable } from 'svelte/store';

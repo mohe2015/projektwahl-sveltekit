@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import Filtering from '../../lib/entity-list/Filtering.svelte';
+	import Filtering from '../../lib/entity-list/NumberFiltering.svelte';
 	import Sorting from '../../lib/entity-list/Sorting.svelte';
 	import EntityList from '../../lib/entity-list/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';

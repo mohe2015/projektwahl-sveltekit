@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
+import type { Writable } from "svelte/store";
+import type { BaseQuery } from "./list-entities";
+
 export type New<T> = T & { id?: number };
 export type Existing<T> = T & { id: number };
 
@@ -76,3 +79,10 @@ export type EntityResponseBody<T> = {
 	previousCursor: T | null;
 	nextCursor: T | null;
 };
+
+function test<E, K extends keyof E>(object: Writable<BaseQuery<Record<K, boolean> & Omit<E, K>>>, name: K) {
+	return object.update((value) => {
+		value.filters[name] = true;
+		return value
+	})
+}
