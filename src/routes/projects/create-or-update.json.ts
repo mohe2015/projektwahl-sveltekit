@@ -2,6 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
+import type { Existing, RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
@@ -20,7 +21,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 	console.log('proj: ', project);
 
 	try {
-		let row;
+		let row: Existing<RawProjectType>;
 		if (project.id !== undefined) {
 			if (
 				request.locals.user?.type !== 'admin' &&

@@ -2,8 +2,8 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { dev } from '$app/env';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
+import type { Existing, RawUserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
@@ -16,7 +16,7 @@ const shuffleArray = <T>(array: T[]) => {
 	}
 };
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function () {
+export const get: RequestHandler<MyLocals, void> = async function () {
 	//allowUserType(request, []);
 
 	if (dev) {
@@ -82,7 +82,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				*/
 
 				const [user] = await sql<
-					[UserType]
+					[Existing<RawUserType>]
 				>`INSERT INTO users (name, type, "group", age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 				shuffleArray(projects);
 				for (let j = 0; j < 5; j++) {

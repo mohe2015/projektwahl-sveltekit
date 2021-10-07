@@ -8,11 +8,21 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '../../lib/EntityList.svelte';
 	import ListFiltering from '../../lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
-	import { Readable, writable } from 'svelte/store';
-	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
+	import { Readable, Writable, writable } from 'svelte/store';
+	import type { EntityResponseBody, Existing, RawUserType, Result } from '$lib/types';
+import type { BaseQuery } from '$lib/list-entities';
 
-	let list: EntityList;
-	let response: Readable<FetchResponse<EntityResponseBody>>;
+	let list: EntityList<Existing<RawUserType>>;
+	let response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
+	let query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
+		filters: {
+			type: ['admin', 'helper', 'voter'] as unknown as 'admin'
+		},
+		paginationLimit: 10,
+		sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
+		paginationCursor: null,
+		paginationDirection: null
+	});
 </script>
 
 <main class="container">
@@ -20,22 +30,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		bind:this={list}
 		bind:response
 		url="users.json"
-		query={writable({
-			filters: {
-				types: ['admin', 'helper', 'voter']
-			},
-			paginationLimit: 10,
-			sorting: ['id:down-up', 'name:down-up', 'type:down-up'],
-			paginationCursor: null,
-			paginationDirection: null
-		})}
+		{query}
 		title="Nutzer"
 		createUrl="/users/create"
 	>
 		<a slot="buttons" class="btn btn-primary" href="/users/import" role="button"
 			>Nutzer importieren</a
 		>
-		<thead slot="filter" let:headerClick let:currentSortValue let:query>
+		<thead slot="filter" let:headerClick let:currentSortValue>
 			<tr>
 				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 				<Sorting name="name" title="Name" {headerClick} {currentSortValue} {query} />
@@ -50,11 +52,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			</tr>
 		</thead>
 		<tbody slot="response">
-			{#if $response?.error}
+			{#if $response?.failure}
 				<tr>
 					<td colspan="4">
 						<div class="alert alert-danger w-100" role="alert">
-							Fehler {$response.error}
+							Fehler {$response.failure}
 						</div>
 					</td>
 				</tr>
@@ -95,7 +97,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 								entityId={entity.id}
 								entityName={entity.name}
 								path="users"
-								refreshList={() => list.refresh()}
+								refreshList={async () => list.refresh()}
 							/>
 						</td>
 					</tr>

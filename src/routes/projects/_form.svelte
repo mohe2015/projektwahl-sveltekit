@@ -53,7 +53,6 @@ import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Re
 	bind:entity
 	label="Projekt"
 	type="projects"
-	let:feedback
 	keys={[
 		'title',
 		'info',
