@@ -23,6 +23,7 @@ export type RawUserHelperAdminType = {
 	age: never;
 	away: boolean;
 	project_leader_id?: number;
+	force_in_project_id?: number;
 };
 
 export type RawUserType =

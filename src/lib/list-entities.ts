@@ -13,7 +13,7 @@ export type BaseQuery<C> = {
 	sorting: string[]; // TODO FIXME format
 	paginationLimit: number;
 	filters: {
-		[key in keyof C]: boolean | string | number | string[] | null | undefined // TODO FIXME C[key]
+		[key in keyof C]?: C[key]; // boolean | string | number | string[] | null | undefined // TODO FIXME C[key]
 	};
 };
 

@@ -3,10 +3,10 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { BaseEntityType } from '$lib/entites';
+import type { Existing, RawUserType } from "$lib/types";
 
 	export let project_id: number;
-	export let entity: BaseEntityType;
+	export let entity: Existing<RawUserType>;
 	let checked: boolean = entity.project_leader_id == project_id;
 
 	let disabled = false;

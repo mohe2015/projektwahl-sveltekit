@@ -2,16 +2,16 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
+import type { EntityResponseBody, Existing, RawProjectType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const get: RequestHandler<MyLocals, EntityResponseBody<Existing<RawProjectType>>> = async function (request) {
 	allowUserType(request, ['voter']);
-	return await buildGet(
+	return await buildGet<Existing<RawProjectType>>(
 		[
 			'id',
 			'title',
@@ -45,7 +45,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 		})`,
 		(query) =>
 			fakeTT<SerializableParameter>`AND title LIKE ${
-				'%' + (query.filters.title ?? '') + '%'
+				`%${query.filters.title ?? ''}%`
 			} AND (${!('id' in query.filters)} OR id = ${query.filters.id ?? null}) AND info LIKE ${
 				'%' + (query.filters.info ?? '') + '%'
 			} AND place LIKE ${'%' + (query.filters.place ?? '') + '%'} AND presentation_type LIKE ${

@@ -3,11 +3,13 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { LoginResponse } from './index.json';
 	import { session } from '$app/stores';
 
 	import TextInput from '$lib/form/TextInput.svelte';
 	import { goto } from '$app/navigation';
+import type { Result } from '$lib/types';
+import type { Login } from './index.json';
+import { hasErrors, myFetch } from '$lib/error-handling';
 
 	let user: {
 		name: string | null;
@@ -16,13 +18,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		name: null,
 		password: null
 	};
-	let loginPromise: Promise<LoginResponse> = Promise.resolve({
-		errors: {}
+	let loginPromise: Promise<Result<Login>> = Promise.resolve({
+		failure: {}
 	});
 	// TODO FIXME derived store?
 
-	async function login(): Promise<LoginResponse> {
-		const response = await fetch('/login.json', {
+	async function login(): Promise<Result<Login>> {
+		const result = await myFetch<Login>('/login.json', {
 			method: 'POST',
 			body: JSON.stringify(user),
 			headers: {
@@ -30,19 +32,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
-		if (!response.ok) {
-			throw new Error(response.status + ' ' + response.statusText);
-		} else {
-			let json = await response.json();
-			if (Object.entries(json.errors).length == 0) {
-				// TODO FIXME use server provided data (also id etc)
-				$session.user = {
-					name: user.name
-				};
-				await goto('/', { replaceState: true });
-			}
-			return json;
+		if (!hasErrors(result)) {
+			// TODO FIXME use server provided data (also id etc)
+			$session.user = {
+				name: user.name
+			};
+			await goto('/', { replaceState: true });
 		}
+		return result
 	}
 </script>
 
@@ -58,10 +55,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			{#await loginPromise}
 				<span />
 			{:then result}
-				{#if Object.entries(result.errors).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
+				{#if Object.entries(result.failure).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
 					<div class="alert alert-danger" role="alert">
 						Fehler!
-						{#each Object.entries(result.errors).filter(([a, _m]) => !['password', 'name'].includes(a)) as [attribute, message]}
+						{#each Object.entries(result.failure).filter(([a, _m]) => !['password', 'name'].includes(a)) as [attribute, message]}
 							{attribute}: {message}<br />
 						{/each}
 					</div>
@@ -99,7 +96,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						autocomplete="username"
 						label="Name"
 						bind:the_value={user.name}
-						feedback={new Map(Object.entries(result.errors))}
+						feedback={new Map(Object.entries(result.failure))}
 						name="name"
 					/>
 					<TextInput
@@ -107,7 +104,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						name="password"
 						bind:the_value={user.password}
 						type="password"
-						feedback={new Map(Object.entries(result.errors))}
+						feedback={new Map(Object.entries(result.failure))}
 						autocomplete="current-password"
 					/>
 				{:catch error}

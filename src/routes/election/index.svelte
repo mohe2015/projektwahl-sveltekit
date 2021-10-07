@@ -9,16 +9,18 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { flip } from 'svelte/animate';
 	import { Readable, writable } from 'svelte/store';
 	import EntityList from '$lib/EntityList.svelte';
-	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
+import type { EntityResponseBody, Existing, RawProjectType, Result } from '$lib/types';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
-	let list: EntityList;
-	let response: Readable<FetchResponse<EntityResponseBody, string>>;
+	type E = Existing<RawProjectType>;
+
+	let list: EntityList<E>;
+	let response: Readable<Result<EntityResponseBody<E>>>;
 </script>
 
 <main class="container">
-	<EntityList
+	<EntityList<E> <!-- valid syntax? -->
 		bind:this={list}
 		bind:response
 		url={'election.json'}

@@ -22,10 +22,10 @@ import type { New, RawProjectType } from '$lib/types';
 
 	export let entity: Partial<New<RawProjectType>>;
 
-	let project_leader_list: EntityList;
+	let project_leader_list: EntityList<E>;
 	let project_leader_response: Readable<FetchResponse<EntityResponseBody, string>>;
 
-	let project_leader_query: Writable<BaseQuery> = writable({
+	let project_leader_query: Writable<BaseQuery<E>> = writable({
 		filters: {
 			types: ['admin', 'helper', 'voter'],
 			is_project_leader: false
@@ -37,9 +37,9 @@ import type { New, RawProjectType } from '$lib/types';
 		project_leader_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
 	});
 
-	let force_in_project_list: EntityList;
+	let force_in_project_list: EntityList<E>;
 	let force_in_project_response: Readable<FetchResponse<EntityResponseBody, string>>;
-	let force_in_project_query: Writable<BaseQuery> = writable({
+	let force_in_project_query: Writable<BaseQuery<E>> = writable({
 		filters: {
 			types: ['admin', 'helper', 'voter']
 		},
