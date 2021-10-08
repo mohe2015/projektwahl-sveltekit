@@ -40,3 +40,26 @@ export function andThen<T, U>(result: Result<T>, op: ((v: T) => Result<U>)): Res
     }
     return op(result.success);
 }
+
+type Okayed<T> = T extends Result<infer U> ? U : T;
+
+type OkayedArray<T> = { [P in keyof T]: Okayed<T[P]> };
+
+export function mergeErrOr<A extends Result<unknown>[], T>(results: A, op: (v: OkayedArray<A>) => Result<T>) {
+    let mergedResult: FailureResult | null = null;
+    for (const result of results) {
+        if (isErr(result)) {
+            if (mergedResult == null) {
+                mergedResult = {
+                    result: "failure",
+                    failure: {}
+                };
+            }
+            mergedResult.failure = { ...mergedResult.failure, ...result.failure }
+        }
+    }
+    if (mergedResult != null) {
+        return mergedResult;
+    }
+    return op(results);
+}

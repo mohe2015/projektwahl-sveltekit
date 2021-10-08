@@ -15,31 +15,11 @@ export const validator: Validator<LoginType> = (user: Existing<RawUserType> | nu
 	return andThen(assertObjectType(value), value => {
 		const name = assertStringProperty(value, "name");
 		const password = assertStringProperty(value, "password");
-		return andThen(name, (name) => {
-			return andThen(password, (password) => {
-				return ok({
-					name,
-					password
-				})
+		return mergeErrOr([name, password], ([name, password]) => {
+			return ok({
+				name,
+				password
 			})
 		})
 	});
 }
-
-
-/*{
-	name: {
-		validate: (_user: Existing<RawUserType> | null, entity: JSONValue) => assertStringProperty(entity, "name"),
-	},
-	password: {
-		validate: (_user: Existing<RawUserType> | null, entity: JSONValue) => {
-			return andThen(assertStringProperty(entity, "password"), value => {
-				if (value === "") {
-					throw new Error("empty password not allowed")
-				}
-				return ok(value);
-			});
-		},
-	},
-};
-*/
