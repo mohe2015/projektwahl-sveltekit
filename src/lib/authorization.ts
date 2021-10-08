@@ -5,32 +5,6 @@ import type { ServerRequest } from '@sveltejs/kit/types/hooks';
 import type { MyLocals } from 'src/hooks';
 import type { Existing, RawUserType } from './types';
 
-export class HTTPError extends Error {
-	status: number;
-	statusText: string;
-
-	constructor(status: number, statusText: string) {
-		super(`HTTP-Fehler ${status} ${statusText}`);
-		this.name = 'HTTPError';
-		this.status = status;
-		this.statusText = statusText;
-	}
-}
-
-export const allowUserType = (
-	request: ServerRequest<MyLocals, unknown>,
-	allowedTypes: ('voter' | 'helper' | 'admin')[]
-): Existing<RawUserType> => {
-	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
-		throw new HTTPError(403, 'Forbidden');
-	}
-	return request.locals.user;
-};
-
-export const allowAnyone = (_request: ServerRequest<MyLocals, unknown>): void => {
-	// do nothing.
-};
-
 export type ValidatorProperty<T> = {
 	validate: (user: Existing<RawUserType> | null, unsanitizedValue: JSONValue) => T;
 };

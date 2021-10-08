@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
@@ -111,18 +110,10 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		return response;
 	} catch (error: unknown) {
 		console.error(error);
-		if (error instanceof HTTPError) {
-			return {
-				status: error.status,
-				body: error.statusText,
-				headers: {}
-			};
-		} else {
-			return {
-				status: 500,
-				headers: {}
-			};
-		}
+		return {
+			status: 500,
+			headers: {}
+		};
 	}
 };
 
