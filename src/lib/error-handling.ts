@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
-import type { Result } from './types';
+import type { Result } from "./result";
 
 export const myFetch = async <T>(
 	url: string,
@@ -45,8 +45,4 @@ export const myFetch = async <T>(
 			};
 		}
 	}
-};
-
-export const hasErrors = (result: Result<unknown>): boolean => {
-	return Object.keys(result.failure).length !== 0;
 };
