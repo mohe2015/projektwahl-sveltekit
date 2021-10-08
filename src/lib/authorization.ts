@@ -4,45 +4,49 @@ import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
 import { andThen, Result } from './result';
 import type { Existing, RawUserType } from './types';
 
-export type Validator<T> = (user: Existing<RawUserType> | null, unsanitizedValue: JSONValue) => Result<T>;
+export type Validator<T> = (
+	user: Existing<RawUserType> | null,
+	unsanitizedValue: JSONValue
+) => Result<T>;
 
 export const assertStringProperty = (value: JSONValue, key: string): Result<string> => {
-	return andThen(assertObjectType(value), value => {
-		const value3 = value2[key]
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
 		if (typeof value3 !== 'string') {
 			return {
+				result: 'failure',
 				failure: {
-					[key]: "not a text"
+					[key]: 'not a text'
 				}
-			}
+			};
 		}
 		return {
-			success: value3,
-			failure: {}
-		}
-	}
-}
+			result: 'success',
+			success: value3
+		};
+	});
+};
 
-export const assertObjectType = (value: JSONValue): Result<{
-    [key: string]: JSONString;
+export const assertObjectType = (
+	value: JSONValue
+): Result<{
+	[key: string]: JSONString;
 }> => {
-	if (
-		typeof value !== 'object' ||
-		Array.isArray(value) ||
-		value == null
-	) {
+	if (typeof value !== 'object' || Array.isArray(value) || value == null) {
 		return {
+			result: 'failure',
 			failure: {
-				value: "not of type object"
+				value: 'not of type object'
 			}
-		}
+		};
 	}
 	return {
-		success: value,
-		failure: {}
-	}
-}
+		result: 'success',
+		success: value
+	};
+};
 
+/*
 // TODO FIXME this could be a subtype of ValidatorProperty
 export const validateObject = <T extends Record<string, unknown>>(
 	validator: ValidatorType<T>,
@@ -54,10 +58,14 @@ export const validateObject = <T extends Record<string, unknown>>(
 	for (const key in validator) {
 		sanitizedValue[key] = validator[key].validate(user, unsanitizedValue2);
 	}
+	/*
+	TODO FIXME: add this back soon
 	for (const key in unsanitizedValue2) {
 		if (!(key in validator)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}
 	}
+	
 	return sanitizedValue;
 };
+*/
