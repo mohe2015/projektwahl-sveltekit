@@ -31,51 +31,34 @@ export const allowAnyone = (_request: ServerRequest<MyLocals, unknown>): void =>
 	// do nothing.
 };
 
-export type ValidatorProperty = {
-	view: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
-	edit: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
+export type ValidatorProperty<T> = {
+	validate: (user: Existing<RawUserType> | null, entity: JSONValue) => T;
 };
 
 export type ValidatorType<T> = {
-	[index in keyof T]: ValidatorProperty;
+	[index in keyof T]: ValidatorProperty<T[index]>;
 };
 
-export const validate = <T>(
-	permissions: ValidatorType<T>,
+export const validateObject = <T extends Record<string, unknown>>(
+	validator: ValidatorType<T>,
 	user: Existing<RawUserType> | null,
-	body: JSONValue,
-	mode: 'view' | 'edit'
+	unsanitizedValue: JSONValue
 ): T => {
-	if (typeof body !== 'object' || Array.isArray(body) || body == null) {
+	if (
+		typeof unsanitizedValue !== 'object' ||
+		Array.isArray(unsanitizedValue) ||
+		unsanitizedValue == null
+	) {
 		throw new HTTPError(401, `invalid type`);
 	}
-	const sanitizedValue: {
-		[key: string]: string | number | boolean | null;
-	} = {};
-	for (const [key, checker] of Object.entries<ValidatorProperty>(permissions)) {
-		if (body[key] === undefined) continue;
-
-		if (mode === 'edit') {
-			if (!checker.edit(user, body)) {
-				throw new HTTPError(401, `not allowed to change ${key}`);
-			}
-		}
-		if (mode === 'view') {
-			if (!checker.view(user, body)) {
-				throw new HTTPError(401, `not allowed to view ${key}`);
-			}
-		}
-		const val = body[key];
-		if (val && (typeof val === 'object' || Array.isArray(val))) {
-			throw new HTTPError(401, `invalid type at ${key}`);
-		}
-		sanitizedValue[key] = val;
+	const sanitizedValue: T = {} as T;
+	for (const key in validator) {
+		sanitizedValue[key] = validator[key].validate(user, unsanitizedValue);
 	}
-	for (const [key, _value] of Object.entries(body)) {
-		if (!(key in permissions)) {
+	for (const [key, _value] of Object.entries(unsanitizedValue)) {
+		if (!(key in validator)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}
 	}
-	// TODO FIXME check types of fields otherwise this is not correct
-	return sanitizedValue as unknown as T;
+	return sanitizedValue;
 };
