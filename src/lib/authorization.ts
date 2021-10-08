@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
-import type { Existing, RawUserType, Result } from './types';
+import { andThen, Result } from './result';
+import type { Existing, RawUserType } from './types';
 
 export type Validator<T> = (user: Existing<RawUserType> | null, unsanitizedValue: JSONValue) => Result<T>;
 
