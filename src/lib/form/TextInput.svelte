@@ -14,7 +14,17 @@ type E = $$Generic;
 	export let step: string | undefined = undefined;
 	export let autocomplete: string | undefined = undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	export let result: Result<E>;
+	export let result: Promise<Result<E>>;
+	let resolvedResult: Result<E> = {
+		failure: {},
+		success: undefined
+	};
+
+	$: {
+		(async () => {
+			resolvedResult = await result
+		})()
+	}
 </script>
 
 <!-- because of a limitation of svelte (binding with dynamic type not possible) we need to duplicate the code here -->
@@ -23,15 +33,15 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="text"
-			class="form-control {(name in result.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
 		/>
-		{#if (name in result.failure)}
+		{#if (name in resolvedResult.failure)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{result.failure.name}
+				{resolvedResult.failure.name}
 			</div>
 		{/if}
 	</div>
@@ -40,16 +50,16 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="number"
-			class="form-control {(name in result.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			{step}
 			bind:value={the_value}
 		/>
-		{#if (name in result.failure)}
+		{#if (name in resolvedResult.failure)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{result.failure.name}
+				{resolvedResult.failure.name}
 			</div>
 		{/if}
 	</div>
@@ -58,16 +68,16 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="password"
-			class="form-control {(name in result.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback passwordHelp"
 			bind:value={the_value}
 			{autocomplete}
 		/>
-		{#if (name in result.failure)}
+		{#if (name in resolvedResult.failure)}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{result.failure.name}
+				{resolvedResult.failure.name}
 			</div>
 		{/if}
 		<div id="passwordHelp" class="form-text">

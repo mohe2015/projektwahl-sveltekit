@@ -21,7 +21,6 @@ import { hasErrors, myFetch } from '$lib/error-handling';
 	let loginPromise: Promise<Result<Login>> = Promise.resolve({
 		failure: {}
 	});
-	// TODO FIXME derived store?
 
 	async function login(): Promise<Result<Login>> {
 		const result = await myFetch<Login>('/login.json', {
@@ -74,55 +73,23 @@ import { hasErrors, myFetch } from '$lib/error-handling';
 				action="/no-javascript"
 				on:submit|preventDefault={() => (loginPromise = login())}
 			>
-				<!-- TODO FIXME extract this pattern -->
-				{#await loginPromise}
-					<TextInput
-						type="text"
-						autocomplete="username"
-						label="Name"
-						bind:the_value={user.name}
-						name="name"
-					/>
-					<TextInput
-						label="Passwort"
-						name="password"
-						bind:the_value={user.password}
-						type="password"
-						autocomplete="current-password"
-					/>
-				{:then result}
-					<TextInput
-						type="text"
-						autocomplete="username"
-						label="Name"
-						bind:the_value={user.name}
-						feedback={new Map(Object.entries(result.failure))}
-						name="name"
-					/>
-					<TextInput
-						label="Passwort"
-						name="password"
-						bind:the_value={user.password}
-						type="password"
-						feedback={new Map(Object.entries(result.failure))}
-						autocomplete="current-password"
-					/>
-				{:catch error}
-					<TextInput
-						type="text"
-						autocomplete="username"
-						label="Name"
-						bind:the_value={user.name}
-						name="name"
-					/>
-					<TextInput
-						label="Passwort"
-						name="password"
-						bind:the_value={user.password}
-						type="password"
-						autocomplete="current-password"
-					/>
-				{/await}
+				<TextInput
+					type="text"
+					autocomplete="username"
+					label="Name"
+					bind:the_value={user.name}
+					name="name"
+					result={loginPromise}
+				/>
+				<TextInput
+					label="Passwort"
+					name="password"
+					bind:the_value={user.password}
+					type="password"
+					autocomplete="current-password"
+					result={loginPromise}
+				/>
+			
 				<button type="submit" class="btn btn-primary">Login</button>
 			</form>
 		</div>
