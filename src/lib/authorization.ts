@@ -55,7 +55,7 @@ export const validateObject = <T extends Record<string, unknown>>(
 	for (const key in validator) {
 		sanitizedValue[key] = validator[key].validate(user, unsanitizedValue);
 	}
-	for (const [key, _value] of Object.entries(unsanitizedValue)) {
+	for (const key in unsanitizedValue) {
 		if (!(key in validator)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}
