@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, checkPermissions } from '$lib/authorization';
+import { allowUserType, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -16,7 +16,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 ): Promise<EndpointOutput<SetRankResponse>> {
 	const user = allowUserType(request, ['voter']);
 
-	const entity = checkPermissions(permissions, request.locals.user, request.body, 'edit');
+	const entity = validate(permissions, request.locals.user, request.body, 'edit');
 
 	// TODO FIXME validate rank value range
 	// TODO FIXME add rank check constraint to sql

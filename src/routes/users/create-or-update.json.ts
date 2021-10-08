@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, checkPermissions } from '$lib/authorization';
+import { allowUserType, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
 import type { UserType } from '$lib/types';
@@ -20,7 +20,7 @@ export const save = async (
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;
 		for await (const entry of data) {
-			const user = checkPermissions(permissions, loggedInUser, entry, 'edit');
+			const user = validate(permissions, loggedInUser, entry, 'edit');
 
 			//const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
 			//	'hex'

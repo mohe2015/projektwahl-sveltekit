@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone, checkPermissions } from '$lib/authorization';
+import { allowAnyone, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
 import type { Existing, RawSessionType, RawUserType, Result } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
-import { permissions } from '../users/permissions';
+import { validator } from './validator';
 
 export type Login = {
 	session: RawSessionType;
@@ -48,7 +48,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		}
 	};*/
 
-	const user = checkPermissions(permissions, request.locals.user, request.body, 'view');
+	const user = validate(validator, request.locals.user, request.body, 'view');
 
 	const [entity]: [Existing<RawUserType>] =
 		// eslint-disable-next-line @typescript-eslint/await-thenable

@@ -31,17 +31,17 @@ export const allowAnyone = (_request: ServerRequest<MyLocals, unknown>): void =>
 	// do nothing.
 };
 
-export type PermissionType = {
+export type ValidatorProperty = {
 	view: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
 	edit: (user: Existing<RawUserType> | null, entity: JSONValue) => boolean;
 };
 
-export type PermissionsType<T> = {
-	[index in keyof T]: PermissionType;
+export type ValidatorType<T> = {
+	[index in keyof T]: ValidatorProperty;
 };
 
-export const checkPermissions = <T>(
-	permissions: PermissionsType<T>,
+export const validate = <T>(
+	permissions: ValidatorType<T>,
 	user: Existing<RawUserType> | null,
 	body: JSONValue,
 	mode: 'view' | 'edit'
@@ -52,7 +52,7 @@ export const checkPermissions = <T>(
 	const sanitizedValue: {
 		[key: string]: string | number | boolean | null;
 	} = {};
-	for (const [key, checker] of Object.entries<PermissionType>(permissions)) {
+	for (const [key, checker] of Object.entries<ValidatorProperty>(permissions)) {
 		if (body[key] === undefined) continue;
 
 		if (mode === 'edit') {
