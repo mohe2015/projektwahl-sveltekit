@@ -1,18 +1,18 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-export type Result<T> = SuccessResult<T> | FailureResult;
+export type Result<T> = SuccessResult<T> | FailureResult<T>;
 
 export type SuccessResult<T> = {
 	result: 'success';
 	success: T;
 };
 
-export type FailureResult = {
+export type FailureResult<T> = {
 	result: 'failure';
 	failure: { [key: string]: string };
 };
 
-export const isErr = <T>(result: Result<T>): result is FailureResult => {
+export const isErr = <T>(result: Result<T>): result is FailureResult<T> => {
 	return result.result === 'failure';
 };
 
@@ -27,7 +27,7 @@ export const ok = <T>(value: T): SuccessResult<T> => {
 	};
 };
 
-export const err = (error: { [key: string]: string }): FailureResult => {
+export const err = <T>(error: { [key: string]: string }): FailureResult<T> => {
 	return {
 		result: 'failure',
 		failure: error
@@ -41,6 +41,10 @@ export function andThen<T, U>(result: Result<T>, op: (v: T) => Result<U>): Resul
 	return op(result.success);
 }
 
+export function safe_unwrap<T>(result: SuccessResult<T>): T {
+    return result.success;
+}
+
 export function unwrap<T>(result: Result<T>): T {
 	if (isOk(result)) {
 		return result.success;
@@ -49,16 +53,14 @@ export function unwrap<T>(result: Result<T>): T {
 }
 
 // https://github.com/microsoft/TypeScript/pull/26063
-type Awaited<T> = T extends SuccessResult<infer U> ? U : T;
+type Awaited<T> = T extends Result<infer U> ? U : T;
 type Awaitified<T> = { [P in keyof T]: Awaited<T[P]> };
 
-export function fdsfsdfsf<T extends any[]>(...values: T): Awaitified<T>;
-
 export function mergeErrOr<A extends any[], T>(
-	op: (v: OkayedArray<A>) => Result<T>,
+	op: (v: Awaitified<A>) => Result<T>,
 	...results: A
 ): Result<T> {
-	let mergedResult: FailureResult | null = null;
+	let mergedResult: FailureResult<T> | null = null;
 	for (const result of results) {
 		if (isErr(result)) {
 			if (mergedResult == null) {
@@ -73,6 +75,8 @@ export function mergeErrOr<A extends any[], T>(
 	if (mergedResult != null) {
 		return mergedResult;
 	}
-	// @ts-expect-error TODO FIXME
-	return op(results.map(unwrap));
+    //if (results.every(isOk)) {
+        // @ts-expect-error TODO would be epic if this would work but don't think so
+        return op(results.map(safe_unwrap));
+    //}
 }

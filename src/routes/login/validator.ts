@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { assertObjectType, assertStringProperty, Validator } from '$lib/authorization';
-import { andThen, fdsfsdfsf, mergeErrOr, ok, Result, SuccessResult } from '$lib/result';
+import { andThen, mergeErrOr, ok, Result } from '$lib/result';
 import type { Existing, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 
@@ -17,13 +17,12 @@ export const validator: Validator<LoginType> = (
 ): Result<LoginType> => {
 	return andThen(assertObjectType(value), (value) => {
 		const name = assertStringProperty(value, 'name');
-		const password = assertStringProperty(value, 'password') as Result<number>;
-		const jo = fdsfsdfsf(name, password);
-		/*return mergeErrOr(([name, password]) => {
+		const password = assertStringProperty(value, 'password');
+		return mergeErrOr(([name, password]) => {
 			return ok({
 				name,
 				password
 			})
-		}, name, password)*/
+		}, name, password)
 	});
 };
