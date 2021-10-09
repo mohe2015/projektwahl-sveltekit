@@ -3,9 +3,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { errOrDefault, Result } from "$lib/result";
+	import { errOrDefault, Result } from '$lib/result';
 
-type E = $$Generic;
+	type E = $$Generic;
 
 	export let label: string;
 	export let name: string;
@@ -16,14 +16,14 @@ type E = $$Generic;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 	export let result: Promise<Result<E>>;
 	let resolvedResult: Result<E> = {
-		result: "failure",
+		result: 'failure',
 		failure: {}
 	};
 
 	$: {
-		(async () => {
-			resolvedResult = await result
-		})()
+		void (async () => {
+			resolvedResult = await result;
+		})();
 	}
 </script>
 
@@ -33,13 +33,13 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="text"
-			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
+			class="form-control {name in errOrDefault(resolvedResult, {}) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
 		/>
-		{#if (name in errOrDefault(resolvedResult, {}))}
+		{#if name in errOrDefault(resolvedResult, {})}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{errOrDefault(resolvedResult, {})[name]}
 			</div>
@@ -50,14 +50,14 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="number"
-			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
+			class="form-control {name in errOrDefault(resolvedResult, {}) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			{step}
 			bind:value={the_value}
 		/>
-		{#if (name in errOrDefault(resolvedResult, {}))}
+		{#if name in errOrDefault(resolvedResult, {})}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{errOrDefault(resolvedResult, {})[name]}
 			</div>
@@ -68,14 +68,14 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="password"
-			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
+			class="form-control {name in errOrDefault(resolvedResult, {}) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback passwordHelp"
 			bind:value={the_value}
 			{autocomplete}
 		/>
-		{#if (name in errOrDefault(resolvedResult, {}))}
+		{#if name in errOrDefault(resolvedResult, {})}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
 				{errOrDefault(resolvedResult, {})[name]}
 			</div>
