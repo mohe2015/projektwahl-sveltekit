@@ -7,9 +7,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import TextInput from '$lib/form/TextInput.svelte';
 	import { goto } from '$app/navigation';
-import type { Result } from '$lib/types';
 import type { Login } from './index.json';
-import { hasErrors, myFetch } from '$lib/error-handling';
+import { myFetch } from '$lib/error-handling';
+import { errOrDefault, isOk, Result } from '$lib/result';
 
 	let user: {
 		name: string | null;
@@ -19,6 +19,7 @@ import { hasErrors, myFetch } from '$lib/error-handling';
 		password: null
 	};
 	let loginPromise: Promise<Result<Login>> = Promise.resolve({
+		result: "failure",
 		failure: {}
 	});
 
@@ -31,7 +32,7 @@ import { hasErrors, myFetch } from '$lib/error-handling';
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
-		if (!hasErrors(result)) {
+		if (isOk(result)) {
 			// TODO FIXME use server provided data (also id etc)
 			$session.user = {
 				name: user.name
@@ -54,10 +55,10 @@ import { hasErrors, myFetch } from '$lib/error-handling';
 			{#await loginPromise}
 				<span />
 			{:then result}
-				{#if Object.entries(result.failure).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
+				{#if Object.entries(errOrDefault(result, {})).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
 					<div class="alert alert-danger" role="alert">
 						Fehler!
-						{#each Object.entries(result.failure).filter(([a, _m]) => !['password', 'name'].includes(a)) as [attribute, message]}
+						{#each Object.entries(errOrDefault(result, {})).filter(([a, _m]) => !['password', 'name'].includes(a)) as [attribute, message]}
 							{attribute}: {message}<br />
 						{/each}
 					</div>

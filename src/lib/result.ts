@@ -52,6 +52,17 @@ export function unwrap<T>(result: Result<T>): T {
 	throw new Error("can't unwrap Err");
 }
 
+export function safeUnwrapErr<T>(result: FailureResult<T>): { [key: string]: string } {
+	return result.failure;
+}
+
+export function errOrDefault<T>(result: Result<T>, defaultError: { [key: string]: string }): { [key: string]: string } {
+	if (isErr(result)) {
+		return safeUnwrapErr(result);
+	}
+	return defaultError
+}
+
 // https://github.com/microsoft/TypeScript/pull/26063
 type Awaited<T> = T extends Result<infer U> ? U : T;
 type Awaitified<T> = { [P in keyof T]: Awaited<T[P]> };

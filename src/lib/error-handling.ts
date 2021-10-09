@@ -13,12 +13,14 @@ export const myFetch = async <T>(
 			try {
 				const additionalInfo = await response.text();
 				return {
+					result: "failure",
 					failure: {
 						network: `Failed to request ${url}: ${response.status} ${response.statusText}\nAdditional information: ${additionalInfo}`
 					}
 				};
 			} catch (error: unknown) {
 				return {
+					result: "failure",
 					failure: {
 						network: `Failed to request ${url}: ${response.status} ${response.statusText}`
 					}
@@ -31,6 +33,7 @@ export const myFetch = async <T>(
 		console.error(error);
 		if (error instanceof TypeError) {
 			return {
+				result: "failure",
 				failure: {
 					network: `Failed to request ${url}: ${error.message}\nAdditional information: ${
 						error.stack ?? 'none'
@@ -39,6 +42,7 @@ export const myFetch = async <T>(
 			};
 		} else {
 			return {
+				result: "failure",
 				failure: {
 					network: `Failed to request ${url}: Unknown error see console.`
 				}

@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { Existing, RawSessionType, RawUserType, Result } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import { validator } from './validator';
+import { isOk, Result, safe_unwrap } from '$lib/result';
 
 export type Login = {
 	session: RawSessionType;
@@ -16,8 +16,6 @@ export type Login = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<Result<Login>>> {
-	allowAnyone(request);
-
 	/*
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
@@ -48,7 +46,13 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		}
 	};*/
 
-	const user = validate(validator, request.locals.user, request.body, 'view');
+	const result = validator(request.locals.user, request.body);
+	if (!isOk(result)) {
+		return {
+			body: result
+		}
+	}
+	const user = safe_unwrap(result)
 
 	const [entity]: [Existing<RawUserType>] =
 		// eslint-disable-next-line @typescript-eslint/await-thenable
@@ -57,6 +61,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity === undefined) {
 		return {
 			body: {
+				result: "failure",
 				failure: {
 					name: 'Nutzer existiert nicht!'
 				}
@@ -67,6 +72,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity.password == null || !(await checkPassword(entity.password, user.password))) {
 		return {
 			body: {
+				result: "failure",
 				failure: {
 					password: 'Falsches Passwort!'
 				}
@@ -84,10 +90,10 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	return {
 		body: {
+			result: "success",
 			success: {
 				session
 			},
-			failure: {}
 		},
 		headers: {
 			'Set-Cookie': [

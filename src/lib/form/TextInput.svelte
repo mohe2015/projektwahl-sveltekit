@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import type { Result } from "$lib/types";
+import { errOrDefault, Result } from "$lib/result";
 
 type E = $$Generic;
 
@@ -16,8 +16,8 @@ type E = $$Generic;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 	export let result: Promise<Result<E>>;
 	let resolvedResult: Result<E> = {
-		failure: {},
-		success: undefined
+		result: "failure",
+		failure: {}
 	};
 
 	$: {
@@ -33,15 +33,15 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="text"
-			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			bind:value={the_value}
 		/>
-		{#if (name in resolvedResult.failure)}
+		{#if (name in errOrDefault(resolvedResult, {}))}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{resolvedResult.failure.name}
+				{errOrDefault(resolvedResult, {})[name]}
 			</div>
 		{/if}
 	</div>
@@ -50,16 +50,16 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="number"
-			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"
 			{step}
 			bind:value={the_value}
 		/>
-		{#if (name in resolvedResult.failure)}
+		{#if (name in errOrDefault(resolvedResult, {}))}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{resolvedResult.failure.name}
+				{errOrDefault(resolvedResult, {})[name]}
 			</div>
 		{/if}
 	</div>
@@ -68,16 +68,16 @@ type E = $$Generic;
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="password"
-			class="form-control {(name in resolvedResult.failure) ? 'is-invalid' : ''}"
+			class="form-control {(name in errOrDefault(resolvedResult, {})) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback passwordHelp"
 			bind:value={the_value}
 			{autocomplete}
 		/>
-		{#if (name in resolvedResult.failure)}
+		{#if (name in errOrDefault(resolvedResult, {}))}
 			<div id="{randomId}-{name}-feedback" class="invalid-feedback">
-				{resolvedResult.failure.name}
+				{errOrDefault(resolvedResult, {})[name]}
 			</div>
 		{/if}
 		<div id="passwordHelp" class="form-text">
