@@ -1,62 +1,62 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-export type Result<T> = SuccessResult<T> | FailureResult<T>;
+export type Result<T, E extends { [key: string]: string }> = SuccessResult<T, E> | FailureResult<T, E>;
 
-export type SuccessResult<T> = {
+export type SuccessResult<T, E> = {
 	result: 'success';
 	success: T;
 };
 
-export type FailureResult<T> = {
+export type FailureResult<T, E extends { [key: string]: string }> = {
 	result: 'failure';
-	failure: { [key: string]: string };
+	failure: E;
 };
 
-export const isErr = <T>(result: Result<T>): result is FailureResult<T> => {
+export const isErr = <T, E extends { [key: string]: string }>(result: Result<T, E>): result is FailureResult<T, E> => {
 	return result.result === 'failure';
 };
 
-export const isOk = <T>(result: Result<T>): result is SuccessResult<T> => {
+export const isOk = <T, E extends { [key: string]: string }>(result: Result<T, E>): result is SuccessResult<T, E> => {
 	return result.result === 'success';
 };
 
-export const ok = <T>(value: T): SuccessResult<T> => {
+export const ok = <T, E extends { [key: string]: string }>(value: T): SuccessResult<T, E> => {
 	return {
 		result: 'success',
 		success: value
 	};
 };
 
-export const err = <T>(error: { [key: string]: string }): FailureResult<T> => {
+export const err = <T, E extends { [key: string]: string }>(error: E): FailureResult<T, E> => {
 	return {
 		result: 'failure',
 		failure: error
 	};
 };
 
-export function andThen<T, U>(result: Result<T>, op: (v: T) => Result<U>): Result<U> {
+export function andThen<T, E extends { [key: string]: string }, U>(result: Result<T, E>, op: (v: T) => Result<U, E>): Result<U, E> {
 	if (!isOk(result)) {
 		return result;
 	}
 	return op(result.success);
 }
 
-export function safe_unwrap<T>(result: SuccessResult<T>): T {
+export function safe_unwrap<T, E extends { [key: string]: string }>(result: SuccessResult<T, E>): T {
     return result.success;
 }
 
-export function unwrap<T>(result: Result<T>): T {
+export function unwrap<T, E extends { [key: string]: string }>(result: Result<T, E>): T {
 	if (isOk(result)) {
 		return result.success;
 	}
 	throw new Error("can't unwrap Err");
 }
 
-export function safeUnwrapErr<T>(result: FailureResult<T>): { [key: string]: string } {
+export function safeUnwrapErr<T, E extends { [key: string]: string }>(result: FailureResult<T, E>): { [key: string]: string } {
 	return result.failure;
 }
 
-export function errOrDefault<T>(result: Result<T>, defaultError: { [key: string]: string }): { [key: string]: string } {
+export function errOrDefault<T, E extends { [key: string]: string }>(result: Result<T, E>, defaultError: { [key: string]: string }): { [key: string]: string } {
 	if (isErr(result)) {
 		return safeUnwrapErr(result);
 	}
@@ -64,14 +64,14 @@ export function errOrDefault<T>(result: Result<T>, defaultError: { [key: string]
 }
 
 // https://github.com/microsoft/TypeScript/pull/26063
-type Awaited<T> = T extends Result<infer U> ? U : T;
-type Awaitified<T> = { [P in keyof T]: Awaited<T[P]> };
+type Awaited<T, E extends { [key: string]: string }> = T extends Result<infer U, E> ? U : T;
+type Awaitified<T, E extends { [key: string]: string }> = { [P in keyof T]: Awaited<T[P], E> };
 
-export function mergeErrOr<A extends any[], T>(
-	op: (v: Awaitified<A>) => Result<T>,
+export function mergeErrOr<A extends any[], T, E extends { [key: string]: string }>(
+	op: (v: Awaitified<A, E>) => Result<T, E>,
 	...results: A
-): Result<T> {
-	let mergedResult: FailureResult<T> | null = null;
+): Result<T, E> {
+	let mergedResult: FailureResult<T, E> | null = null;
 	for (const result of results) {
 		if (isErr(result)) {
 			if (mergedResult == null) {
