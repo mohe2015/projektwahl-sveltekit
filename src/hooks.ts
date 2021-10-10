@@ -47,7 +47,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		try {
 			const [session]: [(Existing<RawUserType> & RawSessionType)?] =
 				// eslint-disable-next-line @typescript-eslint/await-thenable
-				await sql`SELECT sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+				await sql`SELECT sessions.session_id, sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
 				console.log(session);
 			if (session) {
