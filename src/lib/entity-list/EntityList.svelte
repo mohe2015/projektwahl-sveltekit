@@ -28,23 +28,21 @@ import { mapOr, PromiseResult } from '$lib/result';
 
 	export let url: string;
 
-	export let loading: Writable<boolean> = writable(true);
-
 	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
 				// TODO FIXME
 				(async () => {
-					loading.set(true);
-
+					set({
+						result: "loading"
+					});
 					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
 					console.log(fullUrl);
 					set(await myFetch<EntityResponseBody<E>>(fullUrl, {
 						method: 'GET',
 						credentials: 'include'
 					}));
-					loading.set(false);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
 				})();
 			}
@@ -92,7 +90,7 @@ import { mapOr, PromiseResult } from '$lib/result';
 </svelte:head>
 
 <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-	{#if $loading}
+	{#if $response.result === "loading" }
 		<div class="spinner-grow text-primary" role="status">
 			<span class="visually-hidden">Loading...</span>
 		</div>
@@ -125,7 +123,7 @@ import { mapOr, PromiseResult } from '$lib/result';
 
 <table class="table">
 	<slot name="filter" {headerClick} {currentSortValue} />
-	<slot name="response" {response} />
+	<slot name="response" response={$response} />
 </table>
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">

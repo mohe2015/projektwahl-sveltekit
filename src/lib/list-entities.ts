@@ -2,8 +2,10 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
+import type { JSONString } from '@sveltejs/kit/types/helper';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
+import type { Result } from './result';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
 import type { EntityResponseBody } from './types';
 
@@ -17,12 +19,12 @@ export type BaseQuery<C> = {
 	};
 };
 
-export const buildGet = <E>(
+export const buildGet = <E extends JSONString>(
 	allowedFilters: string[],
 	select: [TemplateStringsArray, SerializableParameter[]],
 	params: (query: BaseQuery<E>) => [TemplateStringsArray, SerializableParameter[]]
-): RequestHandler<MyLocals, EntityResponseBody<E>> => {
-	const get: RequestHandler<MyLocals, EntityResponseBody<E>> = async function ({ query }) {
+): RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> => {
+	const get: RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> = async function ({ query }) {
 		console.log(query.toString());
 		// TODO FIXME probably use permissions system?
 		const the_query: BaseQuery<E> = JSON.parse(
@@ -176,9 +178,12 @@ export const buildGet = <E>(
 
 		return {
 			body: {
-				entities,
-				nextCursor,
-				previousCursor
+				result: "success",
+				success: {
+					entities,
+					nextCursor,
+					previousCursor
+				}
 			}
 		};
 	};

@@ -7,15 +7,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import EntityList from '$lib/entity-list/EntityList.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
-	import { Readable, Writable, writable } from 'svelte/store';
-	import type { EntityResponseBody, Existing, RawUserType } from '$lib/types';
+	import { Writable, writable } from 'svelte/store';
+	import type { Existing, RawUserType } from '$lib/types';
 import type { BaseQuery } from '$lib/list-entities';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import { isErr, isOk, PromiseResult } from '$lib/result';
+import { isErr, isOk } from '$lib/result';
 
 	let list: EntityList<Existing<RawUserType>>;
-	let response: Readable<PromiseResult<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string }>>;
 	let query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
 			type: ['admin', 'helper', 'voter'] as unknown as 'admin'
@@ -30,7 +29,6 @@ import { isErr, isOk, PromiseResult } from '$lib/result';
 <main class="container">
 	<EntityList
 		bind:this={list}
-		bind:response
 		url="users.json"
 		{query}
 		title="Nutzer"
@@ -53,17 +51,17 @@ import { isErr, isOk, PromiseResult } from '$lib/result';
 				<th scope="col" />
 			</tr>
 		</thead>
-		<tbody slot="response">
-			{#if isErr($response)}
+		<tbody slot="response" let:response>
+			{#if isErr(response)}
 				<tr>
 					<td colspan="4">
 						<div class="alert alert-danger w-100" role="alert">
-							Fehler {$response.failure}
+							Fehler {response.failure}
 						</div>
 					</td>
 				</tr>
-			{:else if isOk($response) }
-				{#each $response.success?.entities ?? [] as entity (entity.id)}
+			{:else if isOk(response) }
+				{#each response.success.entities as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>
 						<td>{entity.name}</td>

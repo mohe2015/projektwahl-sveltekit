@@ -20,7 +20,7 @@ export const get: RequestHandler<MyLocals, EntityResponseBody<Existing<RawUserTy
 				'%' + (query.filters.name ?? '') + '%'
 			} AND (${!query.filters.id} OR id = ${
 				query.filters.id ?? null
-			}) AND type in (${query.filters.types.filter((t: string) =>
+			}) AND type in (${query.filters.type.filter((t: string) =>
 				['admin', 'helper', 'voter'].includes(t)
 			)})`
 	)(request);
