@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { browser } from '$app/env';
 import type { EntityResponseBody } from '../types';
 import { myFetch } from '../error-handling';
-import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
+import { mapOr, PromiseResult } from '$lib/result';
 
 	type E = $$Generic;
 
@@ -30,7 +30,7 @@ import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 
 	export let loading: Writable<boolean> = writable(true);
 
-	export let response: Readable<LoadingResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
+	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
@@ -40,7 +40,7 @@ import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 
 					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
 					console.log(fullUrl);
-					set(await myFetch(fullUrl, {
+					set(await myFetch<EntityResponseBody<E>>(fullUrl, {
 						method: 'GET',
 						credentials: 'include'
 					}));
@@ -51,7 +51,7 @@ import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 		},
 		{
 			result: "loading",
-		} as LoadingResult<EntityResponseBody<E>, { [key: string]: string; }>
+		} as PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>
 	);
 
 	export const headerClick = (sortType: string): void => {
@@ -124,7 +124,7 @@ import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 </div>
 
 <table class="table">
-	<slot name="filter" {headerClick} {currentSortValue} {query} />
+	<slot name="filter" {headerClick} {currentSortValue} />
 	<slot name="response" {response} />
 </table>
 <nav aria-label="Navigation der Nutzerliste">

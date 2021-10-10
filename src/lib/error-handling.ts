@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
-import type { Result } from "./result";
+import type { PromiseResult, Result } from "./result";
 
 export const myFetch = async <T>(
 	url: string,
 	options: RequestInit | undefined
-): Promise<Result<T, { [key: string]: string }>> => {
+): Promise<PromiseResult<T, { [key: string]: string }>> => {
 	try {
 		const response = await fetch(url, options);
 		if (!response.ok) {
