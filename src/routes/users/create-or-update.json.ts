@@ -94,7 +94,6 @@ export const save = async (
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<CreateResponse>> {
-	allowUserType(request, ['admin']);
 	const { body } = request;
 
 	return await save([body], request.locals.user);

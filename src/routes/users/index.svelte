@@ -8,13 +8,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import { Readable, Writable, writable } from 'svelte/store';
-	import type { EntityResponseBody, Existing, RawUserType, Result } from '$lib/types';
+	import type { EntityResponseBody, Existing, RawUserType } from '$lib/types';
 import type { BaseQuery } from '$lib/list-entities';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+import { isErr, isOk, PromiseResult } from '$lib/result';
 
 	let list: EntityList<Existing<RawUserType>>;
-	let response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
+	let response: Readable<PromiseResult<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string }>>;
 	let query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
 			type: ['admin', 'helper', 'voter'] as unknown as 'admin'
@@ -48,12 +49,12 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 			<tr class="align-middle">
 				<NumberFiltering name="id" {query} />
 				<TextFiltering name="name" {query} />
-				<ListFiltering name="types" options={['admin', 'helper', 'voter']} {query} />
+				<ListFiltering name="type" options={['admin', 'helper', 'voter']} {query} />
 				<th scope="col" />
 			</tr>
 		</thead>
 		<tbody slot="response">
-			{#if $response?.failure}
+			{#if isErr($response)}
 				<tr>
 					<td colspan="4">
 						<div class="alert alert-danger w-100" role="alert">
@@ -61,8 +62,8 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 						</div>
 					</td>
 				</tr>
-			{:else}
-				{#each $response?.success?.entities ?? [] as entity (entity.id)}
+			{:else if isOk($response) }
+				{#each $response.success?.entities ?? [] as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>
 						<td>{entity.name}</td>

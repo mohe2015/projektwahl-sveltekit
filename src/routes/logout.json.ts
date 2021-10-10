@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -15,7 +14,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 ): Promise<EndpointOutput<LogoutResponse>> {
 	console.log('logout');
 
-	allowAnyone(request); // you could argue that this should only be available to logged in users but I think this makes it more user friendly if you're actually already logged out e.g. because you logged out in another tab.
+	// you could argue that this should only be available to logged in users but I think this makes it more user friendly if you're actually already logged out e.g. because you logged out in another tab.
 	const { locals } = request;
 
 	await sql.begin('READ WRITE', async (sql) => {

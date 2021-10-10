@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { myFetch } from "$lib/error-handling";
 
 import FailureResult from "$lib/FailureResult.svelte";
-import { isOk, Result } from "$lib/result";
+import { isOk, PromiseResult } from "$lib/result";
 import type { Existing, RawUserType } from "$lib/types";
 
 	// TODO FIXME duplication with project_leaders/
@@ -17,7 +17,7 @@ import type { Existing, RawUserType } from "$lib/types";
 
 	let disabled = false;
 
-	let result: Result<Existing<RawUserType>, { [key: string]: string }>;
+	let result: PromiseResult<Existing<RawUserType>, { [key: string]: string }>;
 </script>
 
 <input
@@ -27,6 +27,9 @@ import type { Existing, RawUserType } from "$lib/types";
 	class="form-check-input"
 	on:change={async () => {
 		disabled = true;
+		result = {
+			result: "loading"
+		}
 		result = await myFetch(`/users/create-or-update.json`, {
 			method: 'POST',
 			body: JSON.stringify({

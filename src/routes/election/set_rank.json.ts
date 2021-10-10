@@ -13,7 +13,6 @@ export type SetRankResponse = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<SetRankResponse>> {
-	const user = allowUserType(request, ['voter']);
 
 	const entity = validate(permissions, request.locals.user, request.body, 'edit');
 
