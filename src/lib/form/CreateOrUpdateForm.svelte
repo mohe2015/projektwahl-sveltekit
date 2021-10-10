@@ -14,7 +14,7 @@ import { isErr, isOk, PromiseResult, Result } from '$lib/result';
 	export let label: string;
 	export let type: string;
 	export let keys: string[];
-	let randomId: string = 'id' + Math.random().toString().replace('.', '');
+	let randomId: string = 'id' + Math.random().toString().replace('.', ''); // TODO FIXME change to https://svelte.dev/docs#key
 	let result: PromiseResult<Existing<E>, { [key: string]: string }>;
 	export let entity: New<E>;
 

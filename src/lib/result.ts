@@ -143,6 +143,6 @@ export function mergeErrOr<T1, A extends Result<T1, E>[], T, E extends { [key: s
 	}
 	//if (results.every(isOk)) {
 	// @ts-expect-error TODO would be epic if this would work but don't think so
-	return op(results.map(safe_unwrap));
+	return op(results.map(safeUnwrap));
 	//}
 }
