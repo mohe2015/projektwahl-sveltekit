@@ -3,10 +3,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { hasErrors, myFetch } from "$lib/error-handling";
+import { myFetch } from "$lib/error-handling";
 
 import FailureResult from "$lib/FailureResult.svelte";
-import type { Existing, RawUserType, Result } from "$lib/types";
+import type { Result } from "$lib/result";
+import type { Existing, RawUserType } from "$lib/types";
 
 	// TODO FIXME duplication with project_leaders/
 

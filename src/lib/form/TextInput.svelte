@@ -14,8 +14,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let step: string | undefined = undefined;
 	export let autocomplete: string | undefined = undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	export let result: Promise<Result<E>>;
-	let resolvedResult: Result<E> = {
+	export let result: Promise<Result<E, { [key: string]: string }>>;
+	let resolvedResult: Result<E, { [key: string]: string }> = {
 		result: 'failure',
 		failure: {}
 	};

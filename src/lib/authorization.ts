@@ -4,12 +4,12 @@ import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
 import { andThen, Result } from './result';
 import type { Existing, RawUserType } from './types';
 
-export type Validator<T> = (
+export type Validator<T, E extends { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	unsanitizedValue: JSONValue
-) => Result<T>;
+) => Result<T, E>;
 
-export const assertStringProperty = (value: JSONValue, key: string): Result<string> => {
+export const assertStringProperty = (value: JSONValue, key: string): Result<string, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
 		if (typeof value3 !== 'string') {
@@ -31,7 +31,7 @@ export const assertObjectType = (
 	value: JSONValue
 ): Result<{
 	[key: string]: JSONString;
-}> => {
+}, { [key: string]: string }> => {
 	if (typeof value !== 'object' || Array.isArray(value) || value == null) {
 		return {
 			result: 'failure',

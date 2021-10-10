@@ -9,18 +9,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { flip } from 'svelte/animate';
 	import { Readable, writable } from 'svelte/store';
 	import EntityList from '$lib/entity-list/EntityList.svelte';
-import type { EntityResponseBody, Existing, RawProjectType, Result } from '$lib/types';
+import type { EntityResponseBody, Existing, RawProjectType } from '$lib/types';
+import { isErr, isOk, PromiseResult } from '$lib/result';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
 	type E = Existing<RawProjectType>;
 
 	let list: EntityList<E>;
-	let response: Readable<Result<EntityResponseBody<E>>>;
+	let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string }>>;
 </script>
 
 <main class="container">
-	<EntityList<E> <!-- valid syntax? -->
+	<EntityList
 		bind:this={list}
 		bind:response
 		url={'election.json'}
@@ -47,15 +48,15 @@ import type { EntityResponseBody, Existing, RawProjectType, Result } from '$lib/
 			</tr>
 		</thead>
 		<tbody slot="response">
-			{#if $response?.error}
+			{#if isErr($response)}
 				<tr>
 					<td colspan="3">
 						<div class="alert alert-danger w-100" role="alert">
-							Fehler {$response.error}
+							Fehler {$response.failure}
 						</div>
 					</td>
 				</tr>
-			{:else}
+			{:else if isOk($response) }
 				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr animate:flip={{ duration: 500 }}>
 						<th scope="row">{entity.id}</th>

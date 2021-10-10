@@ -4,9 +4,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { hasErrors, myFetch } from '$lib/error-handling';
+	import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-	import type { Existing, New, Result } from '$lib/types';
+import { isErr, Result } from '$lib/result';
+	import type { Existing, New } from '$lib/types';
 
 	type E = $$Generic;
 
@@ -14,8 +15,8 @@ import FailureResult from '$lib/FailureResult.svelte';
 	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	let submitPromise: Promise<Result<Existing<E>>>;
-	let result: Result<Existing<E>>;
+	let submitPromise: Promise<Result<Existing<E>, { [key: string]: string }>>;
+	let result: Result<Existing<E>, { [key: string]: string }>;
 	export let entity: New<E>;
 
 	async function create() {
@@ -58,7 +59,7 @@ import FailureResult from '$lib/FailureResult.svelte';
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
 				>
 			{:then result}
-				{#if hasErrors(result) }
+				{#if isErr(result) }
 					<div class="alert alert-danger" role="alert">
 						Einige Eingaben sind nicht gültig.
 						{#each [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0])) as [attribute, message]}

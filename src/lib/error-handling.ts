@@ -6,7 +6,7 @@ import type { Result } from "./result";
 export const myFetch = async <T>(
 	url: string,
 	options: RequestInit | undefined
-): Promise<Result<T>> => {
+): Promise<Result<T, { [key: string]: string }>> => {
 	try {
 		const response = await fetch(url, options);
 		if (!response.ok) {
@@ -27,7 +27,7 @@ export const myFetch = async <T>(
 				};
 			}
 		}
-		const result = (await response.json()) as Result<T>;
+		const result = (await response.json()) as Result<T, { [key: string]: string }>;
 		return result;
 	} catch (error) {
 		console.error(error);

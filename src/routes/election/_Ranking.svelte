@@ -4,7 +4,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type EntityList from '$lib/entity-list/EntityList.svelte';
-	import type { Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
+	import type { ResettableChoiceType } from '$lib/types';
 
 	let disabled = false;
 	export let entity: ResettableChoiceType;

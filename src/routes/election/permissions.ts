@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import type { ValidatorType } from '$lib/authorization';
 import type { Existing, RawChoiceType, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 

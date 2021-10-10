@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
