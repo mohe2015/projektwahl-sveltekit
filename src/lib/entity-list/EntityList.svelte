@@ -133,29 +133,29 @@ import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 		<li class="page-item {mapOr($response, v => v.previousCursor, null) ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = $response.success?.previousCursor ?? null),
+					($query.paginationCursor = mapOr($response, v => v.previousCursor, null)),
 						($query.paginationDirection = 'backwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Vorherige Seite"
-				tabindex={$response.success?.previousCursor ? undefined : -1}
-				aria-disabled={!$response.success?.previousCursor}
+				tabindex={mapOr($response, v => v.previousCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, v => v.previousCursor, null)}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item {$response.success?.nextCursor ? '' : 'disabled'}">
+		<li class="page-item {mapOr($response, v => v.nextCursor, null) ? '' : 'disabled'}}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = $response.success?.nextCursor ?? null),
+					($query.paginationCursor = mapOr($response, v => v.nextCursor, null)),
 						($query.paginationDirection = 'forwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Nächste Seite"
-				tabindex={$response.success?.nextCursor ? undefined : -1}
-				aria-disabled={!$response.success?.nextCursor}
+				tabindex={mapOr($response, v => v.nextCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, v => v.nextCursor, null)}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>
