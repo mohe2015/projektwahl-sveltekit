@@ -1,10 +1,19 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+
+export type PromiseResult<T, E extends { [key: string]: string }> =
+	| Result<T, E>
+	| LoadingResult<T, E>;
+
 export type Result<T, E extends { [key: string]: string }> =
 	| SuccessResult<T, E>
 	| FailureResult<T, E>;
 
-export type SuccessResult<T, E> = {
+export type LoadingResult<T, E extends { [key: string]: string }> = {
+	result: "loading"
+}
+
+export type SuccessResult<T, E extends { [key: string]: string }> = {
 	result: 'success';
 	success: T;
 };
@@ -15,13 +24,13 @@ export type FailureResult<T, E extends { [key: string]: string }> = {
 };
 
 export const isErr = <T, E extends { [key: string]: string }>(
-	result: Result<T, E>
+	result: PromiseResult<T, E>
 ): result is FailureResult<T, E> => {
 	return result.result === 'failure';
 };
 
 export const isOk = <T, E extends { [key: string]: string }>(
-	result: Result<T, E>
+	result: PromiseResult<T, E>
 ): result is SuccessResult<T, E> => {
 	return result.result === 'success';
 };
@@ -50,7 +59,7 @@ export function andThen<T, E extends { [key: string]: string }, U>(
 	return op(result.success);
 }
 
-export function safe_unwrap<T, E extends { [key: string]: string }>(
+export function safeUnwrap<T, E extends { [key: string]: string }>(
 	result: SuccessResult<T, E>
 ): T {
 	return result.success;
@@ -69,8 +78,29 @@ export function safeUnwrapErr<T, E extends { [key: string]: string }>(
 	return result.failure;
 }
 
-export function errOrDefault<T, E extends { [key: string]: string }>(
+export function orDefault<T, E extends { [key: string]: string }>(
 	result: Result<T, E>,
+	defaultResult: T
+): T {
+	if (isOk(result)) {
+		return safeUnwrap(result);
+	}
+	return defaultResult;
+}
+
+export function mapOr<T, E extends { [key: string]: string }, Q>(
+	result: PromiseResult<T, E>,
+	fun: (val: T) => Q,
+	defaultResult: Q
+): Q {
+	if (isOk(result)) {
+		return fun(safeUnwrap(result));
+	}
+	return defaultResult;
+}
+
+export function errOrDefault<T, E extends { [key: string]: string }>(
+	result: PromiseResult<T, E>,
 	defaultError: { [key: string]: string }
 ): { [key: string]: string } {
 	if (isErr(result)) {

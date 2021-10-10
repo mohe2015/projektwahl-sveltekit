@@ -3,9 +3,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { hasErrors, myFetch } from '$lib/error-handling';
+import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-import type { Result } from '$lib/types';
+import { isOk, Result } from '$lib/result';
 
 	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 
@@ -17,7 +17,7 @@ import type { Result } from '$lib/types';
 	let modalUserId: number | null = null;
 	let modalDelete: Promise<void>;
 	let deleteModalOpen = false;
-	let result: Result<unknown>;
+	let result: Result<unknown, { [key: string]: string; }>;
 
 	function test(id: number, name: unknown) {
 		modalUserId = id;
@@ -35,7 +35,7 @@ import type { Result } from '$lib/types';
 				'x-csrf-protection': 'projektwahl'
 			}
 		})
-		if (!hasErrors(result)) {
+		if (isOk(result)) {
 			await refreshList();
 			deleteModalOpen = false;
 		}

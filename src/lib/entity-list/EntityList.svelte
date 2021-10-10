@@ -7,8 +7,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { page } from '$app/stores';
 	import type { BaseQuery } from '../list-entities';
 	import { browser } from '$app/env';
-import type { EntityResponseBody, Result } from '../types';
+import type { EntityResponseBody } from '../types';
 import { myFetch } from '../error-handling';
+import { isOk, LoadingResult, mapOr, orDefault, Result } from '$lib/result';
 
 	type E = $$Generic;
 
@@ -29,7 +30,7 @@ import { myFetch } from '../error-handling';
 
 	export let loading: Writable<boolean> = writable(true);
 
-	export let response: Readable<Result<EntityResponseBody<E>>> = derived(
+	export let response: Readable<LoadingResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
@@ -49,9 +50,8 @@ import { myFetch } from '../error-handling';
 			}
 		},
 		{
-			success: undefined,
-			failure: {}
-		} as Result<EntityResponseBody<E>>
+			result: "loading",
+		} as LoadingResult<EntityResponseBody<E>, { [key: string]: string; }>
 	);
 
 	export const headerClick = (sortType: string): void => {
@@ -130,7 +130,7 @@ import { myFetch } from '../error-handling';
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
 		<!-- { # await only works in blocks -->
-		<li class="page-item {$response.success?.previousCursor ? '' : 'disabled'}">
+		<li class="page-item {mapOr($response, v => v.previousCursor, null) ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
 					($query.paginationCursor = $response.success?.previousCursor ?? null),
