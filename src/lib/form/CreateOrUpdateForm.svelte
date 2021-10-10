@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto } from '$app/navigation';
 	import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-import { isErr, isOk, Result } from '$lib/result';
+import { isErr, isOk, PromiseResult, Result } from '$lib/result';
 	import type { Existing, New } from '$lib/types';
 
 	type E = $$Generic;
@@ -15,11 +15,13 @@ import { isErr, isOk, Result } from '$lib/result';
 	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	let submitPromise: Promise<Result<Existing<E>, { [key: string]: string }>>;
-	let result: Result<Existing<E>, { [key: string]: string }>;
+	let result: PromiseResult<Existing<E>, { [key: string]: string }>;
 	export let entity: New<E>;
 
 	async function create() {
+		result = {
+			result: "loading"
+		}
 		result = await myFetch(`/${type}/create-or-update.json`, {
 			method: 'POST',
 			body: JSON.stringify(entity),
@@ -34,7 +36,6 @@ import { isErr, isOk, Result } from '$lib/result';
 		} else {
 			window.scrollTo(0, 0);
 		}
-		return result;
 	}
 </script>
 
@@ -49,16 +50,16 @@ import { isErr, isOk, Result } from '$lib/result';
 		<form
 			method="POST"
 			action="/no-javascript"
-			on:submit|preventDefault={() => (submitPromise = create())}
+			on:submit|preventDefault={create}
 			id="{randomId}-form"
 		>
 			<slot {result} {entity} />
 
-			{#await submitPromise}
+			{#if result.result === "loading" }
 				<button type="submit" class="btn btn-primary disabled"
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
 				>
-			{:then result}
+			{:else}
 				{#if isErr(result) }
 					<div class="alert alert-danger" role="alert">
 						Einige Eingaben sind nicht gültig.
@@ -72,7 +73,7 @@ import { isErr, isOk, Result } from '$lib/result';
 				<button type="submit" class="btn btn-primary"
 					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button
 				>
-			{/await}
+			{/if}
 		</form>
 	</div>
 </div>
