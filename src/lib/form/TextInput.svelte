@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import { errOrDefault, PromiseResult, Result } from '$lib/result';
+	import { errOrDefault, OptionalPromiseResult, PromiseResult, Result } from '$lib/result';
 
 	type E = $$Generic;
 
@@ -15,7 +15,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let autocomplete: string | undefined = undefined;
 	let randomId: string = 'id' + Math.random().toString().replace('.', '');
 
-	export let result: PromiseResult<E, { [key: string]: string }>;
+	export let result: OptionalPromiseResult<E, { [key: string]: string }>;
 </script>
 
 <!-- because of a limitation of svelte (binding with dynamic type not possible) we need to duplicate the code here -->
@@ -24,7 +24,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="text"
-			class="form-control {name in errOrDefault(result, {}) ? 'is-invalid' : ''}"
+			class="form-control {name in errOrDefault(result ?? { result: "loading" }, {}) ? 'is-invalid' : ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"

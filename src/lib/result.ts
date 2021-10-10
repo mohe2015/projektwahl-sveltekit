@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
+export type OptionalPromiseResult<T, E extends { [key: string]: string }> =
+	| PromiseResult<T, E>
+	| NoneResult<T, E>;
+
 export type PromiseResult<T, E extends { [key: string]: string }> =
 	| Result<T, E>
 	| LoadingResult<T, E>;
@@ -11,6 +15,10 @@ export type Result<T, E extends { [key: string]: string }> =
 
 export type LoadingResult<T, E extends { [key: string]: string }> = {
 	result: "loading"
+}
+
+export type NoneResult<T, E extends { [key: string]: string }> = {
+	result: "none"
 }
 
 export type SuccessResult<T, E extends { [key: string]: string }> = {
@@ -24,13 +32,13 @@ export type FailureResult<T, E extends { [key: string]: string }> = {
 };
 
 export const isErr = <T, E extends { [key: string]: string }>(
-	result: PromiseResult<T, E>
+	result: OptionalPromiseResult<T, E>
 ): result is FailureResult<T, E> => {
 	return result.result === 'failure';
 };
 
 export const isOk = <T, E extends { [key: string]: string }>(
-	result: PromiseResult<T, E>
+	result: OptionalPromiseResult<T, E>
 ): result is SuccessResult<T, E> => {
 	return result.result === 'success';
 };
@@ -50,9 +58,9 @@ export const err = <T, E extends { [key: string]: string }>(error: E): FailureRe
 };
 
 export function andThen<T, E extends { [key: string]: string }, U>(
-	result: Result<T, E>,
-	op: (v: T) => Result<U, E>
-): Result<U, E> {
+	result: OptionalPromiseResult<T, E>,
+	op: (v: T) => OptionalPromiseResult<U, E>
+): OptionalPromiseResult<U, E> {
 	if (!isOk(result)) {
 		return result;
 	}
@@ -65,7 +73,7 @@ export function safeUnwrap<T, E extends { [key: string]: string }>(
 	return result.success;
 }
 
-export function unwrap<T, E extends { [key: string]: string }>(result: Result<T, E>): T {
+export function unwrap<T, E extends { [key: string]: string }>(result: OptionalPromiseResult<T, E>): T {
 	if (isOk(result)) {
 		return result.success;
 	}
@@ -79,7 +87,7 @@ export function safeUnwrapErr<T, E extends { [key: string]: string }>(
 }
 
 export function orDefault<T, E extends { [key: string]: string }>(
-	result: Result<T, E>,
+	result: OptionalPromiseResult<T, E>,
 	defaultResult: T
 ): T {
 	if (isOk(result)) {
@@ -89,7 +97,7 @@ export function orDefault<T, E extends { [key: string]: string }>(
 }
 
 export function mapOr<T, E extends { [key: string]: string }, Q>(
-	result: PromiseResult<T, E>,
+	result: OptionalPromiseResult<T, E>,
 	fun: (val: T) => Q,
 	defaultResult: Q
 ): Q {
@@ -100,7 +108,7 @@ export function mapOr<T, E extends { [key: string]: string }, Q>(
 }
 
 export function errOrDefault<T, E extends { [key: string]: string }>(
-	result: PromiseResult<T, E>,
+	result: OptionalPromiseResult<T, E>,
 	defaultError: { [key: string]: string }
 ): { [key: string]: string } {
 	if (isErr(result)) {

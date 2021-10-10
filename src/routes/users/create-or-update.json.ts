@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
+import type { Existing, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
@@ -15,7 +14,7 @@ import { permissions } from './permissions';
 // TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
 	data: AsyncIterable<JSONValue>,
-	loggedInUser: UserType | null
+	loggedInUser: Existing<RawUserType> | null
 ): Promise<EndpointOutput<CreateResponse>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;

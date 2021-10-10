@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, validate } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { Existing, RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
@@ -14,7 +13,6 @@ export type CreateResponse = {
 };
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
-	allowUserType(request, ['admin', 'helper']); // TODO FIXME don't allow everyone to edit others projects
 	const { body } = request;
 
 	const project = validate(permissions, request.locals.user, body, 'edit');
