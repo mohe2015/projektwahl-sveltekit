@@ -11,10 +11,10 @@ export type LoginType = {
 };
 
 // TODO FIXME all important checks need to be at the database to prevent race conditions
-export const validator: Validator<LoginType> = (
+export const validator: Validator<LoginType, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
-): Result<LoginType> => {
+): Result<LoginType, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const name = assertStringProperty(value, 'name');
 		const password = assertStringProperty(value, 'password');

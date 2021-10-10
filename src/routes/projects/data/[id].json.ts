@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import type { RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
@@ -14,7 +13,6 @@ export type ProjectsResponseBody = {
 export const get: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<ProjectsResponseBody>> {
-	allowUserType(request, ['admin', 'helper']);
 	const { params } = request;
 
 	const [entity]: [RawProjectType?] =

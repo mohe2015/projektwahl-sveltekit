@@ -18,12 +18,12 @@ import { errOrDefault, isOk, Result } from '$lib/result';
 		name: null,
 		password: null
 	};
-	let loginPromise: Promise<Result<Login>> = Promise.resolve({
+	let loginPromise: Promise<Result<Login, { [key: string]: string }>> = Promise.resolve({
 		result: "failure",
 		failure: {}
 	});
 
-	async function login(): Promise<Result<Login>> {
+	async function login(): Promise<Result<Login, { [key: string]: string }>> {
 		const result = await myFetch<Login>('/login.json', {
 			method: 'POST',
 			body: JSON.stringify(user),

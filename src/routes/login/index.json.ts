@@ -7,7 +7,7 @@ import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import { validator } from './validator';
-import { isOk, Result, safe_unwrap } from '$lib/result';
+import { isOk, Result, safeUnwrap } from '$lib/result';
 
 export type Login = {
 	session: RawSessionType;
@@ -15,7 +15,7 @@ export type Login = {
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<Result<Login>>> {
+): Promise<EndpointOutput<Result<Login, { [key: string]: string }>>> {
 	/*
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
@@ -52,7 +52,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 			body: result
 		}
 	}
-	const user = safe_unwrap(result)
+	const user = safeUnwrap(result)
 
 	const [entity]: [Existing<RawUserType>] =
 		// eslint-disable-next-line @typescript-eslint/await-thenable

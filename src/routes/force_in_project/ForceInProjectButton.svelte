@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { myFetch } from "$lib/error-handling";
 
 import FailureResult from "$lib/FailureResult.svelte";
-import type { Result } from "$lib/result";
+import { isOk, Result } from "$lib/result";
 import type { Existing, RawUserType } from "$lib/types";
 
 	// TODO FIXME duplication with project_leaders/
@@ -17,7 +17,7 @@ import type { Existing, RawUserType } from "$lib/types";
 
 	let disabled = false;
 
-	let result: Result<Existing<RawUserType>>;
+	let result: Result<Existing<RawUserType>, { [key: string]: string }>;
 </script>
 
 <input
@@ -38,7 +38,7 @@ import type { Existing, RawUserType } from "$lib/types";
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
-		if (!hasErrors(result)) {
+		if (isOk(result)) {
 			// TODO refresh list
 		}
 		disabled = false;

@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto } from '$app/navigation';
 	import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-import { isErr, Result } from '$lib/result';
+import { isErr, isOk, Result } from '$lib/result';
 	import type { Existing, New } from '$lib/types';
 
 	type E = $$Generic;
@@ -28,7 +28,7 @@ import { isErr, Result } from '$lib/result';
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
-		if (!hasErrors(result)) {
+		if (isOk(result)) {
 			//await goto(`/${type}/edit/${json.id}`);
 			await goto(`/${type.split('/')[0]}`);
 		} else {
