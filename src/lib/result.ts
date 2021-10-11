@@ -15,6 +15,7 @@ export type Result<T, E extends { [key: string]: string }> =
 
 export type LoadingResult<T, E extends { [key: string]: string }> = {
 	result: "loading"
+	success?: T; // optionally a stale result
 }
 
 export type NoneResult<T, E extends { [key: string]: string }> = {

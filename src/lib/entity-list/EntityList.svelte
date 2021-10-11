@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { browser } from '$app/env';
 import type { EntityResponseBody } from '../types';
 import { myFetch } from '../error-handling';
-import { mapOr, PromiseResult } from '$lib/result';
+import { isOk, mapOr, PromiseResult } from '$lib/result';
 
 	type E = $$Generic;
 
@@ -28,6 +28,11 @@ import { mapOr, PromiseResult } from '$lib/result';
 
 	export let url: string;
 
+	// TODO FIXME clean this stuff here up
+	let previousValue: PromiseResult<EntityResponseBody<E>, { [key: string]: string; }> = {
+		result: "loading"
+	};
+
 	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
 		query,
 		($query, set) => {
@@ -35,14 +40,16 @@ import { mapOr, PromiseResult } from '$lib/result';
 				// TODO FIXME
 				(async () => {
 					set({
-						result: "loading"
+						result: "loading",
+						success: isOk(previousValue) ? previousValue.success : undefined
 					});
 					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
 					console.log(fullUrl);
-					set(await myFetch<EntityResponseBody<E>>(fullUrl, {
+					previousValue = await myFetch<EntityResponseBody<E>>(fullUrl, {
 						method: 'GET',
 						credentials: 'include'
-					}));
+					});
+					set(previousValue);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
 				})();
 			}

@@ -60,8 +60,8 @@ import { isErr, isOk } from '$lib/result';
 						</div>
 					</td>
 				</tr>
-			{:else if isOk(response) }
-				{#each response.success.entities as entity (entity.id)}
+			{:else if isOk(response) || response.result === "loading" }
+				{#each response.success?.entities ?? [] as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>
 						<td>{entity.name}</td>
