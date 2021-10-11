@@ -5,8 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { myFetch } from '$lib/error-handling';
-import FailureResult from '$lib/FailureResult.svelte';
-import { isErr, isOk, OptionalPromiseResult, PromiseResult, Result } from '$lib/result';
+import { isErr, isOk, OptionalPromiseResult } from '$lib/result';
 	import type { Existing, New } from '$lib/types';
 
 	type E = $$Generic;
@@ -55,8 +54,6 @@ import { isErr, isOk, OptionalPromiseResult, PromiseResult, Result } from '$lib/
 			on:submit|preventDefault={create}
 			id="{randomId}-form"
 		>
-			<slot {result} {entity} />
-
 			{#if result.result === "loading" }
 				<button type="submit" class="btn btn-primary disabled"
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
@@ -64,18 +61,19 @@ import { isErr, isOk, OptionalPromiseResult, PromiseResult, Result } from '$lib/
 			{:else}
 				{#if isErr(result) }
 					<div class="alert alert-danger" role="alert">
-						Einige Eingaben sind nicht gültig.
+						Einige Eingaben sind nicht gültig.<br />
 						{#each [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0])) as [attribute, message]}
 							{attribute}: {message}<br />
 						{/each}
 					</div>
-				{/if}
+				{/if}				
+			{/if}
 
-				<FailureResult {result} />
-				<button type="submit" class="btn btn-primary"
+			<slot {result} {entity} />
+
+			<button type="submit" class="btn btn-primary"
 					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button
 				>
-			{/if}
 		</form>
 	</div>
 </div>

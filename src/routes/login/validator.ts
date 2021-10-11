@@ -15,14 +15,6 @@ export const validator: Validator<LoginType, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
 ): Result<LoginType, { [key: string]: string }> => {
-	if (user?.type !== "voter") {
-		return {
-			result: 'failure',
-			failure: {
-				authorization: 'insufficient permissions'
-			}
-		};
-	}
 	return andThen(assertObjectType(value), (value) => {
 		const name = assertStringProperty(value, 'name');
 		const password = assertStringProperty(value, 'password');

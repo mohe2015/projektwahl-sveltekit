@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { assertBooleanProperty, assertNumberProperty, assertObjectType, assertStringProperty, Validator } from '$lib/authorization';
+import { assertBooleanProperty, assertNumberProperty, assertObjectType, assertOptionalNumberProperty, assertStringProperty, Validator } from '$lib/authorization';
 import { andThen, mergeErrOr, ok, Result } from '$lib/result';
 import type { Existing, RawProjectType, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -10,16 +10,8 @@ export const validator: Validator<Existing<RawProjectType>, { [key: string]: str
 	user: Existing<RawUserType> | null,
 	value: JSONValue
 ): Result<Existing<RawProjectType>, { [key: string]: string }> => {
-	if (user?.type !== "voter") {
-		return {
-			result: 'failure',
-			failure: {
-				authorization: 'insufficient permissions'
-			}
-		};
-	}
 	return andThen(assertObjectType(value), (value) => {
-		const id = assertNumberProperty(value, 'id');
+		const id = assertOptionalNumberProperty(value, 'id');
 		const title = assertStringProperty(value, 'title');
 		const info = assertStringProperty(value, 'info');
 		const place = assertStringProperty(value, 'place');
@@ -43,15 +35,18 @@ export const viewValidator: Validator<Existing<RawProjectType>, { [key: string]:
 	user: Existing<RawUserType> | null,
 	value: JSONValue
 ): Result<Existing<RawProjectType>, { [key: string]: string }> => {
-	if (user?.type !== "admin") {
-		return {
-			result: 'failure',
-			failure: {
-				authorization: 'insufficient permissions'
-			}
-		};
-	}
 	return andThen(validator(user, value), value => {
+		if (
+			user?.type !== 'admin' &&
+			user?.project_leader_id !== value.id // TODO FIXME only allow helpers to edit, not voters
+		) {
+			return {
+				result: 'failure',
+				failure: {
+					authorization: 'Du kannst keine fremden Projekte ansehen und bist kein Admin.'
+				}
+			};
+		}
 		return ok(value)
 	});
 };

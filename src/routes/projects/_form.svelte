@@ -12,14 +12,13 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType } from '$lib/types';
-	import { Readable, Writable, writable } from 'svelte/store';
+import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
+	import { Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import type { Result } from '$lib/result';
 
 	export let entity: Partial<New<RawProjectType>>;
 
