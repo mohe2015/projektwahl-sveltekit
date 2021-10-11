@@ -24,7 +24,6 @@ import type { Result } from '$lib/result';
 	export let entity: Partial<New<RawProjectType>>;
 
 	let project_leader_list: EntityList<Existing<RawUserType>>;
-	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>>;
 
 	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
@@ -39,7 +38,6 @@ import type { Result } from '$lib/result';
 	});
 
 	let force_in_project_list: EntityList<Existing<RawUserType>>;
-	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>>;
 	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
 			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined
@@ -128,7 +126,6 @@ import type { Result } from '$lib/result';
 		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
 		<EntityList
 			bind:this={project_leader_list}
-			bind:response={project_leader_response}
 			url="project_leaders.json"
 			query={project_leader_query}
 			title="Projektleitende"
@@ -178,17 +175,17 @@ import type { Result } from '$lib/result';
 					<th scope="col" />
 				</tr>
 			</thead>
-			<tbody slot="response">
-				{#if $project_leader_response?.failure}
+			<tbody slot="response" let:response>
+				{#if response?.failure}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$project_leader_response.failure}
+								Fehler {response.failure}
 							</div>
 						</td>
 					</tr>
 				{:else}
-					{#each $project_leader_response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>
@@ -216,7 +213,6 @@ import type { Result } from '$lib/result';
 		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
 		<EntityList
 			bind:this={force_in_project_list}
-			bind:response={force_in_project_response}
 			url="force_in_project.json"
 			query={force_in_project_query}
 			title="garantiert Teilnehmende"
@@ -266,17 +262,17 @@ import type { Result } from '$lib/result';
 					<th scope="col" />
 				</tr>
 			</thead>
-			<tbody slot="response">
-				{#if $force_in_project_response?.failure}
+			<tbody slot="response" let:response>
+				{#if response?.failure}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$force_in_project_response.failure}
+								Fehler {response.failure}
 							</div>
 						</td>
 					</tr>
 				{:else}
-					{#each $force_in_project_response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>

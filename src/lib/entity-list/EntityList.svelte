@@ -3,13 +3,15 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import { derived, Readable, writable, Writable } from 'svelte/store';
+	import { derived, Readable, Writable } from 'svelte/store';
 	import { page } from '$app/stores';
 	import type { BaseQuery } from '../list-entities';
 	import { browser } from '$app/env';
 import type { EntityResponseBody } from '../types';
-import { myFetch } from '../error-handling';
-import { isOk, mapOr, PromiseResult } from '$lib/result';
+import { isOk } from '$lib/result';
+import { myFetch } from '$lib/error-handling';
+import type { PromiseResult } from '$lib/result';
+import { mapOr } from '$lib/result';
 
 	type E = $$Generic;
 
