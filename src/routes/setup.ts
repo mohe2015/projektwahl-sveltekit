@@ -2,14 +2,12 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { dev } from '$app/env';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
 import { hashPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
+import type { Existing, RawUserType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
-import postgres from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-const shuffleArray = (array: any[]) => {
+const shuffleArray = <T>(array: T[]) => {
 	for (let i = array.length - 1; i > 0; i--) {
 		const j = Math.floor(Math.random() * (i + 1));
 		const temp = array[i];
@@ -18,12 +16,12 @@ const shuffleArray = (array: any[]) => {
 	}
 };
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
+export const get: RequestHandler<MyLocals, void> = async function () {
 	//allowUserType(request, []);
 
 	if (dev) {
 		await sql.begin('READ WRITE', async (sql) => {
-			await sql.file('src/lib/setup.sql', undefined!, {
+			await sql.file('src/lib/setup.sql', [], {
 				cache: false // TODO FIXME doesnt seem to work properly
 			});
 
@@ -84,11 +82,12 @@ export const get: RequestHandler<MyLocals, EntityResponseBody> = async function 
 				*/
 
 				const [user] = await sql<
-					[UserType]
+					[Existing<RawUserType>]
 				>`INSERT INTO users (name, type, "group", age) VALUES (${`user${Math.random()}`}, 'voter', 'a', 10) ON CONFLICT DO NOTHING RETURNING *;`;
 				shuffleArray(projects);
 				for (let j = 0; j < 5; j++) {
 					// TODO FIXME generate users who voted incorrectly (maybe increase/decrease iterations)
+					// eslint-disable-next-line @typescript-eslint/await-thenable
 					await sql`INSERT INTO choices (user_id, project_id, rank) VALUES (${user.id}, ${
 						projects[j].id
 					}, ${j + 1});`;

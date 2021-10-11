@@ -1,32 +1,34 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
+import type { Existing, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import type { CreateResponse } from '../projects/create-or-update.json';
 import { permissions } from './permissions';
-import { webcrypto as crypto } from 'crypto'
+//import { webcrypto as crypto } from 'crypto';
 
 // TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
 	data: AsyncIterable<JSONValue>,
-	loggedInUser: UserType | null
+	loggedInUser: Existing<RawUserType> | null
 ): Promise<EndpointOutput<CreateResponse>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;
 		for await (const entry of data) {
-			const user = checkPermissions(permissions, loggedInUser, entry);
-			
-			const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString('hex');
+			const user = validate(permissions, loggedInUser, entry, 'edit');
+
+			//const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
+			//	'hex'
+			//);
 
 			try {
 				// TODO FIXME allow helper to change this but only specific fields (NOT type)
 				if (user.id !== undefined) {
+					// eslint-disable-next-line @typescript-eslint/await-thenable
 					[row] = await sql`UPDATE users SET
 	name = CASE WHEN ${user.name !== undefined} THEN ${user.name ?? null} ELSE name END,
 	password_hash = CASE WHEN ${user.password !== undefined} THEN ${
@@ -42,7 +44,7 @@ export const save = async (
 	force_in_project_id = CASE WHEN ${user.force_in_project_id !== undefined} THEN ${
 						user.force_in_project_id ?? null
 					} ELSE force_in_project_id END
-	WHERE id = ${user.id!} RETURNING id;`;
+	WHERE id = ${user.id} RETURNING id;`;
 				} else {
 					[row] =
 						await sql`INSERT INTO users (name, password_hash, type, "group", age, away) VALUES (${
@@ -81,7 +83,7 @@ export const save = async (
 		return {
 			body: {
 				errors: {},
-				id: row.id,
+				id: row.id
 			}
 		};
 	});
@@ -91,7 +93,6 @@ export const save = async (
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<CreateResponse>> {
-	allowUserType(request, ['admin']);
 	const { body } = request;
 
 	return await save([body], request.locals.user);

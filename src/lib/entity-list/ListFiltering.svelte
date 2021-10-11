@@ -7,8 +7,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import type { Writable } from 'svelte/store';
 
-	export let query: Writable<BaseQuery>;
-	export let name: string;
+	type E = $$Generic;
+
+	export let query: Writable<BaseQuery<E>>;
+	export let name: keyof E;
 	export let options: string[];
 </script>
 

@@ -4,10 +4,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { derived, Readable, writable, Writable } from 'svelte/store';
-	import type { EntityResponseBody, FetchResponse } from './entites';
 	import { page } from '$app/stores';
-	import type { BaseQuery } from './list-entities';
+	import type { BaseQuery } from '../list-entities';
 	import { browser } from '$app/env';
+import type { EntityResponseBody } from '../types';
+import { myFetch } from '../error-handling';
+import { isOk, mapOr, PromiseResult } from '$lib/result';
+
+	type E = $$Generic;
 
 	export let title: string;
 	export let createUrl: string | null;
@@ -20,46 +24,39 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	// TODO FIXME pagination add "first" and "last"
 
-	export let query: Writable<BaseQuery>;
+	export let query: Writable<BaseQuery<E>>;
 
 	export let url: string;
 
-	export let loading: Writable<boolean> = writable(true);
+	// TODO FIXME clean this stuff here up
+	let previousValue: PromiseResult<EntityResponseBody<E>, { [key: string]: string; }> = {
+		result: "loading"
+	};
 
-	export let response: Readable<FetchResponse<EntityResponseBody>> = derived(
+	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
 		query,
 		($query, set) => {
 			if (browser) {
 				// TODO FIXME
 				(async () => {
-					loading.set(true);
-
+					set({
+						result: "loading",
+						success: isOk(previousValue) ? previousValue.success : undefined
+					});
 					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
 					console.log(fullUrl);
-					const res = await fetch(fullUrl, {
+					previousValue = await myFetch<EntityResponseBody<E>>(fullUrl, {
 						method: 'GET',
 						credentials: 'include'
 					});
-					if (!res.ok) {
-						set({
-							success: undefined,
-							error: res.status + ' ' + res.statusText
-						} as FetchResponse<EntityResponseBody>);
-					} else {
-						set({
-							success: (await res.json()) as EntityResponseBody,
-							error: undefined
-						} as FetchResponse<EntityResponseBody>);
-					}
-					loading.set(false);
+					set(previousValue);
 					// TODO FIXME we probably need to unset previous set to prevent race conditions
 				})();
 			}
 		},
 		{
-			success: undefined,
-			error: undefined
-		} as FetchResponse<EntityResponseBody>
+			result: "loading",
+		} as PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>
 	);
 
 	export const headerClick = (sortType: string): void => {
@@ -86,7 +83,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		$query.sorting = [...$query.sorting, oldElement.split(':')[0] + ':' + newElement];
 	};
 
-	export async function refresh() {
+	export function refresh(): void {
 		$query = $query;
 	}
 
@@ -100,7 +97,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </svelte:head>
 
 <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-	{#if $loading}
+	{#if $response.result === "loading" }
 		<div class="spinner-grow text-primary" role="status">
 			<span class="visually-hidden">Loading...</span>
 		</div>
@@ -132,38 +129,38 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 </div>
 
 <table class="table">
-	<slot name="filter" {headerClick} {currentSortValue} {query} />
-	<slot name="response" {response} />
+	<slot name="filter" {headerClick} {currentSortValue} />
+	<slot name="response" response={$response} />
 </table>
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
 		<!-- { # await only works in blocks -->
-		<li class="page-item {$response.success?.previousCursor ? '' : 'disabled'}">
+		<li class="page-item {mapOr($response, v => v.previousCursor, null) ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = $response.success?.previousCursor ?? null),
+					($query.paginationCursor = mapOr($response, v => v.previousCursor, null)),
 						($query.paginationDirection = 'backwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Vorherige Seite"
-				tabindex={$response.success?.previousCursor ? undefined : -1}
-				aria-disabled={!$response.success?.previousCursor}
+				tabindex={mapOr($response, v => v.previousCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, v => v.previousCursor, null)}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item {$response.success?.nextCursor ? '' : 'disabled'}">
+		<li class="page-item {mapOr($response, v => v.nextCursor, null) ? '' : 'disabled'}}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = $response.success?.nextCursor ?? null),
+					($query.paginationCursor = mapOr($response, v => v.nextCursor, null)),
 						($query.paginationDirection = 'forwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Nächste Seite"
-				tabindex={$response.success?.nextCursor ? undefined : -1}
-				aria-disabled={!$response.success?.nextCursor}
+				tabindex={mapOr($response, v => v.nextCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, v => v.nextCursor, null)}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>

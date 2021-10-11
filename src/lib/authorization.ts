@@ -1,74 +1,71 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
-import type { ServerRequest } from '@sveltejs/kit/types/hooks';
-import type { MyLocals } from 'src/hooks';
-import type { BaseEntityType } from './entites';
-import type { UserType } from './types';
+import { andThen, Result } from './result';
+import type { Existing, RawUserType } from './types';
 
-export class HTTPError extends Error {
-	status: number;
-	statusText: string;
+export type Validator<T, E extends { [key: string]: string }> = (
+	user: Existing<RawUserType> | null,
+	unsanitizedValue: JSONValue
+) => Result<T, E>;
 
-	constructor(status: number, statusText: string) {
-		super(`HTTP-Fehler ${status} ${statusText}`);
-		this.name = 'HTTPError';
-		this.status = status;
-		this.statusText = statusText;
-	}
-}
-
-export const allowUserType = (
-	request: ServerRequest<MyLocals, unknown>,
-	allowedTypes: ('voter' | 'helper' | 'admin')[]
-): UserType => {
-	if (!request.locals.user || !(allowedTypes as string[]).includes(request.locals.user.type)) {
-		throw new HTTPError(403, 'Forbidden');
-	}
-	return request.locals.user;
-};
-
-export const allowAnyone = (request: ServerRequest<MyLocals, unknown>) => {
-	// do nothing.
-};
-
-export type PermissionType = {
-	view: (user: UserType | null, entity: JSONValue) => boolean;
-	edit: (user: UserType | null, entity: JSONValue) => boolean;
-};
-
-export type PermissionsType = Map<string, PermissionType>;
-
-export const checkPermissions = (
-	permissions: PermissionsType,
-	user: UserType | null,
-	body: JSONValue
-): {
-	[key: string]: string | number | boolean | null;
-} => {
-	if (typeof body !== 'object' || Array.isArray(body) || body == null) {
-		throw new HTTPError(401, `invalid type`);
-	}
-	const sanitizedValue: {
-		[key: string]: string | number | boolean | null;
-	} = {};
-	for (const [key, checker] of permissions) {
-		if (body[key] === undefined) continue;
-
-		if (!checker.edit(user, body)) {
-			throw new HTTPError(401, `not allowed to change ${key}`);
+export const assertStringProperty = (value: JSONValue, key: string): Result<string, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'string') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a text'
+				}
+			};
 		}
-		const val = body[key];
-		if (val && (typeof val === 'object' || Array.isArray(val))) {
-			throw new HTTPError(401, `invalid type at ${key}`);
-		}
-		sanitizedValue[key] = val;
+		return {
+			result: 'success',
+			success: value3
+		};
+	});
+};
+
+export const assertObjectType = (
+	value: JSONValue
+): Result<{
+	[key: string]: JSONString;
+}, { [key: string]: string }> => {
+	if (typeof value !== 'object' || Array.isArray(value) || value == null) {
+		return {
+			result: 'failure',
+			failure: {
+				value: 'not of type object'
+			}
+		};
 	}
-	for (const [key, value] of Object.entries(body)) {
-		if (!permissions.has(key)) {
+	return {
+		result: 'success',
+		success: value
+	};
+};
+
+/*
+// TODO FIXME this could be a subtype of ValidatorProperty
+export const validateObject = <T extends Record<string, unknown>>(
+	validator: ValidatorType<T>,
+	user: Existing<RawUserType> | null,
+	unsanitizedValue: JSONValue
+): T => {
+	const unsanitizedValue2 = assertObjectType(unsanitizedValue);
+	const sanitizedValue: T = {} as T;
+	for (const key in validator) {
+		sanitizedValue[key] = validator[key].validate(user, unsanitizedValue2);
+	}
+	/*
+	TODO FIXME: add this back soon
+	for (const key in unsanitizedValue2) {
+		if (!(key in validator)) {
 			throw new HTTPError(401, `additional ignored field ${key}`);
 		}
 	}
-	// TODO FIXME check that no unchecked values are in the original thing - otherwise we could accidentially loose data
+	
 	return sanitizedValue;
 };
+*/

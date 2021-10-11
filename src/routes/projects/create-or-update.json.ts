@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType, checkPermissions } from '$lib/authorization';
 import { sql } from '$lib/database';
+import type { Existing, RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
@@ -13,14 +13,13 @@ export type CreateResponse = {
 };
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
-	allowUserType(request, ['admin', 'helper']); // TODO FIXME don't allow everyone to edit others projects
 	const { body } = request;
 
-	const project = checkPermissions(permissions, request.locals.user, body);
+	const project = validate(permissions, request.locals.user, body, 'edit');
 	console.log('proj: ', project);
 
 	try {
-		let row;
+		let row: Existing<RawProjectType>;
 		if (project.id !== undefined) {
 			if (
 				request.locals.user?.type !== 'admin' &&
@@ -62,7 +61,7 @@ requirements = CASE WHEN ${project.requirements !== undefined} THEN ${
 random_assignments = CASE WHEN ${project.random_assignments !== undefined} THEN ${
 					project.random_assignments ?? null
 				} ELSE random_assignments END
-WHERE id = ${project.id!} RETURNING id;`;
+WHERE id = ${project.id} RETURNING id;`;
 			});
 		} else {
 			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,

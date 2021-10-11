@@ -3,31 +3,29 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
-
-	import Filtering from '$lib/entity-list/Filtering.svelte';
+	import Filtering from '$lib/entity-list/NumberFiltering.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 
-	import EntityList from '$lib/EntityList.svelte';
+	import EntityList from '$lib/entity-list/EntityList.svelte';
 
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-	import type { ProjectType } from '$lib/types';
+import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Result } from '$lib/types';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 
-	export let entity: Partial<ProjectType>;
+	export let entity: Partial<New<RawProjectType>>;
 
-	let project_leader_list: EntityList;
-	let project_leader_response: Readable<FetchResponse<EntityResponseBody>>;
+	let project_leader_list: EntityList<Existing<RawUserType>>;
+	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
 
-	let project_leader_query: Writable<BaseQuery> = writable({
+	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			types: ['admin', 'helper', 'voter'],
+			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined,
 			is_project_leader: false
 		},
 		paginationLimit: 10,
@@ -37,11 +35,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		project_leader_id: entity.id // DONTREMOVE it's this lines fault? maybe this updates all the time as its a dependend value?
 	});
 
-	let force_in_project_list: EntityList;
-	let force_in_project_response: Readable<FetchResponse<EntityResponseBody>>;
-	let force_in_project_query: Writable<BaseQuery> = writable({
+	let force_in_project_list: EntityList<Existing<RawUserType>>;
+	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
+	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			types: ['admin', 'helper', 'voter']
+			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined
 		},
 		paginationLimit: 10,
 		sorting: ['id:down-up', 'is_force_in_project:DESC', 'name:down-up', 'type:down-up'],
@@ -55,7 +53,6 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	bind:entity
 	label="Projekt"
 	type="projects"
-	let:feedback
 	keys={[
 		'title',
 		'info',
@@ -68,57 +65,58 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		'presentation_type',
 		'requirements'
 	]}
+	let:result
 >
-	<TextInput name="title" label="Titel" bind:the_value={entity.title} {feedback} />
-	<TextInput name="info" label="Info" bind:the_value={entity.info} {feedback} />
-	<TextInput name="place" label="Ort" bind:the_value={entity.place} {feedback} />
+	<TextInput name="title" label="Titel" bind:the_value={entity.title} {result} />
+	<TextInput name="info" label="Info" bind:the_value={entity.info} {result} />
+	<TextInput name="place" label="Ort" bind:the_value={entity.place} {result} />
 	<TextInput
 		name="costs"
 		label="Kosten"
 		type="number"
 		bind:the_value={entity.costs}
 		step="0.01"
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="min_age"
 		label="Mindestalter"
 		type="number"
 		bind:the_value={entity.min_age}
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="max_age"
 		label="Höchstalter"
 		type="number"
 		bind:the_value={entity.max_age}
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="min_participants"
 		label="Minimale Teilnehmeranzahl"
 		type="number"
 		bind:the_value={entity.min_participants}
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="max_participants"
 		label="Maximale Teilnehmeranzahl"
 		type="number"
 		bind:the_value={entity.max_participants}
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="presentation_type"
 		label="Präsentationsart"
 		bind:the_value={entity.presentation_type}
-		{feedback}
+		{result}
 	/>
 	<TextInput
 		name="requirements"
 		label="Voraussetzungen"
 		bind:the_value={entity.requirements}
-		{feedback}
+		{result}
 	/>
 	{#if entity.id}
 		<!-- for now only implement this on updating -->
@@ -178,11 +176,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</tr>
 			</thead>
 			<tbody slot="response">
-				{#if $project_leader_response?.error}
+				{#if $project_leader_response?.failure}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$project_leader_response.error}
+								Fehler {$project_leader_response.failure}
 							</div>
 						</td>
 					</tr>
@@ -266,11 +264,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				</tr>
 			</thead>
 			<tbody slot="response">
-				{#if $force_in_project_response?.error}
+				{#if $force_in_project_response?.failure}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$force_in_project_response.error}
+								Fehler {$force_in_project_response.failure}
 							</div>
 						</td>
 					</tr>

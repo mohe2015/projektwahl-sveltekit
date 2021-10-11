@@ -1,17 +1,15 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { EntityResponseBody } from '$lib/entites';
 import { buildGet } from '$lib/list-entities';
 import { fakeTT } from '$lib/tagged-templates';
+import type { EntityResponseBody, Existing, RawProjectType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, EntityResponseBody> = async function (request) {
-	allowUserType(request, ['admin', 'helper']);
-	return await buildGet(
+export const get: RequestHandler<MyLocals, EntityResponseBody<Existing<RawProjectType>>> = async function (request) {
+	return await buildGet<Existing<RawProjectType>>(
 		[
 			'id',
 			'title',

@@ -11,7 +11,7 @@ const config = {
 	// Consult https://github.com/sveltejs/svelte-preprocess
 	// for more information about preprocessors
 	preprocess: preprocess({
-		sourceMap: true, // if this works this is stupid
+		sourceMap: true // if this works this is stupid
 	}),
 	kit: {
 		// hydrate the <div id="svelte"> element in src/app.html
@@ -27,13 +27,11 @@ const config = {
 			build: {
 				rollupOptions: {
 					external: ['fs/promises']
-				}
+				},
+				sourcemap: true
 			},
 			ssr: {
 				external: ['fs/promises']
-			},
-			build: {
-				sourcemap: true
 			}
 		}
 	}

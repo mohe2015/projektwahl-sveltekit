@@ -26,7 +26,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		isNavbarOpen = true; // TODO FIXME false
 	};
 
-	function handleUpdate(event: CustomEvent<any>) {
+	function handleUpdate(event: CustomEvent) {
 		isNavbarOpen = event.detail.isOpen;
 	}
 

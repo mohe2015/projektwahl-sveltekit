@@ -1,14 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { HTTPError } from '$lib/authorization';
 import { sql } from '$lib/database';
-import type { UserType } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import dotenv from 'dotenv';
 
 export type MyLocals = {
 	session_id: string | null;
-	user: UserType | null;
+	user: Existing<RawUserType> | null;
 };
 
 // maybe use bearer token / oauth?
@@ -20,9 +19,7 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	// TODO FIXME hack because VITE doesn't load all env vars
 	dotenv.config();
 
-	// TODO FIXME session invalidation
-
-	let session_id: any = undefined;
+	let session_id: string | undefined = undefined;
 	// TODO FIXME same site cookies are not same-origin but same-site and therefore useless in some cases
 	if (request.method === 'GET') {
 		const cookie = request.headers.cookie
@@ -48,56 +45,63 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 	}
 	if (session_id) {
 		try {
-			const [session]: [UserType?] =
-				await sql`SELECT sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
+			const [session]: [(Existing<RawUserType> & RawSessionType)?] =
+				// eslint-disable-next-line @typescript-eslint/await-thenable
+				await sql`SELECT sessions.session_id, sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
-			request.locals.session_id = session_id!;
-			request.locals.user = session ?? null;
+				console.log(session);
+			if (session) {
+				
+				const updated_at: Date = session.updated_at;
+				const millies = new Date().getTime() - updated_at.getTime();
+				if (!(millies < 60 * 60 * 1000)) {
+					// 1 hour
+					request.locals.session_id = null;
+					request.locals.user = null;
+				} else {
+					request.locals.session_id = session_id;
+					request.locals.user = session ?? null;
 
-			// @ts-expect-error types above not correct
-			const updated_at: Date = session!.updated_at;
-			const millies = new Date().getTime() - updated_at.getTime();
-			if (!(millies < 60 * 60 * 1000)) {
-				// 1 hour
-				throw new Error('session timeout');
+					await sql.begin('READ WRITE', async (sql) => {
+						// eslint-disable-next-line @typescript-eslint/await-thenable
+						await sql`UPDATE sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ${session.session_id}`;
+					});
+
+					// maybe don't delete sessions for now so we can track back if somebody complains
+
+					/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
+		
+					const Client = issuer.Client;
+		
+					// TODO ERROR HANDLING
+		
+					const client = new Client({
+						client_id: process.env['CLIENT_ID']!,
+						client_secret: process.env['CLIENT_SECRET']
+					});
+		
+					const result = await client.callback(`${process.env['THE_BASE_URL']}/redirect`, {
+						id_token: session_id
+					});
+		
+					const claims = result.claims();
+		
+					//let roles = (claims.realm_access as any).roles as string[];
+					//roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
+					//if (roles.length != 1) {
+					//} else {
+					// locals seem to only be available server side
+					request.locals.session_id = session_id!;
+					request.locals.user = {
+						...claims,
+						type: 'voter' //roles[0] // TODO FIXME select from database
+					};
+					//}*/
+				}
 			}
-
-			await sql.begin('READ WRITE', async (sql) => {
-				await sql`UPDATE sessions SET updated_at = CURRENT_TIMESTAMP WHERE session_id = ${session_id}`;
-			});
-
-			// maybe don't delete sessions for now so we can track back if somebody complains
-
-			/*const issuer = await Issuer.discover(process.env['OPENID_URL']!);
-
-			const Client = issuer.Client;
-
-			// TODO ERROR HANDLING
-
-			const client = new Client({
-				client_id: process.env['CLIENT_ID']!,
-				client_secret: process.env['CLIENT_SECRET']
-			});
-
-			const result = await client.callback(`${process.env['THE_BASE_URL']}/redirect`, {
-				id_token: session_id
-			});
-
-			const claims = result.claims();
-
-			//let roles = (claims.realm_access as any).roles as string[];
-			//roles = roles.filter((r: string) => ['voter', 'helper', 'admin'].includes(r));
-			//if (roles.length != 1) {
-			//} else {
-			// locals seem to only be available server side
-			request.locals.session_id = session_id!;
-			request.locals.user = {
-				...claims,
-				type: 'voter' //roles[0] // TODO FIXME select from database
-			};
-			//}*/
 		} catch (e) {
 			// we catch to allow opening /setup
+			// TODO FIXME properly only catch that specific error here otherwise this will catch random stuff (e.g. database down / broken)
 			console.error(e);
 			request.locals.session_id = null;
 			request.locals.user = null;
@@ -110,28 +114,20 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 		return response;
 	} catch (error: unknown) {
 		console.error(error);
-		if (error instanceof HTTPError) {
-			return {
-				status: error.status,
-				body: error.statusText,
-				headers: {}
-			};
-		} else {
-			return {
-				status: 500,
-				headers: {}
-			};
-		}
+		return {
+			status: 500,
+			headers: {}
+		};
 	}
 };
 
-export const getSession: GetSession = ({ locals }) => {
+export const getSession: GetSession<MyLocals> = ({ locals }) => {
 	// session seems to also be available client-side
 	if (locals.user) {
 		return {
 			user: {
 				// https://openid.net/specs/openid-connect-core-1_0.html#IDToken
-				id: locals.user.name.id,
+				id: locals.user.id,
 				name: locals.user.name,
 				type: locals.user.type
 			}

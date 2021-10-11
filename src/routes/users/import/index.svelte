@@ -7,7 +7,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { FormGroup, FormText, Input, Label } from 'sveltestrap';
 	import type { UserImportRequest } from './create-or-update.json';
 
-	export let entity: UserImportRequest = {};
+	export let entity: UserImportRequest = {
+		id: 42 // TODO FIXME investigate influence and try solving differently
+	};
 	let fileInput: FileList;
 
 	$: {
@@ -25,7 +27,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	// TOOD FIXME maybe https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API/Using_Fetch#uploading_a_file
 </script>
 
-<CreateForm label="Nutzer" type="users/import" let:feedback bind:entity keys={['file']}>
+<CreateForm label="Nutzer" type="users/import" bind:entity keys={['file']}>
 	<FormGroup>
 		<Label for="exampleFile">Importieren:</Label>
 		<Input bind:files={fileInput} type="file" accept="text/csv" name="file" id="file" />

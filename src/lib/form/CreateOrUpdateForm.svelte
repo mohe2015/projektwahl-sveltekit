@@ -4,51 +4,36 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import type { CreateResponse } from 'src/routes/projects/create-or-update.json';
+	import { myFetch } from '$lib/error-handling';
+import FailureResult from '$lib/FailureResult.svelte';
+import { isErr, isOk, PromiseResult, Result } from '$lib/result';
+	import type { Existing, New } from '$lib/types';
+
+	type E = $$Generic;
 
 	export let label: string;
 	export let type: string;
 	export let keys: string[];
-	let randomId: string = 'id' + Math.random().toString().replace('.', '');
-	let feedback: Map<string, string> = new Map();
-	let unknownFeedback: [string, string][] = [];
-	let submitPromise: Promise<void>;
-	export let entity: {
-		id?: number;
-		[key: string]: any;
-	};
+	let randomId: string = 'id' + Math.random().toString().replace('.', ''); // TODO FIXME change to https://svelte.dev/docs#key
+	let result: PromiseResult<Existing<E>, { [key: string]: string }>;
+	export let entity: New<E>;
 
 	async function create() {
-		let json: CreateResponse;
-		try {
-			const response = await fetch(`/${type}/create-or-update.json`, {
-				method: 'POST',
-				body: JSON.stringify(entity),
-				headers: {
-					'Content-Type': 'application/json',
-					'x-csrf-protection': 'projektwahl'
-				}
-			});
-			if (!response.ok) {
-				feedback = new Map();
-				feedback.set(
-					'network_error',
-					'Serverfehler: ' + response.status + ' ' + response.statusText
-				);
-			} else {
-				json = await response.json();
-				feedback = new Map(Object.entries(json.errors));
-				if (feedback.size == 0) {
-					//await goto(`/${type}/edit/${json.id}`);
-					await goto(`/${type.split('/')[0]}`);
-				}
-			}
-		} catch (error) {
-			feedback = new Map();
-			feedback.set('unknown_error', 'Unbekannter Fehler: ' + error);
+		result = {
+			result: "loading"
 		}
-		unknownFeedback = [...feedback.entries()].filter((e) => !keys.includes(e[0]));
-		if (feedback.size > 0 || unknownFeedback.length > 0) {
+		result = await myFetch(`/${type}/create-or-update.json`, {
+			method: 'POST',
+			body: JSON.stringify(entity),
+			headers: {
+				'Content-Type': 'application/json',
+				'x-csrf-protection': 'projektwahl'
+			}
+		});
+		if (isOk(result)) {
+			//await goto(`/${type}/edit/${json.id}`);
+			await goto(`/${type.split('/')[0]}`);
+		} else {
 			window.scrollTo(0, 0);
 		}
 	}
@@ -65,33 +50,30 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<form
 			method="POST"
 			action="/no-javascript"
-			on:submit|preventDefault={() => (submitPromise = create())}
+			on:submit|preventDefault={create}
 			id="{randomId}-form"
 		>
-			{#if unknownFeedback.length != 0 || feedback.size != 0}
-				<div class="alert alert-danger" role="alert">
-					Einige Eingaben sind nicht gültig.
-					{#each unknownFeedback as [attribute, message]}
-						{attribute}: {message}<br />
-					{/each}
-				</div>
-			{/if}
+			<slot {result} {entity} />
 
-			<slot {feedback} {entity} />
-
-			{#await submitPromise}
+			{#if result.result === "loading" }
 				<button type="submit" class="btn btn-primary disabled"
 					>{label} wird {entity.id !== undefined ? 'geändert' : 'erstellt'}...</button
 				>
-			{:then result}
+			{:else}
+				{#if isErr(result) }
+					<div class="alert alert-danger" role="alert">
+						Einige Eingaben sind nicht gültig.
+						{#each [...Object.entries(result.failure)].filter((e) => !keys.includes(e[0])) as [attribute, message]}
+							{attribute}: {message}<br />
+						{/each}
+					</div>
+				{/if}
+
+				<FailureResult {result} />
 				<button type="submit" class="btn btn-primary"
 					>{label} {entity.id !== undefined ? 'ändern' : 'erstellen'}</button
 				>
-			{:catch error}
-				<div class="alert alert-danger" role="alert">
-					Unbekannter Fehler: {error.message}
-				</div>
-			{/await}
+			{/if}
 		</form>
 	</div>
 </div>

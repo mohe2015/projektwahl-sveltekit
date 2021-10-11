@@ -3,18 +3,31 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import Filtering from '$lib/entity-list/Filtering.svelte';
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import Ranking from './_Ranking.svelte';
 	import { flip } from 'svelte/animate';
-	import { Readable, writable } from 'svelte/store';
-	import EntityList from '$lib/EntityList.svelte';
-	import type { EntityResponseBody, FetchResponse } from '$lib/entites';
+	import { Readable, Writable, writable } from 'svelte/store';
+	import EntityList from '$lib/entity-list/EntityList.svelte';
+import type { EntityResponseBody, Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
+import { isErr, isOk, PromiseResult } from '$lib/result';
+import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+import type { BaseQuery } from '$lib/list-entities';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
-	let list: EntityList;
-	let response: Readable<FetchResponse<EntityResponseBody>>;
+	type E = Existing<RawProjectType> & ResettableChoiceType;
+
+	let list: EntityList<E>;
+	let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string }>>;
+
+	let query: Writable<BaseQuery<E>> = writable({
+		sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
+		paginationLimit: 50,
+		paginationDirection: null,
+		paginationCursor: null,
+		filters: {}
+	});
 </script>
 
 <main class="container">
@@ -22,38 +35,32 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		bind:this={list}
 		bind:response
 		url={'election.json'}
-		query={writable({
-			sorting: ['rank:ASC', 'id:down-up', 'title:down-up'],
-			paginationLimit: 50,
-			paginationDirection: null,
-			paginationCursor: null,
-			filters: {}
-		})}
+		{query}
 		title="Wahl"
 		createUrl={null}
 	>
-		<thead slot="filter" let:headerClick let:currentSortValue let:query>
+		<thead slot="filter" let:headerClick let:currentSortValue>
 			<tr>
 				<Sorting name="id" title="#" {headerClick} {currentSortValue} {query} />
 				<Sorting name="title" title="Titel" {headerClick} {currentSortValue} {query} />
 				<Sorting name="rank" title="Rang" {headerClick} {currentSortValue} {query} />
 			</tr>
 			<tr class="align-middle">
-				<Filtering name="id" type="number" {query} />
-				<Filtering name="title" type="text" {query} />
-				<Filtering name="rank" type="number" {query} />
+				<NumberFiltering name="id" {query} />
+				<TextFiltering name="title" {query} />
+				<NumberFiltering name="rank" {query} />
 			</tr>
 		</thead>
 		<tbody slot="response">
-			{#if $response?.error}
+			{#if isErr($response)}
 				<tr>
 					<td colspan="3">
 						<div class="alert alert-danger w-100" role="alert">
-							Fehler {$response.error}
+							Fehler {$response.failure}
 						</div>
 					</td>
 				</tr>
-			{:else}
+			{:else if isOk($response) }
 				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr animate:flip={{ duration: 500 }}>
 						<th scope="row">{entity.id}</th>

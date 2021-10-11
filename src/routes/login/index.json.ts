@@ -1,23 +1,21 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { allowAnyone, allowUserType } from '$lib/authorization';
 import { sql } from '$lib/database';
 import { checkPassword } from '$lib/password';
-import type { UserType } from '$lib/types';
+import type { Existing, RawSessionType, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import { validator } from './validator';
+import { isOk, Result, safeUnwrap } from '$lib/result';
 
-export type LoginResponse = {
-	errors: { [x: string]: string };
-	session?: any;
+export type Login = {
+	session: RawSessionType;
 };
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<LoginResponse>> {
-	allowAnyone(request);
-
+): Promise<EndpointOutput<Result<Login, { [key: string]: string }>>> {
 	/*
 	// https://github.com/panva/node-openid-client/blob/main/docs/README.md
 	// .well-known/openid-configuration
@@ -48,16 +46,23 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 		}
 	};*/
 
-	// TODO FIXME validation using new permission system
-	const user: any = request.body;
+	const result = validator(request.locals.user, request.body);
+	if (!isOk(result)) {
+		return {
+			body: result
+		}
+	}
+	const user = safeUnwrap(result)
 
-	const [entity]: [UserType?] =
+	const [entity]: [Existing<RawUserType>] =
+		// eslint-disable-next-line @typescript-eslint/await-thenable
 		await sql`SELECT id, name, password_hash AS password, type FROM users WHERE name = ${user.name} LIMIT 1`;
 
 	if (entity === undefined) {
 		return {
 			body: {
-				errors: {
+				result: "failure",
+				failure: {
 					name: 'Nutzer existiert nicht!'
 				}
 			}
@@ -67,27 +72,28 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity.password == null || !(await checkPassword(entity.password, user.password))) {
 		return {
 			body: {
-				errors: {
+				result: "failure",
+				failure: {
 					password: 'Falsches Passwort!'
 				}
 			}
 		};
 	}
 
-	const [session] = await sql.begin('READ WRITE', async (sql) => {
-		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id!}) RETURNING session_id`;
+	const [session]: [RawSessionType] = await sql.begin('READ WRITE', async (sql) => {
+		return await sql`INSERT INTO sessions (user_id) VALUES (${entity.id}) RETURNING session_id`;
 	});
 
 	// TODO https://cheatsheetseries.owasp.org/cheatsheets/Authentication_Cheat_Sheet.html
 
 	// TODO FIXME CSRF
 
-	// TODO set session
-
 	return {
 		body: {
-			errors: {},
-			session
+			result: "success",
+			success: {
+				session
+			},
 		},
 		headers: {
 			'Set-Cookie': [
@@ -95,7 +101,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 					48 * 60 * 60
 				}; Secure; HttpOnly; SameSite=Strict`,
 				`lax_id=${session.session_id}; Max-Age=${48 * 60 * 60}; Secure; HttpOnly; SameSite=Lax`
-			] as unknown as string
+			]
 		}
 	};
 };

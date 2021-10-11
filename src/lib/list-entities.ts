@@ -2,27 +2,34 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import type { RequestHandler } from '@sveltejs/kit';
+import type { JSONString } from '@sveltejs/kit/types/helper';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import type { BaseEntityType, EntityResponseBody } from './entites';
+import type { Result } from './result';
 import { concTT, fakeLiteralTT, fakeTT, toTT, TTToString } from './tagged-templates';
+import type { EntityResponseBody } from './types';
 
-export type BaseQuery = {
+export type BaseQuery<C> = {
 	paginationDirection: 'forwards' | 'backwards' | null;
-	paginationCursor: BaseEntityType | null;
+	paginationCursor: C | null;
 	sorting: string[]; // TODO FIXME format
 	paginationLimit: number;
-	filters: any;
+	filters: {
+		[key in keyof C]?: C[key]; // boolean | string | number | string[] | null | undefined // TODO FIXME C[key]
+	};
 };
 
-export const buildGet = (
+export const buildGet = <E extends JSONString>(
 	allowedFilters: string[],
 	select: [TemplateStringsArray, SerializableParameter[]],
-	params: (query: BaseQuery) => [TemplateStringsArray, SerializableParameter[]]
-): RequestHandler<MyLocals, EntityResponseBody> => {
-	const get: RequestHandler<MyLocals, EntityResponseBody> = async function ({ query }) {
+	params: (query: BaseQuery<E>) => [TemplateStringsArray, SerializableParameter[]]
+): RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> => {
+	const get: RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> = async function ({ query }) {
 		console.log(query.toString());
-		const the_query: BaseQuery = JSON.parse(atob(decodeURIComponent(query.toString()))); // TODO FIXME validate
+		// TODO FIXME probably use permissions system?
+		const the_query: BaseQuery<E> = JSON.parse(
+			atob(decodeURIComponent(query.toString()))
+		) as BaseQuery<E>; // TODO FIXME validate
 		console.log(the_query);
 
 		// TODO FIXME better validation and null/undefined
@@ -44,7 +51,7 @@ export const buildGet = (
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
 
 		// TODO FIXME fix that this could return an array or so (not any and validate it)
-		const paginationCursor: any | null = the_query.paginationCursor;
+		const paginationCursor: E | null = the_query.paginationCursor;
 
 		const sortingQuery: [string, string][] = the_query.sorting
 			.map((e) => e.split(':', 2))
@@ -124,7 +131,11 @@ export const buildGet = (
 		// probably can't use https://www.postgresql.org/docs/current/functions-comparisons.html#ROW-WISE-COMPARISON because up and down can be mixed here (also it's inefficient)
 		const queryStringPart1 = concTT(
 			concTT(fakeLiteralTT(' WHERE ('), pagination),
-			fakeLiteralTT(` OR (NOT ${isForwardsPagination} AND NOT ${isBackwardsPagination})) `)
+			fakeLiteralTT(
+				` OR (NOT ${isForwardsPagination ? 'true' : 'false'} AND NOT ${
+					isBackwardsPagination ? 'true' : 'false'
+				})) `
+			)
 		);
 
 		const queryStringPart2 = params(the_query);
@@ -138,10 +149,10 @@ export const buildGet = (
 
 		console.log(TTToString(...queryString));
 
-		let entities: Array<BaseEntityType> = await sql<Array<BaseEntityType>>(...queryString);
+		let entities: E[] = await sql<E[]>(...queryString);
 
-		let nextCursor: BaseEntityType | null = null;
-		let previousCursor: BaseEntityType | null = null;
+		let nextCursor: E | null = null;
+		let previousCursor: E | null = null;
 		// TODO FIXME also recalculate the other cursor because data could've been deleted in between / the filters have changed
 		if (!isForwardsPagination && !isBackwardsPagination) {
 			if (entities.length > paginationLimit) {
@@ -167,9 +178,12 @@ export const buildGet = (
 
 		return {
 			body: {
-				entities,
-				nextCursor,
-				previousCursor
+				result: "success",
+				success: {
+					entities,
+					nextCursor,
+					previousCursor
+				}
 			}
 		};
 	};
