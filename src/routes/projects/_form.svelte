@@ -3,7 +3,6 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-	import Filtering from '$lib/entity-list/NumberFiltering.svelte';
 	import ListFiltering from '$lib/entity-list/ListFiltering.svelte';
 
 	import Sorting from '$lib/entity-list/Sorting.svelte';
@@ -17,6 +16,9 @@ import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Re
 	import { Readable, Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
+import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
+import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 
 	export let entity: Partial<New<RawProjectType>>;
 
@@ -164,11 +166,11 @@ import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Re
 					<th>Aktionen</th>
 				</tr>
 				<tr class="align-middle">
-					<Filtering name="id" type="number" query={project_leader_query} />
-					<Filtering name="is_project_leader" type="boolean" query={project_leader_query} />
-					<Filtering name="name" type="text" query={project_leader_query} />
+					<NumberFiltering name="id" query={project_leader_query} />
+					<BooleanFiltering name="is_project_leader" query={project_leader_query} />
+					<TextFiltering name="name" query={project_leader_query} />
 					<ListFiltering
-						name="types"
+						name="type"
 						options={['admin', 'helper', 'voter']}
 						query={project_leader_query}
 					/>
@@ -252,11 +254,11 @@ import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Re
 					<th>Aktionen</th>
 				</tr>
 				<tr class="align-middle">
-					<Filtering name="id" type="number" query={force_in_project_query} />
-					<Filtering name="is_force_in_project" type="boolean" query={force_in_project_query} />
-					<Filtering name="name" type="text" query={force_in_project_query} />
+					<NumberFiltering name="id" query={force_in_project_query} />
+					<BooleanFiltering name="is_force_in_project" query={force_in_project_query} />
+					<TextFiltering name="name" query={force_in_project_query} />
 					<ListFiltering
-						name="types"
+						name="type"
 						options={['admin', 'helper', 'voter']}
 						query={force_in_project_query}
 					/>

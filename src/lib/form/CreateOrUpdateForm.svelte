@@ -6,7 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto } from '$app/navigation';
 	import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-import { isErr, isOk, PromiseResult, Result } from '$lib/result';
+import { isErr, isOk, OptionalPromiseResult, PromiseResult, Result } from '$lib/result';
 	import type { Existing, New } from '$lib/types';
 
 	type E = $$Generic;
@@ -15,7 +15,9 @@ import { isErr, isOk, PromiseResult, Result } from '$lib/result';
 	export let type: string;
 	export let keys: string[];
 	let randomId: string = 'id' + Math.random().toString().replace('.', ''); // TODO FIXME change to https://svelte.dev/docs#key
-	let result: PromiseResult<Existing<E>, { [key: string]: string }>;
+	let result: OptionalPromiseResult<Existing<E>, { [key: string]: string }> = {
+		result: "none"
+	};
 	export let entity: New<E>;
 
 	async function create() {
