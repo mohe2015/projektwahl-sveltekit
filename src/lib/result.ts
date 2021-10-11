@@ -59,9 +59,9 @@ export const err = <T, E extends { [key: string]: string }>(error: E): FailureRe
 };
 
 export function andThen<T, E extends { [key: string]: string }, U>(
-	result: OptionalPromiseResult<T, E>,
-	op: (v: T) => OptionalPromiseResult<U, E>
-): OptionalPromiseResult<U, E> {
+	result: Result<T, E>,
+	op: (v: T) => Result<U, E>
+): Result<U, E> {
 	if (!isOk(result)) {
 		return result;
 	}

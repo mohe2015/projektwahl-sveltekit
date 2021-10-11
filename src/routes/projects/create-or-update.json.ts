@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
+import { isOk } from '$lib/result';
 import type { Existing, RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
-import { permissions } from './permissions';
+import { editValidator, validator } from './permissions';
 
 export type CreateResponse = {
 	errors: { [x: string]: string };
@@ -15,24 +16,22 @@ export type CreateResponse = {
 export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
 	const { body } = request;
 
-	const project = validate(permissions, request.locals.user, body, 'edit');
-	console.log('proj: ', project);
+	const result = validator(request.locals.user, body);
+	if (!isOk(result)) {
+		return {
+			body: result
+		}
+	}
+	const project = result.success;
 
 	try {
 		let row: Existing<RawProjectType>;
 		if (project.id !== undefined) {
-			if (
-				request.locals.user?.type !== 'admin' &&
-				request.locals.user?.project_leader_id !== project.id
-			) {
-				const response: EndpointOutput<CreateResponse> = {
-					body: {
-						errors: {
-							permissions: 'Du kannst keine fremden Projekte ändern!'
-						}
-					}
-				};
-				return response;
+			const result = editValidator(request.locals.user, body);
+			if (!isOk(result)) {
+				return {
+					body: result
+				}
 			}
 			[row] = await sql.begin('READ WRITE', async (sql) => {
 				return await sql`UPDATE projects SET
@@ -64,6 +63,12 @@ random_assignments = CASE WHEN ${project.random_assignments !== undefined} THEN 
 WHERE id = ${project.id} RETURNING id;`;
 			});
 		} else {
+			const result = editValidator(request.locals.user, body);
+			if (!isOk(result)) {
+				return {
+					body: result
+				}
+			}
 			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,
 			// would be dream but is a syntax error. we probably need to build the queries custom
 			[row] = await sql.begin('READ WRITE', async (sql) => {

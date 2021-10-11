@@ -12,18 +12,19 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Result } from '$lib/types';
+import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType } from '$lib/types';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+import type { Result } from '$lib/result';
 
 	export let entity: Partial<New<RawProjectType>>;
 
 	let project_leader_list: EntityList<Existing<RawUserType>>;
-	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
+	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>>;
 
 	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
@@ -38,7 +39,7 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 	});
 
 	let force_in_project_list: EntityList<Existing<RawUserType>>;
-	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
+	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>>;
 	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
 			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined

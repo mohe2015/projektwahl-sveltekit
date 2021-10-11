@@ -7,13 +7,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/entity-list/EntityList.svelte';
 	import { Readable, Writable, writable } from 'svelte/store';
-import type { EntityResponseBody, Existing, RawProjectType, Result } from '$lib/types';
+import type { EntityResponseBody, Existing, RawProjectType } from '$lib/types';
 import type { BaseQuery } from '$lib/list-entities';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+import type { Result } from '$lib/result';
 
 	let list: EntityList<Existing<RawProjectType>>;
-	let response: Readable<Result<EntityResponseBody<Existing<RawProjectType>>>>;
+	let response: Readable<Result<EntityResponseBody<Existing<RawProjectType>>, { [key: string]: string; }>>;
 	let query: Writable<BaseQuery<Existing<RawProjectType>>> = writable({
 		paginationLimit: 10,
 		sorting: ['id:down-up', 'title:down-up'],

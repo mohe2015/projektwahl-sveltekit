@@ -27,6 +27,43 @@ export const assertStringProperty = (value: JSONValue, key: string): Result<stri
 	});
 };
 
+export const assertNumberProperty = (value: JSONValue, key: string): Result<number, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'number') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a number'
+				}
+			};
+		}
+		return {
+			result: 'success',
+			success: value3
+		};
+	});
+};
+
+
+export const assertBooleanProperty = (value: JSONValue, key: string): Result<boolean, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'boolean') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a boolean'
+				}
+			};
+		}
+		return {
+			result: 'success',
+			success: value3
+		};
+	});
+};
+
 export const assertObjectType = (
 	value: JSONValue
 ): Result<{
