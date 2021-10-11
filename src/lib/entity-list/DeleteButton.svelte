@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 import { myFetch } from '$lib/error-handling';
 import FailureResult from '$lib/FailureResult.svelte';
-import { isOk, PromiseResult } from '$lib/result';
+import { isOk, PromiseResult } from '../result';
 
 	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 
