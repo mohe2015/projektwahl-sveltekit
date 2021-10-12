@@ -16,6 +16,8 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    container: ubuntu
+
     strategy:
       matrix:
         node-version: [16.x]
