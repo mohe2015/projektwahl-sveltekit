@@ -21,6 +21,23 @@ jobs:
         node-version: [16.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: postgres
+        # Provide the password for postgres
+        env:
+          POSTGRES_USER: projektwahl
+          POSTGRES_PASSWORD: changeme
+          POSTGRES_DB: projektwahl
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
     - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
@@ -31,6 +48,11 @@ jobs:
     - run: npm ci
     - run: npm run build --if-present
     - run: |
+        cat > .env << EOF
+        THE_BASE_URL=http://localhost:3000/
+        DATABASE_URL=postgres://projektwahl:changeme@postgres:5432/projektwahl
+        EOF
+        cat .env
         npm run dev &
         npm test
     - run: npm run check

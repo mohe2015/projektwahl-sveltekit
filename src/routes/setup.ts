@@ -21,7 +21,7 @@ export const get: RequestHandler<MyLocals, void> = async function () {
 
 	if (dev) {
 		await sql.begin('READ WRITE', async (sql) => {
-			await sql.file('src/lib/setup.sql', [], {
+			await sql.file('src/lib/setup.sql', undefined, {
 				cache: false // TODO FIXME doesnt seem to work properly
 			});
 
