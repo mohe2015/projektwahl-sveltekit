@@ -12,6 +12,8 @@ import { andThen, mergeErrOr, ok, Result } from '$lib/result';
 import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 
+// TODO FIXME improve this so creation creates missing-field errors
+
 // TODO FIXME all important checks need to be at the database to prevent race conditions
 export const validator: Validator<Partial<New<RawProjectType>>, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
