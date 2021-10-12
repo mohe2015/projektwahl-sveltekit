@@ -56,7 +56,7 @@ jobs:
         EOF
         npm run dev &
         sleep 1
-        curl http://localhost:3000/setup
+        wget http://localhost:3000/setup
         npm test
     - run: npm run check
     - run: npm run lint
