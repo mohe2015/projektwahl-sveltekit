@@ -5,9 +5,7 @@ import type { MyLocals } from 'src/hooks';
 import parse from 'csv-parse';
 import { Readable } from 'stream';
 import { save } from '../create-or-update.json';
-import {
-	TransformStream
-  } from 'node:stream/web';
+import { Transform } from 'stream';
 
 export type UserImportRequest = { fileInput?: string; id: number };
 
@@ -19,10 +17,25 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 	if (!request.body.fileInput) {
 		return {
 			status: 400
-		};g
+		};
 	}
 
-	const TransformStream = new TransformStream();
+	const transformStream = new Transform({
+		readableObjectMode: true,
+		writableObjectMode: true
+	});
+
+	transformStream._transform = (chunk, encoding, callback) => {
+		if (chunk.age === '') {
+			chunk.age = undefined;
+		}
+		if (chunk.group === '') {
+			chunk.group = undefined;
+		}
+		console.log(chunk)
+		transformStream.push(chunk);
+		callback();
+	  }
 
 	const parser = Readable.from(request.body.fileInput).pipe(
 		parse({
@@ -31,7 +44,7 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 			delimiter: ';',
 			cast: true,
 		})
-	).pipe();
+	).pipe(transformStream);
 
 	return await save(parser, request.locals.user);
 };

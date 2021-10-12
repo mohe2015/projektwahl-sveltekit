@@ -60,7 +60,7 @@ export const assertEnumProperty = <T extends string>(list: Array<T>): ((value: J
 
 export const assertOptionalPropertyOf = <T>(value: JSONValue, key: string, otherFun: (value: JSONValue, key: string) => Result<T, { [key: string]: string }>): Result<T | undefined, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
-		if (!(key in value)) {
+		if (!(key in value) || value[key] === undefined) {
 			return {
 				result: 'success',
 				success: undefined
