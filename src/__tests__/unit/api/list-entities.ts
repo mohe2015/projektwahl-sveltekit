@@ -4,7 +4,7 @@ import type { BaseQuery } from '$lib/list-entities';
 import 'jest';
 import type { Login } from 'src/routes/login/index.json';
 import type { TestResponseBody } from 'src/routes/tests/list-entities.json';
-import { successfulFetch } from '../../test_utils'
+import { successfulFetch } from '../../test_utils';
 
 test('check that all rows are returned with pagination', async () => {
 	const loginResult = await successfulFetch<Login>('http://localhost:3000/login.json', {

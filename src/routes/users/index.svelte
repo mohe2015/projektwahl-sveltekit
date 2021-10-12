@@ -9,10 +9,10 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import DeleteButton from '$lib/entity-list/DeleteButton.svelte';
 	import { Writable, writable } from 'svelte/store';
 	import type { Existing, RawUserType } from '$lib/types';
-import type { BaseQuery } from '$lib/list-entities';
-import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
-import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import { isErr, isOk } from '$lib/result';
+	import type { BaseQuery } from '$lib/list-entities';
+	import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+	import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import { isErr, isOk } from '$lib/result';
 
 	let list: EntityList<Existing<RawUserType>>;
 	let query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
@@ -27,13 +27,7 @@ import { isErr, isOk } from '$lib/result';
 </script>
 
 <main class="container">
-	<EntityList
-		bind:this={list}
-		url="users.json"
-		{query}
-		title="Nutzer"
-		createUrl="/users/create"
-	>
+	<EntityList bind:this={list} url="users.json" {query} title="Nutzer" createUrl="/users/create">
 		<a slot="buttons" class="btn btn-primary" href="/users/import" role="button"
 			>Nutzer importieren</a
 		>
@@ -60,7 +54,7 @@ import { isErr, isOk } from '$lib/result';
 						</div>
 					</td>
 				</tr>
-			{:else if isOk(response) || response.result === "loading" }
+			{:else if isOk(response) || response.result === 'loading'}
 				{#each response.success?.entities ?? [] as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>

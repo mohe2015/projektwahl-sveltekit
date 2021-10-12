@@ -13,12 +13,17 @@ export const validator: Validator<RawChoiceType, { [key: string]: string }> = (
 		const project_id = assertNumberProperty(value, 'project_id');
 		const user_id = assertNumberProperty(value, 'user_id');
 		const rank = assertNumberProperty(value, 'rank');
-		return mergeErrOr(([project_id, user_id, rank]) => {
-			return ok({
-				project_id,
-				user_id,
-				rank
-			})
-		}, project_id, user_id, rank)
+		return mergeErrOr(
+			([project_id, user_id, rank]) => {
+				return ok({
+					project_id,
+					user_id,
+					rank
+				});
+			},
+			project_id,
+			user_id,
+			rank
+		);
 	});
 };

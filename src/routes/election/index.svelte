@@ -8,11 +8,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { flip } from 'svelte/animate';
 	import { Readable, Writable, writable } from 'svelte/store';
 	import EntityList from '$lib/entity-list/EntityList.svelte';
-import type { EntityResponseBody, Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
-import { isErr, isOk, PromiseResult } from '$lib/result';
-import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
-import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import type { BaseQuery } from '$lib/list-entities';
+	import type {
+		EntityResponseBody,
+		Existing,
+		RawProjectType,
+		ResettableChoiceType
+	} from '$lib/types';
+	import { isErr, isOk, PromiseResult } from '$lib/result';
+	import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+	import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import type { BaseQuery } from '$lib/list-entities';
 
 	// https://javascript.plainenglish.io/advanced-svelte-transition-features-ca285b653437
 
@@ -60,7 +65,7 @@ import type { BaseQuery } from '$lib/list-entities';
 						</div>
 					</td>
 				</tr>
-			{:else if isOk($response) }
+			{:else if isOk($response)}
 				{#each $response?.success?.entities ?? [] as entity (entity.id)}
 					<tr animate:flip={{ duration: 500 }}>
 						<th scope="row">{entity.id}</th>

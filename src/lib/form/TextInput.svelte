@@ -24,7 +24,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		<label for="{randomId}-{name}" class="form-label">{label}:</label>
 		<input
 			type="text"
-			class="form-control {name in errOrDefault(result ?? { result: "loading" }, {}) ? 'is-invalid' : ''}"
+			class="form-control {name in errOrDefault(result ?? { result: 'loading' }, {})
+				? 'is-invalid'
+				: ''}"
 			{name}
 			id="{randomId}-{name}"
 			aria-describedby="{randomId}-{name}-feedback"

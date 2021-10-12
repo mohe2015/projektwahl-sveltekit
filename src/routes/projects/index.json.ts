@@ -9,7 +9,10 @@ import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<RawProjectType>>, { [key: string]: string; }>> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<EntityResponseBody<Existing<RawProjectType>>, { [key: string]: string }>
+> = async function (request) {
 	return await buildGet<Existing<RawProjectType>>(
 		[
 			'id',

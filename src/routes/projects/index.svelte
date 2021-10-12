@@ -7,11 +7,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import Sorting from '$lib/entity-list/Sorting.svelte';
 	import EntityList from '$lib/entity-list/EntityList.svelte';
 	import { Writable, writable } from 'svelte/store';
-import type { Existing, RawProjectType } from '$lib/types';
-import type { BaseQuery } from '$lib/list-entities';
-import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
-import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import { isErr } from '$lib/result';
+	import type { Existing, RawProjectType } from '$lib/types';
+	import type { BaseQuery } from '$lib/list-entities';
+	import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+	import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import { isErr } from '$lib/result';
 
 	let list: EntityList<Existing<RawProjectType>>;
 	let query: Writable<BaseQuery<Existing<RawProjectType>>> = writable({

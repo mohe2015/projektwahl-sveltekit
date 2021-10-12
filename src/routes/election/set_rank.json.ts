@@ -9,7 +9,7 @@ import { validator } from './permissions';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string; }>>> {
+): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string }>>> {
 	const result = validator(request.locals.user, request.body);
 	if (!isOk(result)) {
 		return {
@@ -33,7 +33,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	// TODO FIXME return error on crash (and also show it and network errors on client)
 	return {
 		body: {
-			result: "success",
+			result: 'success',
 			success: {}
 		},
 		headers: {}

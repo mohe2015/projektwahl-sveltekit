@@ -7,11 +7,11 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { page } from '$app/stores';
 	import type { BaseQuery } from '../list-entities';
 	import { browser } from '$app/env';
-import type { EntityResponseBody } from '../types';
-import { isOk } from '$lib/result';
-import { myFetch } from '$lib/error-handling';
-import type { PromiseResult } from '$lib/result';
-import { mapOr } from '$lib/result';
+	import type { EntityResponseBody } from '../types';
+	import { isOk } from '$lib/result';
+	import { myFetch } from '$lib/error-handling';
+	import type { PromiseResult } from '$lib/result';
+	import { mapOr } from '$lib/result';
 
 	type E = $$Generic;
 
@@ -31,35 +31,36 @@ import { mapOr } from '$lib/result';
 	export let url: string;
 
 	// TODO FIXME clean this stuff here up
-	let previousValue: PromiseResult<EntityResponseBody<E>, { [key: string]: string; }> = {
-		result: "loading"
+	let previousValue: PromiseResult<EntityResponseBody<E>, { [key: string]: string }> = {
+		result: 'loading'
 	};
 
-	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>> = derived(
-		query,
-		($query, set) => {
-			if (browser) {
-				// TODO FIXME
-				(async () => {
-					set({
-						result: "loading",
-						success: isOk(previousValue) ? previousValue.success : undefined
-					});
-					const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
-					console.log(fullUrl);
-					previousValue = await myFetch<EntityResponseBody<E>>(fullUrl, {
-						method: 'GET',
-						credentials: 'include'
-					});
-					set(previousValue);
-					// TODO FIXME we probably need to unset previous set to prevent race conditions
-				})();
-			}
-		},
-		{
-			result: "loading",
-		} as PromiseResult<EntityResponseBody<E>, { [key: string]: string; }>
-	);
+	export let response: Readable<PromiseResult<EntityResponseBody<E>, { [key: string]: string }>> =
+		derived(
+			query,
+			($query, set) => {
+				if (browser) {
+					// TODO FIXME
+					(async () => {
+						set({
+							result: 'loading',
+							success: isOk(previousValue) ? previousValue.success : undefined
+						});
+						const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+						console.log(fullUrl);
+						previousValue = await myFetch<EntityResponseBody<E>>(fullUrl, {
+							method: 'GET',
+							credentials: 'include'
+						});
+						set(previousValue);
+						// TODO FIXME we probably need to unset previous set to prevent race conditions
+					})();
+				}
+			},
+			{
+				result: 'loading'
+			} as PromiseResult<EntityResponseBody<E>, { [key: string]: string }>
+		);
 
 	export const headerClick = (sortType: string): void => {
 		let oldElementIndex = $query.sorting.findIndex((e) => e.startsWith(sortType + ':'));
@@ -99,7 +100,7 @@ import { mapOr } from '$lib/result';
 </svelte:head>
 
 <div style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-	{#if $response.result === "loading" }
+	{#if $response.result === 'loading'}
 		<div class="spinner-grow text-primary" role="status">
 			<span class="visually-hidden">Loading...</span>
 		</div>
@@ -137,32 +138,32 @@ import { mapOr } from '$lib/result';
 <nav aria-label="Navigation der Nutzerliste">
 	<ul class="pagination justify-content-center">
 		<!-- { # await only works in blocks -->
-		<li class="page-item {mapOr($response, v => v.previousCursor, null) ? '' : 'disabled'}">
+		<li class="page-item {mapOr($response, (v) => v.previousCursor, null) ? '' : 'disabled'}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = mapOr($response, v => v.previousCursor, null)),
+					($query.paginationCursor = mapOr($response, (v) => v.previousCursor, null)),
 						($query.paginationDirection = 'backwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Vorherige Seite"
-				tabindex={mapOr($response, v => v.previousCursor, null) ? undefined : -1}
-				aria-disabled={!mapOr($response, v => v.previousCursor, null)}
+				tabindex={mapOr($response, (v) => v.previousCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, (v) => v.previousCursor, null)}
 			>
 				<span aria-hidden="true">&laquo;</span>
 			</a>
 		</li>
-		<li class="page-item {mapOr($response, v => v.nextCursor, null) ? '' : 'disabled'}}">
+		<li class="page-item {mapOr($response, (v) => v.nextCursor, null) ? '' : 'disabled'}}">
 			<a
 				on:click|preventDefault={() => {
-					($query.paginationCursor = mapOr($response, v => v.nextCursor, null)),
+					($query.paginationCursor = mapOr($response, (v) => v.nextCursor, null)),
 						($query.paginationDirection = 'forwards');
 				}}
 				class="page-link"
 				href="/"
 				aria-label="Nächste Seite"
-				tabindex={mapOr($response, v => v.nextCursor, null) ? undefined : -1}
-				aria-disabled={!mapOr($response, v => v.nextCursor, null)}
+				tabindex={mapOr($response, (v) => v.nextCursor, null) ? undefined : -1}
+				aria-disabled={!mapOr($response, (v) => v.nextCursor, null)}
 			>
 				<span aria-hidden="true">&raquo;</span>
 			</a>

@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import 'jest';
 import type { Login } from 'src/routes/login/index.json';
-import { successfulFetch } from '../../test_utils'
+import { successfulFetch } from '../../test_utils';
 
 test('invalid login returns error', async () => {
 	const result = await successfulFetch<Login>('http://localhost:3000/login.json', {

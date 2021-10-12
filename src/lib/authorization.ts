@@ -12,7 +12,10 @@ export type Validator<T, E extends { [key: string]: string }> = (
 
 // TODO FIXMe make all these return a function that takes value and key so we can improve the optionalpropertyof thing
 
-export const assertStringProperty = (value: JSONValue, key: string): Result<string, { [key: string]: string }> => {
+export const assertStringProperty = (
+	value: JSONValue,
+	key: string
+): Result<string, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
 		if (typeof value3 !== 'string') {
@@ -30,7 +33,9 @@ export const assertStringProperty = (value: JSONValue, key: string): Result<stri
 	});
 };
 
-export const assertEnumProperty = <T extends string>(list: Array<T>): ((value: JSONValue, key: string) => Result<T, { [key: string]: string }>) => {
+export const assertEnumProperty = <T extends string>(
+	list: Array<T>
+): ((value: JSONValue, key: string) => Result<T, { [key: string]: string }>) => {
 	return (value: JSONValue, key: string) => {
 		return andThen(assertObjectType(value), (value) => {
 			const value3 = value[key];
@@ -55,10 +60,14 @@ export const assertEnumProperty = <T extends string>(list: Array<T>): ((value: J
 				}
 			};
 		});
-	}
+	};
 };
 
-export const assertOptionalPropertyOf = <T>(value: JSONValue, key: string, otherFun: (value: JSONValue, key: string) => Result<T, { [key: string]: string }>): Result<T | undefined, { [key: string]: string }> => {
+export const assertOptionalPropertyOf = <T>(
+	value: JSONValue,
+	key: string,
+	otherFun: (value: JSONValue, key: string) => Result<T, { [key: string]: string }>
+): Result<T | undefined, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		if (!(key in value) || value[key] === undefined) {
 			return {
@@ -70,7 +79,10 @@ export const assertOptionalPropertyOf = <T>(value: JSONValue, key: string, other
 	});
 };
 
-export const assertNumberProperty = (value: JSONValue, key: string): Result<number, { [key: string]: string }> => {
+export const assertNumberProperty = (
+	value: JSONValue,
+	key: string
+): Result<number, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
 		if (typeof value3 !== 'number') {
@@ -88,7 +100,10 @@ export const assertNumberProperty = (value: JSONValue, key: string): Result<numb
 	});
 };
 
-export const assertBooleanProperty = (value: JSONValue, key: string): Result<boolean, { [key: string]: string }> => {
+export const assertBooleanProperty = (
+	value: JSONValue,
+	key: string
+): Result<boolean, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
 		if (typeof value3 !== 'boolean') {
@@ -108,9 +123,12 @@ export const assertBooleanProperty = (value: JSONValue, key: string): Result<boo
 
 export const assertObjectType = (
 	value: JSONValue
-): Result<{
-	[key: string]: JSONString;
-}, { [key: string]: string }> => {
+): Result<
+	{
+		[key: string]: JSONString;
+	},
+	{ [key: string]: string }
+> => {
 	if (typeof value !== 'object' || Array.isArray(value) || value == null) {
 		return {
 			result: 'failure',

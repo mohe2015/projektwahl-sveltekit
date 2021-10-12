@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import type { Existing, RawUserType } from "$lib/types";
+	import type { Existing, RawUserType } from '$lib/types';
 
 	export let project_id: number;
 	export let entity: Existing<RawUserType>;

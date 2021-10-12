@@ -3,9 +3,9 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { myFetch } from '$lib/error-handling';
-import FailureResult from '$lib/FailureResult.svelte';
-import { isOk, PromiseResult } from '../result';
+	import { myFetch } from '$lib/error-handling';
+	import FailureResult from '$lib/FailureResult.svelte';
+	import { isOk, PromiseResult } from '../result';
 
 	import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from 'sveltestrap/src';
 
@@ -16,7 +16,7 @@ import { isOk, PromiseResult } from '../result';
 	let modalUser: string | null = null;
 	let modalUserId: number | null = null;
 	let deleteModalOpen = false;
-	let result: PromiseResult<unknown, { [key: string]: string; }>;
+	let result: PromiseResult<unknown, { [key: string]: string }>;
 
 	function test(id: number, name: unknown) {
 		modalUserId = id;
@@ -26,8 +26,8 @@ import { isOk, PromiseResult } from '../result';
 
 	async function deleteUser() {
 		result = {
-			result: "loading"
-		}
+			result: 'loading'
+		};
 		result = await myFetch(`/${path}/delete/${modalUserId}.json`, {
 			method: 'POST',
 			body: null,
@@ -35,7 +35,7 @@ import { isOk, PromiseResult } from '../result';
 				'Content-Type': 'application/json',
 				'x-csrf-protection': 'projektwahl'
 			}
-		})
+		});
 		if (isOk(result)) {
 			await refreshList();
 			deleteModalOpen = false;
@@ -52,7 +52,7 @@ import { isOk, PromiseResult } from '../result';
 	</ModalBody>
 	<ModalFooter>
 		<Button color="danger" on:click={deleteUser}
-			>{#if result.result === "loading" }Wird gelöscht...{:else}Löschen{/if}</Button
+			>{#if result.result === 'loading'}Wird gelöscht...{:else}Löschen{/if}</Button
 		>
 		<Button color="secondary" on:click={() => (deleteModalOpen = false)}>Abbrechen</Button>
 	</ModalFooter>

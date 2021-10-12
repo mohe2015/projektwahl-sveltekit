@@ -18,11 +18,15 @@ export const validator: Validator<LoginType, { [key: string]: string }> = (
 	return andThen(assertObjectType(value), (value) => {
 		const name = assertStringProperty(value, 'name');
 		const password = assertStringProperty(value, 'password');
-		return mergeErrOr(([name, password]) => {
-			return ok({
-				name,
-				password
-			})
-		}, name, password)
+		return mergeErrOr(
+			([name, password]) => {
+				return ok({
+					name,
+					password
+				});
+			},
+			name,
+			password
+		);
 	});
 };

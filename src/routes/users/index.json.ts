@@ -9,7 +9,10 @@ import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string }>
+> = async function (request) {
 	// TODO FIXME SELECT id,name,type,project_leader_id FROM users ORDER BY (project_leader_id = '0001dadc-357b-4f03-bb39-7bf81666dc10') ASC LIMIT (10 + 1);
 	return await buildGet<Existing<RawUserType>>(
 		['id', 'name', 'type', 'project_leader_id'],

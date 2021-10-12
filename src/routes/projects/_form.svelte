@@ -12,14 +12,14 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
+	import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
 	import { Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
-import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
-import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
-import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
-import { isErr } from '$lib/result';
+	import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+	import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
+	import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import { isErr } from '$lib/result';
 
 	export let entity: Partial<New<RawProjectType>>;
 
@@ -27,7 +27,7 @@ import { isErr } from '$lib/result';
 
 	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined,
+			type: ['admin', 'helper', 'voter'] as unknown as 'admin' | 'helper' | undefined,
 			is_project_leader: false
 		},
 		paginationLimit: 10,
@@ -40,7 +40,7 @@ import { isErr } from '$lib/result';
 	let force_in_project_list: EntityList<Existing<RawUserType>>;
 	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined
+			type: ['admin', 'helper', 'voter'] as unknown as 'admin' | 'helper' | undefined
 		},
 		paginationLimit: 10,
 		sorting: ['id:down-up', 'is_force_in_project:DESC', 'name:down-up', 'type:down-up'],
@@ -176,7 +176,7 @@ import { isErr } from '$lib/result';
 				</tr>
 			</thead>
 			<tbody slot="response" let:response>
-				{#if isErr(response) }
+				{#if isErr(response)}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
@@ -263,7 +263,7 @@ import { isErr } from '$lib/result';
 				</tr>
 			</thead>
 			<tbody slot="response" let:response>
-				{#if isErr(response) }
+				{#if isErr(response)}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">

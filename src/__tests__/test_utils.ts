@@ -25,7 +25,7 @@ export const failedFetch = async (
 	url: string,
 	options: RequestInit | undefined
 ): Promise<{
-    [key: string]: string;
+	[key: string]: string;
 }> => {
 	const response = await fetch(url, options);
 	if (!response.ok) {

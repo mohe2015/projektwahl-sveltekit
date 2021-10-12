@@ -11,7 +11,10 @@ import type { MyLocals } from 'src/hooks';
 
 // TODO FIXME duplication with project_leaders/
 
-export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string; }>> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<EntityResponseBody<Existing<RawUserType>>, { [key: string]: string }>
+> = async function (request) {
 	return await buildGet<Existing<RawUserType>>(
 		['id', 'name', 'type'],
 		fakeTT<SerializableParameter>`SELECT ${sql([

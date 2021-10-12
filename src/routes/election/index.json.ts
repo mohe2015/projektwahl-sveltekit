@@ -4,12 +4,23 @@ import { sql } from '$lib/database';
 import { buildGet } from '$lib/list-entities';
 import type { Result } from '$lib/result';
 import { fakeTT } from '$lib/tagged-templates';
-import type { EntityResponseBody, Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
+import type {
+	EntityResponseBody,
+	Existing,
+	RawProjectType,
+	ResettableChoiceType
+} from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<RawProjectType> & ResettableChoiceType>, { [key: string]: string; }>> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<
+		EntityResponseBody<Existing<RawProjectType> & ResettableChoiceType>,
+		{ [key: string]: string }
+	>
+> = async function (request) {
 	return await buildGet<Existing<RawProjectType> & ResettableChoiceType>(
 		[
 			'id',
@@ -43,9 +54,9 @@ export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<Ra
 			request.locals.user?.id ?? null
 		})`,
 		(query) =>
-			fakeTT<SerializableParameter>`AND title LIKE ${
-				`%${query.filters.title ?? ''}%`
-			} AND (${!('id' in query.filters)} OR id = ${query.filters.id ?? null}) AND info LIKE ${
+			fakeTT<SerializableParameter>`AND title LIKE ${`%${query.filters.title ?? ''}%`} AND (${!(
+				'id' in query.filters
+			)} OR id = ${query.filters.id ?? null}) AND info LIKE ${
 				'%' + (query.filters.info ?? '') + '%'
 			} AND place LIKE ${'%' + (query.filters.place ?? '') + '%'} AND presentation_type LIKE ${
 				'%' + (query.filters.presentation_type ?? '') + '%'

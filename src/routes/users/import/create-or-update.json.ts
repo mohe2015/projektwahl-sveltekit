@@ -13,7 +13,6 @@ export type UserImportRequest = { fileInput?: string; id: number };
 export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request
 ): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
-
 	// TODO FIXME use validation system
 	if (!request.body.fileInput) {
 		return {
@@ -33,19 +32,21 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 		if (chunk.group === '') {
 			chunk.group = undefined;
 		}
-		console.log(chunk)
+		console.log(chunk);
 		transformStream.push(chunk);
 		callback();
-	  }
+	};
 
-	const parser = Readable.from(request.body.fileInput).pipe(
-		parse({
-			trim: true,
-			columns: true,
-			delimiter: ';',
-			cast: true,
-		})
-	).pipe(transformStream);
+	const parser = Readable.from(request.body.fileInput)
+		.pipe(
+			parse({
+				trim: true,
+				columns: true,
+				delimiter: ';',
+				cast: true
+			})
+		)
+		.pipe(transformStream);
 
 	return await save(parser, request.locals.user);
 };

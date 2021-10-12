@@ -14,13 +14,13 @@ export type Result<T, E extends { [key: string]: string }> =
 	| FailureResult<T, E>;
 
 export type LoadingResult<T, E extends { [key: string]: string }> = {
-	result: "loading"
+	result: 'loading';
 	success?: T; // optionally a stale result
-}
+};
 
 export type NoneResult<T, E extends { [key: string]: string }> = {
-	result: "none"
-}
+	result: 'none';
+};
 
 export type SuccessResult<T, E extends { [key: string]: string }> = {
 	result: 'success';
@@ -68,13 +68,13 @@ export function andThen<T, E extends { [key: string]: string }, U>(
 	return op(result.success);
 }
 
-export function safeUnwrap<T, E extends { [key: string]: string }>(
-	result: SuccessResult<T, E>
-): T {
+export function safeUnwrap<T, E extends { [key: string]: string }>(result: SuccessResult<T, E>): T {
 	return result.success;
 }
 
-export function unwrap<T, E extends { [key: string]: string }>(result: OptionalPromiseResult<T, E>): T {
+export function unwrap<T, E extends { [key: string]: string }>(
+	result: OptionalPromiseResult<T, E>
+): T {
 	if (isOk(result)) {
 		return result.success;
 	}

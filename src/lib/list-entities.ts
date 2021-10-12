@@ -24,7 +24,10 @@ export const buildGet = <E extends JSONString>(
 	select: [TemplateStringsArray, SerializableParameter[]],
 	params: (query: BaseQuery<E>) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> => {
-	const get: RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> = async function ({ query }) {
+	const get: RequestHandler<
+		MyLocals,
+		Result<EntityResponseBody<E>, { [key: string]: string }>
+	> = async function ({ query }) {
 		console.log(query.toString());
 		// TODO FIXME probably use permissions system?
 		const the_query: BaseQuery<E> = JSON.parse(
@@ -178,7 +181,7 @@ export const buildGet = <E extends JSONString>(
 
 		return {
 			body: {
-				result: "success",
+				result: 'success',
 				success: {
 					entities,
 					nextCursor,

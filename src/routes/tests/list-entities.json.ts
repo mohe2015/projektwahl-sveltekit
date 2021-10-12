@@ -17,7 +17,10 @@ export type TestType = {
 	c: string;
 };
 
-export const get: RequestHandler<MyLocals, Result<EntityResponseBody<TestType>, { [key: string]: string; }>> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<EntityResponseBody<TestType>, { [key: string]: string }>
+> = async function (request) {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}

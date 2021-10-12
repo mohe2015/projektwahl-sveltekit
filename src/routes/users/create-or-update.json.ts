@@ -15,7 +15,7 @@ import { editValidator } from './permissions';
 export const save = async (
 	data: AsyncIterable<JSONValue>,
 	loggedInUser: Existing<RawUserType> | null
-): Promise<EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>>> => {
+): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;
 		for await (const entry of data) {
@@ -23,7 +23,7 @@ export const save = async (
 			if (!isOk(result)) {
 				return {
 					body: result
-				}
+				};
 			}
 			const user = result.success;
 
@@ -70,9 +70,9 @@ export const save = async (
 						postgresError.constraint_name === 'users_name_key'
 					) {
 						// unique violation
-						const response: EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>> = {
+						const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
 							body: {
-								result: "failure",
+								result: 'failure',
 								failure: {
 									name: 'Nutzer mit diesem Namen existiert bereits!'
 								}
@@ -81,15 +81,15 @@ export const save = async (
 						return response;
 					}
 				}
-				const response: EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>> = {
-					status: 500,
+				const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
+					status: 500
 				};
 				return response;
 			}
 		}
 		return {
 			body: {
-				result: "success",
+				result: 'success',
 				success: {
 					id: row.id
 				}
@@ -101,7 +101,7 @@ export const save = async (
 // TODO FIXME these could probably also be generalized by adding mapper functions (e.g. for the password here)
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>>> {
+): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
 	const { body } = request;
 
 	return await save([body], request.locals.user);
