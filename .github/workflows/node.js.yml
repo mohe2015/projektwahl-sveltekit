@@ -56,7 +56,6 @@ jobs:
         EOF
         npm run dev &
         sleep 1
-        wget http://localhost:3000/setup
         npm test
     - run: npm run check
     - run: npm run lint
