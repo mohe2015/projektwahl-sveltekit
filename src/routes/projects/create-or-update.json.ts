@@ -8,11 +8,6 @@ import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { MyLocals } from 'src/hooks';
 import { editValidator, validator } from './permissions';
 
-export type CreateResponse = {
-	errors: { [x: string]: string };
-	id?: number;
-};
-
 export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
 	const { body } = request;
 

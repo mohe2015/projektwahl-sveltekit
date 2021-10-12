@@ -2,14 +2,14 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { assertBooleanProperty, assertNumberProperty, assertObjectType, assertOptionalNumberProperty, assertStringProperty, Validator } from '$lib/authorization';
 import { andThen, mergeErrOr, ok, Result } from '$lib/result';
-import type { Existing, RawProjectType, RawUserType } from '$lib/types';
+import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 
 // TODO FIXME all important checks need to be at the database to prevent race conditions
-export const validator: Validator<Existing<RawProjectType>, { [key: string]: string }> = (
+export const validator: Validator<Partial<New<RawProjectType>>, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
-): Result<Existing<RawProjectType>, { [key: string]: string }> => {
+): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const id = assertOptionalNumberProperty(value, 'id');
 		const title = assertStringProperty(value, 'title');
@@ -31,10 +31,10 @@ export const validator: Validator<Existing<RawProjectType>, { [key: string]: str
 	});
 };
 
-export const viewValidator: Validator<Existing<RawProjectType>, { [key: string]: string }> = (
+export const viewValidator: Validator<Partial<New<RawProjectType>>, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
-): Result<Existing<RawProjectType>, { [key: string]: string }> => {
+): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
 	return andThen(validator(user, value), value => {
 		if (
 			user?.type !== 'admin' &&
@@ -52,10 +52,10 @@ export const viewValidator: Validator<Existing<RawProjectType>, { [key: string]:
 };
 
 
-export const editValidator: Validator<Existing<RawProjectType>, { [key: string]: string }> = (
+export const editValidator: Validator<Partial<New<RawProjectType>>, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
-): Result<Existing<RawProjectType>, { [key: string]: string }> => {
+): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
 	return andThen(validator(user, value), value => {
 		if (
 			user?.type !== 'admin' &&

@@ -2,24 +2,30 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
+import { isOk, Result } from '$lib/result';
 import type { Existing, RawUserType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
-import type { CreateResponse } from '../projects/create-or-update.json';
-import { permissions } from './permissions';
+import { editValidator } from './permissions';
 //import { webcrypto as crypto } from 'crypto';
 
 // TODO FIXME somehow validate if a field is not used? for that checkPermissions would first need to return a typed object
 export const save = async (
 	data: AsyncIterable<JSONValue>,
 	loggedInUser: Existing<RawUserType> | null
-): Promise<EndpointOutput<CreateResponse>> => {
+): Promise<EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
 		let row;
 		for await (const entry of data) {
-			const user = validate(permissions, loggedInUser, entry, 'edit');
+			const result = editValidator(loggedInUser, entry);
+			if (!isOk(result)) {
+				return {
+					body: result
+				}
+			}
+			const user = result.success;
 
 			//const generatedPassword = Buffer.from(crypto.getRandomValues(new Uint8Array(8))).toString(
 			//	'hex'
@@ -64,9 +70,10 @@ export const save = async (
 						postgresError.constraint_name === 'users_name_key'
 					) {
 						// unique violation
-						const response: EndpointOutput<CreateResponse> = {
+						const response: EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>> = {
 							body: {
-								errors: {
+								result: "failure",
+								failure: {
 									name: 'Nutzer mit diesem Namen existiert bereits!'
 								}
 							}
@@ -74,16 +81,18 @@ export const save = async (
 						return response;
 					}
 				}
-				const response: EndpointOutput<CreateResponse> = {
-					status: 500
+				const response: EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>> = {
+					status: 500,
 				};
 				return response;
 			}
 		}
 		return {
 			body: {
-				errors: {},
-				id: row.id
+				result: "success",
+				success: {
+					id: row.id
+				}
 			}
 		};
 	});
@@ -92,7 +101,7 @@ export const save = async (
 // TODO FIXME these could probably also be generalized by adding mapper functions (e.g. for the password here)
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<CreateResponse>> {
+): Promise<EndpointOutput<Result<{ id?: number; }, { [key: string]: string; }>>> {
 	const { body } = request;
 
 	return await save([body], request.locals.user);

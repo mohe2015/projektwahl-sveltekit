@@ -28,6 +28,32 @@ export const assertStringProperty = (value: JSONValue, key: string): Result<stri
 	});
 };
 
+export const assertEnumProperty = <T extends string>(value: JSONValue, key: string, list: Array<T>): Result<T, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'string') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a text'
+				}
+			};
+		}
+		if (list.includes(value3 as T)) {
+			return {
+				result: 'success',
+				success: value3 as T
+			};
+		}
+		return {
+			result: 'failure',
+			failure: {
+				[key]: 'not one of ' + list
+			}
+		};
+	});
+};
+
 export const assertOptionalNumberProperty = (value: JSONValue, key: string): Result<number | undefined, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		if (!(key in value)) {
