@@ -19,6 +19,7 @@ import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
 import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
 import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
 import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+import { isErr } from '$lib/result';
 
 	export let entity: Partial<New<RawProjectType>>;
 
@@ -175,7 +176,7 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 				</tr>
 			</thead>
 			<tbody slot="response" let:response>
-				{#if response?.failure}
+				{#if isErr(response) }
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
@@ -262,7 +263,7 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 				</tr>
 			</thead>
 			<tbody slot="response" let:response>
-				{#if response?.failure}
+				{#if isErr(response) }
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
