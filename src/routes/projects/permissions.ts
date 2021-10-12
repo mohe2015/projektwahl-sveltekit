@@ -1,6 +1,13 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
-import { assertBooleanProperty, assertNumberProperty, assertObjectType, assertOptionalNumberProperty, assertStringProperty, Validator } from '$lib/authorization';
+import {
+	assertBooleanProperty,
+	assertNumberProperty,
+	assertObjectType,
+	assertOptionalPropertyOf,
+	assertStringProperty,
+	Validator
+} from '$lib/authorization';
 import { andThen, mergeErrOr, ok, Result } from '$lib/result';
 import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
@@ -11,23 +18,77 @@ export const validator: Validator<Partial<New<RawProjectType>>, { [key: string]:
 	value: JSONValue
 ): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
-		const id = assertOptionalNumberProperty(value, 'id');
-		const title = assertStringProperty(value, 'title');
-		const info = assertStringProperty(value, 'info');
-		const place = assertStringProperty(value, 'place');
-		const costs = assertNumberProperty(value, 'costs');
-		const min_age = assertNumberProperty(value, 'min_age');
-		const max_age = assertNumberProperty(value, 'max_age');
-		const min_participants = assertNumberProperty(value, 'min_participants');
-		const max_participants = assertNumberProperty(value, 'max_participants');
-		const presentation_type = assertStringProperty(value, 'presentation_type');
-		const requirements = assertStringProperty(value, 'requirements');
-		const random_assignments = assertBooleanProperty(value, 'random_assignments');
-		return mergeErrOr(([id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments]) => {
-			return ok({
-				id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments
-			})
-		}, id, title, info, place, costs, min_age, max_age, min_participants, max_participants, presentation_type, requirements, random_assignments)
+		const id = assertOptionalPropertyOf(value, 'id', assertNumberProperty);
+		const title = assertOptionalPropertyOf(value, 'title', assertStringProperty);
+		const info = assertOptionalPropertyOf(value, 'info', assertStringProperty);
+		const place = assertOptionalPropertyOf(value, 'place', assertStringProperty);
+		const costs = assertOptionalPropertyOf(value, 'costs', assertNumberProperty);
+		const min_age = assertOptionalPropertyOf(value, 'min_age', assertNumberProperty);
+		const max_age = assertOptionalPropertyOf(value, 'max_age', assertNumberProperty);
+		const min_participants = assertOptionalPropertyOf(
+			value,
+			'min_participants',
+			assertNumberProperty
+		);
+		const max_participants = assertOptionalPropertyOf(
+			value,
+			'max_participants',
+			assertNumberProperty
+		);
+		const presentation_type = assertOptionalPropertyOf(
+			value,
+			'presentation_type',
+			assertStringProperty
+		);
+		const requirements = assertOptionalPropertyOf(value, 'requirements', assertStringProperty);
+		const random_assignments = assertOptionalPropertyOf(
+			value,
+			'random_assignments',
+			assertBooleanProperty
+		);
+		return mergeErrOr(
+			([
+				id,
+				title,
+				info,
+				place,
+				costs,
+				min_age,
+				max_age,
+				min_participants,
+				max_participants,
+				presentation_type,
+				requirements,
+				random_assignments
+			]) => {
+				return ok({
+					id,
+					title,
+					info,
+					place,
+					costs,
+					min_age,
+					max_age,
+					min_participants,
+					max_participants,
+					presentation_type,
+					requirements,
+					random_assignments
+				});
+			},
+			id,
+			title,
+			info,
+			place,
+			costs,
+			min_age,
+			max_age,
+			min_participants,
+			max_participants,
+			presentation_type,
+			requirements,
+			random_assignments
+		);
 	});
 };
 
@@ -35,7 +96,7 @@ export const viewValidator: Validator<Partial<New<RawProjectType>>, { [key: stri
 	user: Existing<RawUserType> | null,
 	value: JSONValue
 ): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
-	return andThen(validator(user, value), value => {
+	return andThen(validator(user, value), (value) => {
 		if (
 			user?.type !== 'admin' &&
 			user?.project_leader_id !== value.id // TODO FIXME only allow helpers to edit, not voters
@@ -47,16 +108,15 @@ export const viewValidator: Validator<Partial<New<RawProjectType>>, { [key: stri
 				}
 			};
 		}
-		return ok(value)
+		return ok(value);
 	});
 };
-
 
 export const editValidator: Validator<Partial<New<RawProjectType>>, { [key: string]: string }> = (
 	user: Existing<RawUserType> | null,
 	value: JSONValue
 ): Result<Partial<New<RawProjectType>>, { [key: string]: string }> => {
-	return andThen(validator(user, value), value => {
+	return andThen(validator(user, value), (value) => {
 		if (
 			user?.type !== 'admin' &&
 			user?.project_leader_id !== value.id // TODO FIXME only allow helpers to edit, not voters
@@ -68,6 +128,6 @@ export const editValidator: Validator<Partial<New<RawProjectType>>, { [key: stri
 				}
 			};
 		}
-		return ok(value)
+		return ok(value);
 	});
 };
