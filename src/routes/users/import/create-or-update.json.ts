@@ -6,12 +6,13 @@ import parse from 'csv-parse';
 import { Readable } from 'stream';
 import { save } from '../create-or-update.json';
 import { Transform } from 'stream';
+import type { Result } from '$lib/result';
 
 export type UserImportRequest = { fileInput?: string; id: number };
 
 export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request
-): Promise<EndpointOutput<CreateResponse>> {
+): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
 
 	// TODO FIXME use validation system
 	if (!request.body.fileInput) {

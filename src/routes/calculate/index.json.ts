@@ -10,7 +10,7 @@ import os from 'os';
 import { execFile } from 'child_process';
 import JSON5 from 'json5';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
-import type { Existing, RawChoiceType, RawProjectType, RawUserVoterType } from '$lib/types';
+import type { Existing, RawChoiceType, RawProjectType, RawUserType } from '$lib/types';
 
 // TODO FIXME if you're wondering why this doesn't give a solution it's because the min_participants is too high
 // or not
@@ -48,7 +48,7 @@ export const get: RequestHandler<MyLocals, JSONValue> = async function (request)
 		}
 		await fileHandle.write(`;${os.EOL}`);
 
-		const users: Existing<RawUserVoterType>[] =
+		const users: Existing<RawUserType>[] =
 			await sql`SELECT id, project_leader_id FROM present_voters;`;
 
 		await fileHandle.write(`set U :=`);

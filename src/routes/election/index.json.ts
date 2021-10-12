@@ -2,14 +2,15 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
 import { buildGet } from '$lib/list-entities';
+import type { Result } from '$lib/result';
 import { fakeTT } from '$lib/tagged-templates';
-import type { EntityResponseBody, Existing, RawProjectType } from '$lib/types';
+import type { EntityResponseBody, Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
 import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 
-export const get: RequestHandler<MyLocals, EntityResponseBody<Existing<RawProjectType>>> = async function (request) {
-	return await buildGet<Existing<RawProjectType>>(
+export const get: RequestHandler<MyLocals, Result<EntityResponseBody<Existing<RawProjectType> & ResettableChoiceType>, { [key: string]: string; }>> = async function (request) {
+	return await buildGet<Existing<RawProjectType> & ResettableChoiceType>(
 		[
 			'id',
 			'title',
