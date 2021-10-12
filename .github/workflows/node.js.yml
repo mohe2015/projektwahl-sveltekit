@@ -57,5 +57,5 @@ jobs:
         npm run dev &
         sleep 1
         npm test
-    - run: npm run check
     - run: npm run lint
+    - run: npm run check
