@@ -5,10 +5,11 @@ import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 import { dev } from '$app/env';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import type { Result } from '$lib/result';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<Record<string, never>>> {
+): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string; }>>> {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}
@@ -22,6 +23,9 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	});
 
 	return {
-		body: {}
+		body: {
+			result: "success",
+			success: {}
+		}
 	};
 };

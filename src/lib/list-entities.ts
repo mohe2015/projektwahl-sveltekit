@@ -45,10 +45,10 @@ export const buildGet = <E extends JSONString>(
 		const paginationDirection: string | null = the_query.paginationDirection;
 		const paginationLimit: number = the_query.paginationLimit;
 		if (isNaN(paginationLimit)) {
-			throw new Error('invalid pagination_limit');
+			throw new Error('invalid paginationLimit');
 		}
 		if (paginationLimit > 100) {
-			throw new Error('pagination_limit too large');
+			throw new Error('paginationLimit too large');
 		}
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';

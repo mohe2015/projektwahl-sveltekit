@@ -2,8 +2,6 @@
 
 exports[`invalid login returns error 1`] = `
 Object {
-  "errors": Object {
-    "name": "Nutzer existiert nicht!",
-  },
+  "name": "Nutzer existiert nicht!",
 }
 `;
