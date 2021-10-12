@@ -10,6 +10,8 @@ export type Validator<T, E extends { [key: string]: string }> = (
 	unsanitizedValue: JSONValue
 ) => Result<T, E>;
 
+// TODO FIXMe make all these return a function that takes value and key so we can improve the optionalpropertyof thing
+
 export const assertStringProperty = (value: JSONValue, key: string): Result<string, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
@@ -28,33 +30,35 @@ export const assertStringProperty = (value: JSONValue, key: string): Result<stri
 	});
 };
 
-export const assertEnumProperty = <T extends string>(value: JSONValue, key: string, list: Array<T>): Result<T, { [key: string]: string }> => {
-	return andThen(assertObjectType(value), (value) => {
-		const value3 = value[key];
-		if (typeof value3 !== 'string') {
+export const assertEnumProperty = <T extends string>(list: Array<T>): ((value: JSONValue, key: string) => Result<T, { [key: string]: string }>) => {
+	return (value: JSONValue, key: string) => {
+		return andThen(assertObjectType(value), (value) => {
+			const value3 = value[key];
+			if (typeof value3 !== 'string') {
+				return {
+					result: 'failure',
+					failure: {
+						[key]: 'not a text'
+					}
+				};
+			}
+			if (list.includes(value3 as T)) {
+				return {
+					result: 'success',
+					success: value3 as T
+				};
+			}
 			return {
 				result: 'failure',
 				failure: {
-					[key]: 'not a text'
+					[key]: 'not one of ' + list
 				}
 			};
-		}
-		if (list.includes(value3 as T)) {
-			return {
-				result: 'success',
-				success: value3 as T
-			};
-		}
-		return {
-			result: 'failure',
-			failure: {
-				[key]: 'not one of ' + list
-			}
-		};
-	});
+		});
+	}
 };
 
-export const assertOptionalNumberProperty = (value: JSONValue, key: string): Result<number | undefined, { [key: string]: string }> => {
+export const assertOptionalPropertyOf = <T>(value: JSONValue, key: string, otherFun: (value: JSONValue, key: string) => Result<T, { [key: string]: string }>): Result<T | undefined, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		if (!(key in value)) {
 			return {
@@ -62,19 +66,7 @@ export const assertOptionalNumberProperty = (value: JSONValue, key: string): Res
 				success: undefined
 			};
 		}
-		const value3 = value[key];
-		if (typeof value3 === 'number') {
-			return {
-				result: 'success',
-				success: value3
-			};
-		}
-		return {
-			result: 'failure',
-			failure: {
-				[key]: 'not a number'
-			}
-		};
+		return otherFun(value, key);
 	});
 };
 
