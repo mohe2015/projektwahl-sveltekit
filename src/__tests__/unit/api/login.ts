@@ -5,7 +5,7 @@ import type { Login } from 'src/routes/login/index.json';
 import { failedFetch, successfulFetch } from '../../../lib/test_utils';
 
 test('invalid login returns error', async () => {
-	const result = await failedFetch<{ [key: string]: string; }>('http://localhost:3000/login.json', {
+	const result = await failedFetch<{ [key: string]: string }>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',

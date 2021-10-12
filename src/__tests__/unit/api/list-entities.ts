@@ -5,7 +5,7 @@ import type { EntityResponseBody } from '$lib/types';
 import 'jest';
 import type { Login } from 'src/routes/login/index.json';
 import type { TestType } from 'src/routes/tests/list-entities.json';
-import { successfulFetch } from '../../../lib/test_utils'
+import { successfulFetch } from '../../../lib/test_utils';
 
 test('check that all rows are returned with pagination', async () => {
 	const loginResult = await successfulFetch<Login>('http://localhost:3000/login.json', {
@@ -48,15 +48,15 @@ test('check that all rows are returned with pagination', async () => {
 		const url =
 			'http://localhost:3000/tests/list-entities.json?' +
 			Buffer.from(JSON.stringify(query)).toString('base64');
-		console.log(url)
+		console.log(url);
 		result = await successfulFetch(url, {
-			method: "GET",
+			method: 'GET',
 			headers: {
 				'x-csrf-protection': 'projektwahl',
 				cookie: `strict_id=${loginResult.session.session_id}; lax_id=${loginResult.session.session_id}`
 			}
 		});
-		console.log(result)
+		console.log(result);
 		result?.entities.forEach((e) => {
 			expect(foundIds).toContain(e.id);
 			foundIds.delete(e.id);

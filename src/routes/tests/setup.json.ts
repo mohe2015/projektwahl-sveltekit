@@ -9,7 +9,7 @@ import type { Result } from '$lib/result';
 
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
-): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string; }>>> {
+): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string }>>> {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}
@@ -24,7 +24,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	return {
 		body: {
-			result: "success",
+			result: 'success',
 			success: {}
 		}
 	};
