@@ -3,8 +3,9 @@
 import { dev } from '$app/env';
 import { sql } from '$lib/database';
 import { hashPassword } from '$lib/password';
+import type { Result } from '$lib/result';
 import type { Existing, RawUserType } from '$lib/types';
-import type { RequestHandler } from '@sveltejs/kit';
+import type { EndpointOutput, RequestHandler } from '@sveltejs/kit';
 import type { MyLocals } from 'src/hooks';
 
 const shuffleArray = <T>(array: T[]) => {
@@ -16,7 +17,9 @@ const shuffleArray = <T>(array: T[]) => {
 	}
 };
 
-export const get: RequestHandler<MyLocals, void> = async function () {
+export const get: RequestHandler<MyLocals, void> = async function (): Promise<
+	EndpointOutput<Result<Record<string, never>, { [key: string]: string }>>
+> {
 	//allowUserType(request, []);
 
 	if (dev) {
@@ -96,11 +99,14 @@ export const get: RequestHandler<MyLocals, void> = async function () {
 				}
 			});
 		} catch (error) {
-			console.error(error)
+			console.error(error);
 		}
 	}
 
 	return {
-		body: {}
+		body: {
+			result: 'success',
+			success: {}
+		}
 	};
 };
