@@ -1,21 +1,24 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import { sql } from '$lib/database';
-import { isOk } from '$lib/result';
+import { isOk, Result } from '$lib/result';
 import type { Existing, RawProjectType } from '$lib/types';
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
+import type { PostgresError } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import { editValidator, validator } from './permissions';
 
-export const post: RequestHandler<MyLocals, JSONValue> = async function (request) {
+export const post: RequestHandler<MyLocals, JSONValue> = async function (
+	request
+): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
 	const { body } = request;
 
 	const result = validator(request.locals.user, body);
 	if (!isOk(result)) {
 		return {
 			body: result
-		}
+		};
 	}
 	const project = result.success;
 
@@ -26,7 +29,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (request
 			if (!isOk(result)) {
 				return {
 					body: result
-				}
+				};
 			}
 			[row] = await sql.begin('READ WRITE', async (sql) => {
 				return await sql`UPDATE projects SET
@@ -62,7 +65,7 @@ WHERE id = ${project.id} RETURNING id;`;
 			if (!isOk(result)) {
 				return {
 					body: result
-				}
+				};
 			}
 			// (CASE WHEN ${project.title !== undefined} THEN ${project.title ?? null} ELSE DEFAULT END,
 			// would be dream but is a syntax error. we probably need to build the queries custom
@@ -83,21 +86,36 @@ RETURNING id;`;
 			});
 		}
 
-		const response: EndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
 			body: {
-				errors: {},
-				id: row.id
+				result: 'success',
+				success: {
+					id: row.id
+				}
 			}
 		};
 		return response;
 	} catch (error: unknown) {
 		if (error instanceof Error && error.name === 'PostgresError') {
 			const postgresError = error as PostgresError;
+			if (postgresError.code === '23502') {
+				// null value violates not-null constraint
+				const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
+					body: {
+						result: 'failure',
+						failure: {
+							[postgresError.column_name]: `${postgresError.column_name} fehlt!`
+						}
+					}
+				};
+				return response;
+			}
 			if (postgresError.code === '23505' && postgresError.constraint_name === 'users_name_key') {
 				// unique violation
-				const response: EndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
 					body: {
-						errors: {
+						result: 'failure',
+						failure: {
 							name: 'Nutzer mit diesem Namen existiert bereits!'
 						}
 					}
@@ -106,9 +124,10 @@ RETURNING id;`;
 			}
 			if (postgresError.code === '22003') {
 				// numeric_value_out_of_range
-				const response: EndpointOutput<CreateResponse> = {
+				const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
 					body: {
-						errors: {
+						result: 'failure',
+						failure: {
 							costs: 'Die Kosten sind zu hoch!'
 						}
 					}
@@ -117,7 +136,7 @@ RETURNING id;`;
 			}
 		}
 		console.log(error);
-		const response: EndpointOutput<CreateResponse> = {
+		const response: EndpointOutput<Result<{ id?: number }, { [key: string]: string }>> = {
 			status: 500
 		};
 		return response;
