@@ -8,8 +8,6 @@ import type { TestType } from 'src/routes/tests/list-entities.json';
 import { successfulFetch } from '../../../lib/test_utils';
 
 test('check that all rows are returned with pagination', async () => {
-	await successfulFetch('http://localhost:3000/setup', {});
-
 	const loginResult = await successfulFetch<Login>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {

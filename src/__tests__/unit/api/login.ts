@@ -5,8 +5,6 @@ import type { Login } from 'src/routes/login/index.json';
 import { failedFetch, successfulFetch } from '../../../lib/test_utils';
 
 test('invalid login returns error', async () => {
-	await successfulFetch('http://localhost:3000/setup', {});
-
 	const result = await failedFetch<{ [key: string]: string }>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {
@@ -22,8 +20,6 @@ test('invalid login returns error', async () => {
 });
 
 test('successful login returns cookie', async () => {
-	await successfulFetch('http://localhost:3000/setup', {});
-
 	const result = await successfulFetch<Login>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {
