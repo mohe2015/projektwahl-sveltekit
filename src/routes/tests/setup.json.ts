@@ -7,9 +7,9 @@ import { dev } from '$app/env';
 import type { JSONValue } from '@sveltejs/kit/types/helper';
 import type { Result } from '$lib/result';
 
-export const post: RequestHandler<MyLocals, JSONValue> = async function (
-	request
-): Promise<EndpointOutput<Result<Record<string, never>, { [key: string]: string }>>> {
+export const post: RequestHandler<MyLocals, JSONValue> = async function (): Promise<
+	EndpointOutput<Result<Record<string, never>, { [key: string]: string }>>
+> {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}

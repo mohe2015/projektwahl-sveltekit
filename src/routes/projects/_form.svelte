@@ -185,7 +185,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						</td>
 					</tr>
 				{:else}
-					{#each response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>
@@ -272,7 +272,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 						</td>
 					</tr>
 				{:else}
-					{#each response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>

@@ -9,7 +9,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto } from '$app/navigation';
 	import type { Login } from './index.json';
 	import { myFetch } from '$lib/error-handling';
-	import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/result';
+	import { errOrDefault, isOk, OptionalPromiseResult } from '$lib/result';
 
 	let user: {
 		name: string | null;
@@ -37,6 +37,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		});
 		if (isOk(result)) {
 			// TODO FIXME use server provided data (also id etc)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			$session.user = {
 				name: user.name
 			};
