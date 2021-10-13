@@ -12,7 +12,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	export let path: string;
 	export let entityId: number;
 	export let entityName: string;
-	export let refreshList: () => Promise<void>;
+	export let refreshList: () => void;
 	let modalUser: string | null = null;
 	let modalUserId: number | null = null;
 	let deleteModalOpen = false;

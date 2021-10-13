@@ -55,7 +55,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 					</td>
 				</tr>
 			{:else if isOk(response) || response.result === 'loading'}
-				{#each response.success?.entities ?? [] as entity (entity.id)}
+				{#each response.success?.entities /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ ?? [] as entity (entity.id)}
 					<tr>
 						<th scope="row">{entity.id}</th>
 						<td>{entity.name}</td>
@@ -91,7 +91,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 								entityId={entity.id}
 								entityName={entity.name}
 								path="users"
-								refreshList={async () => list.refresh()}
+								refreshList={() => {
+									list.refresh(); /* eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call */
+								}}
 							/>
 						</td>
 					</tr>

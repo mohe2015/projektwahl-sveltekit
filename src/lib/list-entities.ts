@@ -152,7 +152,7 @@ export const buildGet = <E extends JSONString>(
 
 		console.log(TTToString(...queryString));
 
-		let entities: E[] = await sql<E[]>(...queryString);
+		let entities = (await sql(...queryString)) as E[];
 
 		let nextCursor: E | null = null;
 		let previousCursor: E | null = null;

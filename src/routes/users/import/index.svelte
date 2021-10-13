@@ -14,7 +14,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	$: {
 		// TODO FIXME hacks over hacks
-		(async (fileInput) => {
+		void (async (fileInput) => {
 			entity.fileInput = fileInput ? await fileInput[0].text() : undefined;
 		})(fileInput);
 	}

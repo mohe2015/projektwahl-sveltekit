@@ -41,12 +41,12 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 			($query, set) => {
 				if (browser) {
 					// TODO FIXME
-					(async () => {
+					void (async () => {
 						set({
 							result: 'loading',
 							success: isOk(previousValue) ? previousValue.success : undefined
 						});
-						const fullUrl = 'http://' + $page.host + `/${url}?${btoa(JSON.stringify($query))}`;
+						const fullUrl = `http://${$page.host}/${url}?${btoa(JSON.stringify($query))}`;
 						console.log(fullUrl);
 						previousValue = await myFetch<EntityResponseBody<E>>(fullUrl, {
 							method: 'GET',
