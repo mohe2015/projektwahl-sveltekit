@@ -17,7 +17,7 @@ export const save = async (
 	loggedInUser: Existing<RawUserType> | null
 ): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> => {
 	return await sql.begin('READ WRITE', async (sql) => {
-		let row;
+		let row: { id: number };
 		for await (const entry of data) {
 			const result = editValidator(loggedInUser, entry);
 			if (!isOk(result)) {
@@ -98,13 +98,20 @@ export const save = async (
 	});
 };
 
+// eslint-disable-next-line @typescript-eslint/require-await
+async function* syncToAsyncIterable(syncIterable) {
+	for (const elem of syncIterable) {
+		yield elem;
+	}
+}
+
 // TODO FIXME these could probably also be generalized by adding mapper functions (e.g. for the password here)
 export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	request
 ): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
 	const { body } = request;
 
-	return await save([body], request.locals.user);
+	return await save(syncToAsyncIterable([body]), request.locals.user);
 
 	// TODO FIXME when implementing update don't accidentially destroy the password
 	// TODO FIXME if you erase the field you get an empty password - we need a way to reset the password and one to leave it like it was

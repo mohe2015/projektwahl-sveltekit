@@ -25,11 +25,11 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 		writableObjectMode: true
 	});
 
-	transformStream._transform = (chunk, encoding, callback) => {
-		if (chunk.age === '') {
+	transformStream._transform = (chunk: Record<string, unknown>, encoding, callback) => {
+		if ('age' in chunk && chunk.age === '') {
 			chunk.age = undefined;
 		}
-		if (chunk.group === '') {
+		if ('age' in chunk && chunk.group === '') {
 			chunk.group = undefined;
 		}
 		console.log(chunk);
