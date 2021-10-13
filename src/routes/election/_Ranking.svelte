@@ -4,6 +4,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
 	import type EntityList from '$lib/entity-list/EntityList.svelte';
+	import { myFetch } from '$lib/error-handling';
+	import { isOk } from '$lib/result';
 	import type { Existing, RawProjectType, ResettableChoiceType } from '$lib/types';
 
 	let disabled = false;
@@ -13,7 +15,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	async function setRank(rank: number | null) {
 		disabled = true;
 
-		const response = await fetch('/election/set_rank.json', {
+		const result = await myFetch('/election/set_rank.json', {
 			method: 'POST',
 			body: JSON.stringify({
 				project_id: entity.project_id,
@@ -24,18 +26,16 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
-		if (!response.ok) {
-			throw new Error(response.status + ' ' + response.statusText);
-		} else {
-			let json = await response.json();
-
+		if (isOk(result)) {
 			entity.rank = rank;
-
-			await list.refresh();
-
-			disabled = false;
-			return json;
 		}
+		// TODO FIXME show error message
+
+		list.refresh(); // eslint-disable-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+
+		disabled = false;
+
+		return result;
 	}
 </script>
 
