@@ -7,9 +7,9 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
 	import TextInput from '$lib/form/TextInput.svelte';
 	import { goto } from '$app/navigation';
-import type { Login } from './index.json';
-import { myFetch } from '$lib/error-handling';
-import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/result';
+	import type { Login } from './index.json';
+	import { myFetch } from '$lib/error-handling';
+	import { errOrDefault, isOk, OptionalPromiseResult } from '$lib/result';
 
 	let user: {
 		name: string | null;
@@ -20,13 +20,13 @@ import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/r
 	};
 
 	let result: OptionalPromiseResult<Login, { [key: string]: string }> = {
-		result: "none"
+		result: 'none'
 	};
 
 	async function login() {
 		result = {
-			result: "loading"
-		}
+			result: 'loading'
+		};
 		result = await myFetch<Login>('/login.json', {
 			method: 'POST',
 			body: JSON.stringify(user),
@@ -37,12 +37,13 @@ import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/r
 		});
 		if (isOk(result)) {
 			// TODO FIXME use server provided data (also id etc)
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			$session.user = {
 				name: user.name
 			};
 			await goto('/', { replaceState: true });
 		}
-		return result
+		return result;
 	}
 </script>
 
@@ -55,8 +56,7 @@ import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/r
 
 	<div class="row justify-content-center">
 		<div class="col-md-7 col-lg-8">
-			
-			{#if result && result.result !== "loading"}
+			{#if result && result.result !== 'loading'}
 				{#if Object.entries(errOrDefault(result, {})).filter(([a, _m]) => !['password', 'name'].includes(a)).length > 0}
 					<div class="alert alert-danger" role="alert">
 						Fehler!
@@ -67,11 +67,7 @@ import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/r
 				{/if}
 			{/if}
 
-			<form
-				method="POST"
-				action="/no-javascript"
-				on:submit|preventDefault={login}
-			>
+			<form method="POST" action="/no-javascript" on:submit|preventDefault={login}>
 				<TextInput
 					type="text"
 					autocomplete="username"
@@ -88,7 +84,7 @@ import { errOrDefault, isOk, OptionalPromiseResult, PromiseResult } from '$lib/r
 					autocomplete="current-password"
 					{result}
 				/>
-			
+
 				<button type="submit" class="btn btn-primary">Login</button>
 			</form>
 		</div>

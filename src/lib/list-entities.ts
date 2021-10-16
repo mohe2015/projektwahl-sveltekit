@@ -24,7 +24,10 @@ export const buildGet = <E extends JSONString>(
 	select: [TemplateStringsArray, SerializableParameter[]],
 	params: (query: BaseQuery<E>) => [TemplateStringsArray, SerializableParameter[]]
 ): RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> => {
-	const get: RequestHandler<MyLocals, Result<EntityResponseBody<E>, { [key: string]: string }>> = async function ({ query }) {
+	const get: RequestHandler<
+		MyLocals,
+		Result<EntityResponseBody<E>, { [key: string]: string }>
+	> = async function ({ query }) {
 		console.log(query.toString());
 		// TODO FIXME probably use permissions system?
 		const the_query: BaseQuery<E> = JSON.parse(
@@ -42,10 +45,10 @@ export const buildGet = <E extends JSONString>(
 		const paginationDirection: string | null = the_query.paginationDirection;
 		const paginationLimit: number = the_query.paginationLimit;
 		if (isNaN(paginationLimit)) {
-			throw new Error('invalid pagination_limit');
+			throw new Error('invalid paginationLimit');
 		}
 		if (paginationLimit > 100) {
-			throw new Error('pagination_limit too large');
+			throw new Error('paginationLimit too large');
 		}
 		const isForwardsPagination: boolean = paginationDirection === 'forwards';
 		const isBackwardsPagination: boolean = paginationDirection === 'backwards';
@@ -149,7 +152,7 @@ export const buildGet = <E extends JSONString>(
 
 		console.log(TTToString(...queryString));
 
-		let entities: E[] = await sql<E[]>(...queryString);
+		let entities = (await sql(...queryString)) as E[];
 
 		let nextCursor: E | null = null;
 		let previousCursor: E | null = null;
@@ -178,7 +181,7 @@ export const buildGet = <E extends JSONString>(
 
 		return {
 			body: {
-				result: "success",
+				result: 'success',
 				success: {
 					entities,
 					nextCursor,

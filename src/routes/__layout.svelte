@@ -6,6 +6,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import { goto } from '$app/navigation';
 
 	import { navigating, page, session } from '$app/stores';
+	import { myFetch } from '$lib/error-handling';
 	import {
 		Button,
 		Modal,
@@ -26,34 +27,26 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 		isNavbarOpen = true; // TODO FIXME false
 	};
 
-	function handleUpdate(event: CustomEvent) {
+	function handleUpdate(event: CustomEvent<{ isOpen: boolean }>) {
 		isNavbarOpen = event.detail.isOpen;
 	}
 
 	const logout = async () => {
-		let json;
-		const response = await fetch(`/logout.json`, {
+		const _result = await myFetch(`/logout.json`, {
 			method: 'POST',
 			headers: {
 				'x-csrf-protection': 'projektwahl'
 			}
 		});
 		// TODO FIXME show error in UI
-		if (!response.ok) {
-			throw new Error(response.status + ' ' + response.statusText);
-		} else {
-			json = await response.json();
-			if (Object.entries(json.errors).length > 0) {
-				throw new Error(
-					Object.entries(json.errors)
-						.map((e) => e[1])
-						.join('\n')
-				);
-			}
-			$session.user = null;
-			logoutModalOpen = false;
-			goto('/login');
-		}
+		$session.user = null; // eslint-disable-line @typescript-eslint/no-unsafe-member-access
+		logoutModalOpen = false;
+		await goto('/login');
+	};
+
+	const logoutUi = (e: MouseEvent) => {
+		e.preventDefault();
+		logoutModalOpen = true;
 	};
 </script>
 
@@ -82,42 +75,58 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	<Collapse isOpen={isNavbarOpen} navbar expand="lg" on:update={handleUpdate}>
 		<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 			<li class="nav-item">
-				<a class="nav-link {$page.path === '/' ? 'active' : ''}" aria-current="page" href="/"
-					>Start</a
+				<a
+					class="nav-link {$page /*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/.path ===
+					'/'
+						? 'active'
+						: ''}"
+					aria-current="page"
+					href="/">Start</a
 				>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link {$page.path.startsWith('/users') ? 'active' : ''}" href="/users"
-					>Nutzer</a
+				<a
+					class="nav-link {$page./*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/ path /*eslint-disable-line @typescript-eslint/no-unsafe-call*/
+						.startsWith('/users')
+						? 'active'
+						: ''}"
+					href="/users">Nutzer</a
 				>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link {$page.path.startsWith('/projects') ? 'active' : ''}" href="/projects"
-					>Projekte</a
+				<a
+					class="nav-link {$page./*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/ path /*eslint-disable-line @typescript-eslint/no-unsafe-call*/
+						.startsWith('/projects')
+						? 'active'
+						: ''}"
+					href="/projects">Projekte</a
 				>
 			</li>
 			<li class="nav-item">
-				<a class="nav-link {$page.path.startsWith('/election') ? 'active' : ''}" href="/election"
-					>Wahl</a
+				<a
+					class="nav-link {$page./*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/ path /*eslint-disable-line @typescript-eslint/no-unsafe-call*/
+						.startsWith('/election')
+						? 'active'
+						: ''}"
+					href="/election">Wahl</a
 				>
 			</li>
 		</ul>
 		<ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-			{#if $session.user !== null}
+			{#if $session /*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/.user !== null}
 				<li class="nav-item">
-					<a
-						class="nav-link"
-						href="/no-javascript"
-						on:click={(e) => {
-							e.preventDefault();
-							logoutModalOpen = true;
-						}}>{$session.user.name} abmelden</a
+					<a class="nav-link" href="/no-javascript" on:click={logoutUi}
+						>{$session/*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/.user.name} abmelden</a
 					>
 				</li>
 			{:else}
 				<li class="nav-item">
-					<a class="nav-link {$page.path.startsWith('/login') ? 'active' : ''}" href="/login"
-						>Anmelden</a
+					<a
+						class="nav-link {$page /*eslint-disable-line @typescript-eslint/no-unsafe-member-access*/.path /*eslint-disable-line @typescript-eslint/no-unsafe-call*/
+							.startsWith('/login')
+							? 'active'
+							: ''}"
+						href="/login">Anmelden</a
 					>
 				</li>
 			{/if}

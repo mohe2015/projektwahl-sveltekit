@@ -2,17 +2,17 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { EndpointOutput, RequestHandler } from '@sveltejs/kit/types/endpoint';
 import type { MyLocals } from 'src/hooks';
-import type { CreateResponse } from '../../projects/create-or-update.json';
 import parse from 'csv-parse';
 import { Readable } from 'stream';
 import { save } from '../create-or-update.json';
+import { Transform } from 'stream';
+import type { Result } from '$lib/result';
 
 export type UserImportRequest = { fileInput?: string; id: number };
 
 export const post: RequestHandler<MyLocals, UserImportRequest> = async function (
 	request
-): Promise<EndpointOutput<CreateResponse>> {
-
+): Promise<EndpointOutput<Result<{ id?: number }, { [key: string]: string }>>> {
 	// TODO FIXME use validation system
 	if (!request.body.fileInput) {
 		return {
@@ -20,13 +20,33 @@ export const post: RequestHandler<MyLocals, UserImportRequest> = async function 
 		};
 	}
 
-	const parser = Readable.from(request.body.fileInput).pipe(
-		parse({
-			trim: true,
-			columns: true,
-			delimiter: ';'
-		})
-	);
+	const transformStream = new Transform({
+		readableObjectMode: true,
+		writableObjectMode: true
+	});
+
+	transformStream._transform = (chunk: Record<string, unknown>, encoding, callback) => {
+		if ('age' in chunk && chunk.age === '') {
+			chunk.age = undefined;
+		}
+		if ('age' in chunk && chunk.group === '') {
+			chunk.group = undefined;
+		}
+		console.log(chunk);
+		transformStream.push(chunk);
+		callback();
+	};
+
+	const parser = Readable.from(request.body.fileInput)
+		.pipe(
+			parse({
+				trim: true,
+				columns: true,
+				delimiter: ';',
+				cast: true
+			})
+		)
+		.pipe(transformStream);
 
 	return await save(parser, request.locals.user);
 };

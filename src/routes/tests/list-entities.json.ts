@@ -7,6 +7,8 @@ import type { RequestHandler } from '@sveltejs/kit';
 import type { SerializableParameter } from 'postgres';
 import type { MyLocals } from 'src/hooks';
 import { dev } from '$app/env';
+import type { EntityResponseBody } from '$lib/types';
+import type { Result } from '$lib/result';
 
 export type TestType = {
 	id: number;
@@ -15,13 +17,10 @@ export type TestType = {
 	c: string;
 };
 
-export type TestResponseBody = {
-	entities: Array<TestType>;
-	previousCursor: TestType | null;
-	nextCursor: TestType | null;
-};
-
-export const get: RequestHandler<MyLocals, TestResponseBody> = async function (request) {
+export const get: RequestHandler<
+	MyLocals,
+	Result<EntityResponseBody<TestType>, { [key: string]: string }>
+> = async function (request) {
 	if (!dev) {
 		throw new Error('only available in dev');
 	}

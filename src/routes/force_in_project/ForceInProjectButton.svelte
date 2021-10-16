@@ -3,11 +3,11 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { myFetch } from "$lib/error-handling";
+	import { myFetch } from '$lib/error-handling';
 
-import FailureResult from "$lib/FailureResult.svelte";
-import { isOk, PromiseResult } from "$lib/result";
-import type { Existing, RawUserType } from "$lib/types";
+	import FailureResult from '$lib/FailureResult.svelte';
+	import { isOk, PromiseResult } from '$lib/result';
+	import type { Existing, RawUserType } from '$lib/types';
 
 	// TODO FIXME duplication with project_leaders/
 
@@ -28,8 +28,8 @@ import type { Existing, RawUserType } from "$lib/types";
 	on:change={async () => {
 		disabled = true;
 		result = {
-			result: "loading"
-		}
+			result: 'loading'
+		};
 		result = await myFetch(`/users/create-or-update.json`, {
 			method: 'POST',
 			body: JSON.stringify({

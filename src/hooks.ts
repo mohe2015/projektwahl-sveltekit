@@ -49,9 +49,8 @@ export const handle: Handle<MyLocals> = async ({ request, resolve }) => {
 				// eslint-disable-next-line @typescript-eslint/await-thenable
 				await sql`SELECT sessions.session_id, sessions.updated_at, users.id, users.name, users.type, users.group, users.age, users.away, users.project_leader_id FROM sessions, users WHERE sessions.session_id = ${session_id} AND users.id = sessions.user_id;`;
 
-				console.log(session);
+			console.log(session);
 			if (session) {
-				
 				const updated_at: Date = session.updated_at;
 				const millies = new Date().getTime() - updated_at.getTime();
 				if (!(millies < 60 * 60 * 1000)) {

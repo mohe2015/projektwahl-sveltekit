@@ -50,9 +50,9 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (!isOk(result)) {
 		return {
 			body: result
-		}
+		};
 	}
-	const user = safeUnwrap(result)
+	const user = safeUnwrap(result);
 
 	const [entity]: [Existing<RawUserType>] =
 		// eslint-disable-next-line @typescript-eslint/await-thenable
@@ -61,7 +61,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity === undefined) {
 		return {
 			body: {
-				result: "failure",
+				result: 'failure',
 				failure: {
 					name: 'Nutzer existiert nicht!'
 				}
@@ -72,7 +72,7 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 	if (entity.password == null || !(await checkPassword(entity.password, user.password))) {
 		return {
 			body: {
-				result: "failure",
+				result: 'failure',
 				failure: {
 					password: 'Falsches Passwort!'
 				}
@@ -90,10 +90,10 @@ export const post: RequestHandler<MyLocals, JSONValue> = async function (
 
 	return {
 		body: {
-			result: "success",
+			result: 'success',
 			success: {
 				session
-			},
+			}
 		},
 		headers: {
 			'Set-Cookie': [

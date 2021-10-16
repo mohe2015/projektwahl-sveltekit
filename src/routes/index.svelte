@@ -29,8 +29,8 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <main class="container">
 	<h1 class="text-center">Willkommen</h1>
 
-	{#if $session.user !== null}
-		Hallo {$session.user.name}!
+	{#if $session.user /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ !== null}
+		Hallo {$session /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */.user.name}!
 	{:else}
 		Noch nicht angemeldet.
 	{/if}

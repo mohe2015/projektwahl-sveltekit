@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 # SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
+.DS_Store
 node_modules
-/.svelte-kit
 /build
+/.svelte-kit
+/package
 .eslintcache
 .env

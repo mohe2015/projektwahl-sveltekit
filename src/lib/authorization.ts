@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import type { JSONString, JSONValue } from '@sveltejs/kit/types/helper';
-import { andThen, Result } from './result';
+import type { Result } from './result';
+import { andThen } from './result';
 import type { Existing, RawUserType } from './types';
 
 export type Validator<T, E extends { [key: string]: string }> = (
@@ -9,7 +10,12 @@ export type Validator<T, E extends { [key: string]: string }> = (
 	unsanitizedValue: JSONValue
 ) => Result<T, E>;
 
-export const assertStringProperty = (value: JSONValue, key: string): Result<string, { [key: string]: string }> => {
+// TODO FIXMe make all these return a function that takes value and key so we can improve the optionalpropertyof thing
+
+export const assertStringProperty = (
+	value: JSONValue,
+	key: string
+): Result<string, { [key: string]: string }> => {
 	return andThen(assertObjectType(value), (value) => {
 		const value3 = value[key];
 		if (typeof value3 !== 'string') {
@@ -27,11 +33,102 @@ export const assertStringProperty = (value: JSONValue, key: string): Result<stri
 	});
 };
 
+export const assertEnumProperty = <T extends string>(
+	list: Array<T>
+): ((value: JSONValue, key: string) => Result<T, { [key: string]: string }>) => {
+	return (value: JSONValue, key: string) => {
+		return andThen(assertObjectType(value), (value) => {
+			const value3 = value[key];
+			if (typeof value3 !== 'string') {
+				return {
+					result: 'failure',
+					failure: {
+						[key]: 'not a text'
+					}
+				};
+			}
+			if (list.includes(value3 as T)) {
+				return {
+					result: 'success',
+					success: value3 as T
+				};
+			}
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not one of ' + list
+				}
+			};
+		});
+	};
+};
+
+export const assertOptionalPropertyOf = <T>(
+	value: JSONValue,
+	key: string,
+	otherFun: (value: JSONValue, key: string) => Result<T, { [key: string]: string }>
+): Result<T | undefined, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		if (!(key in value) || value[key] === undefined) {
+			return {
+				result: 'success',
+				success: undefined
+			};
+		}
+		return otherFun(value, key);
+	});
+};
+
+export const assertNumberProperty = (
+	value: JSONValue,
+	key: string
+): Result<number, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'number') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a number'
+				}
+			};
+		}
+		return {
+			result: 'success',
+			success: value3
+		};
+	});
+};
+
+export const assertBooleanProperty = (
+	value: JSONValue,
+	key: string
+): Result<boolean, { [key: string]: string }> => {
+	return andThen(assertObjectType(value), (value) => {
+		const value3 = value[key];
+		if (typeof value3 !== 'boolean') {
+			return {
+				result: 'failure',
+				failure: {
+					[key]: 'not a boolean'
+				}
+			};
+		}
+		return {
+			result: 'success',
+			success: value3
+		};
+	});
+};
+
 export const assertObjectType = (
 	value: JSONValue
-): Result<{
-	[key: string]: JSONString;
-}, { [key: string]: string }> => {
+): Result<
+	{
+		[key: string]: JSONString;
+	},
+	{ [key: string]: string }
+> => {
 	if (typeof value !== 'object' || Array.isArray(value) || value == null) {
 		return {
 			result: 'failure',

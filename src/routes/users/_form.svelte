@@ -5,7 +5,7 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 <script lang="ts">
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
-import type { RawUserType } from '$lib/types';
+	import type { RawUserType } from '$lib/types';
 
 	export let entity: Partial<RawUserType>;
 </script>

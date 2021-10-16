@@ -2,10 +2,12 @@
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 import 'jest';
 import type { Login } from 'src/routes/login/index.json';
-import { successfulFetch } from '../../test_utils'
+import { failedFetch, successfulFetch } from '../../../lib/test_utils';
 
 test('invalid login returns error', async () => {
-	const result = await successfulFetch<Login>('http://localhost:3000/login.json', {
+	await successfulFetch('http://localhost:3000/setup', {});
+
+	const result = await failedFetch<{ [key: string]: string }>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
@@ -20,6 +22,8 @@ test('invalid login returns error', async () => {
 });
 
 test('successful login returns cookie', async () => {
+	await successfulFetch('http://localhost:3000/setup', {});
+
 	const result = await successfulFetch<Login>('http://localhost:3000/login.json', {
 		method: 'POST',
 		headers: {

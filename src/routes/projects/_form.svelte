@@ -12,22 +12,22 @@ SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 	import CreateForm from '$lib/form/CreateOrUpdateForm.svelte';
 	import TextInput from '$lib/form/TextInput.svelte';
 	import type { BaseQuery } from '$lib/list-entities';
-import type { EntityResponseBody, Existing, New, RawProjectType, RawUserType, Result } from '$lib/types';
-	import { Readable, Writable, writable } from 'svelte/store';
+	import type { Existing, New, RawProjectType, RawUserType } from '$lib/types';
+	import { Writable, writable } from 'svelte/store';
 	import ForceInProjectButton from '../force_in_project/ForceInProjectButton.svelte';
 	import ProjectLeaderButton from '../project_leaders/ProjectLeaderButton.svelte';
-import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
-import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
-import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import NumberFiltering from '$lib/entity-list/NumberFiltering.svelte';
+	import BooleanFiltering from '$lib/entity-list/BooleanFiltering.svelte';
+	import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
+	import { isErr } from '$lib/result';
 
 	export let entity: Partial<New<RawProjectType>>;
 
 	let project_leader_list: EntityList<Existing<RawUserType>>;
-	let project_leader_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
 
 	let project_leader_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined,
+			type: ['admin', 'helper', 'voter'] as unknown as 'admin' | 'helper' | undefined,
 			is_project_leader: false
 		},
 		paginationLimit: 10,
@@ -38,10 +38,9 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 	});
 
 	let force_in_project_list: EntityList<Existing<RawUserType>>;
-	let force_in_project_response: Readable<Result<EntityResponseBody<Existing<RawUserType>>>>;
 	let force_in_project_query: Writable<BaseQuery<Existing<RawUserType>>> = writable({
 		filters: {
-			type: ['admin', 'helper', 'voter'] as unknown as "admin" | "helper" | undefined
+			type: ['admin', 'helper', 'voter'] as unknown as 'admin' | 'helper' | undefined
 		},
 		paginationLimit: 10,
 		sorting: ['id:down-up', 'is_force_in_project:DESC', 'name:down-up', 'type:down-up'],
@@ -127,7 +126,6 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
 		<EntityList
 			bind:this={project_leader_list}
-			bind:response={project_leader_response}
 			url="project_leaders.json"
 			query={project_leader_query}
 			title="Projektleitende"
@@ -177,17 +175,17 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 					<th scope="col" />
 				</tr>
 			</thead>
-			<tbody slot="response">
-				{#if $project_leader_response?.failure}
+			<tbody slot="response" let:response>
+				{#if isErr(response)}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$project_leader_response.failure}
+								Fehler {response.failure}
 							</div>
 						</td>
 					</tr>
 				{:else}
-					{#each $project_leader_response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>
@@ -215,7 +213,6 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 		<!-- we could store the selected ones in the response (so also locally and ensure it doesnt get removed) -->
 		<EntityList
 			bind:this={force_in_project_list}
-			bind:response={force_in_project_response}
 			url="force_in_project.json"
 			query={force_in_project_query}
 			title="garantiert Teilnehmende"
@@ -265,17 +262,17 @@ import TextFiltering from '$lib/entity-list/TextFiltering.svelte';
 					<th scope="col" />
 				</tr>
 			</thead>
-			<tbody slot="response">
-				{#if $force_in_project_response?.failure}
+			<tbody slot="response" let:response>
+				{#if isErr(response)}
 					<tr>
 						<td colspan="4">
 							<div class="alert alert-danger w-100" role="alert">
-								Fehler {$force_in_project_response.failure}
+								Fehler {response.failure}
 							</div>
 						</td>
 					</tr>
 				{:else}
-					{#each $force_in_project_response?.success?.entities ?? [] as user (user.id)}
+					{#each response?.success?.entities /* eslint-disable-line @typescript-eslint/no-unsafe-member-access */ ?? [] as user (user.id)}
 						<tr>
 							<th scope="row">{user.id}</th>
 							<td>

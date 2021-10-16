@@ -3,7 +3,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 <script lang="ts">
-import { isErr, OptionalPromiseResult } from "./result";
+	import { isErr, OptionalPromiseResult } from './result';
 
 	export let result: OptionalPromiseResult<unknown, { [key: string]: string }>;
 </script>

@@ -4,33 +4,16 @@
 export type New<T> = T & { id?: number };
 export type Existing<T> = T & { id: number };
 
-export type RawUserVoterType = {
+export type RawUserType = {
 	name: string;
 	password: string;
-	type: 'voter';
-	group: string;
-	age: number;
+	type: 'helper' | 'admin' | 'voter';
+	group: string; // TODO FIXME null
+	age: number; // TODO FIXME null
 	away: boolean;
-	project_leader_id?: number;
-	force_in_project_id?: number;
+	project_leader_id: number | null;
+	force_in_project_id: number | null;
 };
-
-export type RawUserHelperAdminType = {
-	name: string;
-	password: string;
-	type: 'helper' | 'admin';
-	group: never;
-	age: never;
-	away: boolean;
-	project_leader_id?: number;
-	force_in_project_id?: number;
-};
-
-export type RawUserType =
-	| RawUserVoterType
-	| (RawUserHelperAdminType & {
-			password: string;
-	  });
 
 export type RawProjectType = {
 	title: string;

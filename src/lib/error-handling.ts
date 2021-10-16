@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 
-import type { PromiseResult, Result } from "./result";
+import type { PromiseResult, Result } from './result';
 
 export const myFetch = async <T>(
 	url: string,
@@ -13,14 +13,14 @@ export const myFetch = async <T>(
 			try {
 				const additionalInfo = await response.text();
 				return {
-					result: "failure",
+					result: 'failure',
 					failure: {
 						network: `Failed to request ${url}: ${response.status} ${response.statusText}\nAdditional information: ${additionalInfo}`
 					}
 				};
 			} catch (error: unknown) {
 				return {
-					result: "failure",
+					result: 'failure',
 					failure: {
 						network: `Failed to request ${url}: ${response.status} ${response.statusText}`
 					}
@@ -33,7 +33,7 @@ export const myFetch = async <T>(
 		console.error(error);
 		if (error instanceof TypeError) {
 			return {
-				result: "failure",
+				result: 'failure',
 				failure: {
 					network: `Failed to request ${url}: ${error.message}\nAdditional information: ${
 						error.stack ?? 'none'
@@ -42,7 +42,7 @@ export const myFetch = async <T>(
 			};
 		} else {
 			return {
-				result: "failure",
+				result: 'failure',
 				failure: {
 					network: `Failed to request ${url}: Unknown error see console.`
 				}
