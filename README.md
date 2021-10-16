@@ -3,6 +3,8 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 SPDX-FileCopyrightText: 2021 Moritz Hedtke <Moritz.Hedtke@t-online.de>
 -->
 
+# DISCONTINUED: Look at https://github.com/projektwahl/projektwahl-lit
+
 https://github.com/sveltejs/svelte/issues/2118
 
 set default_transaction_read_only = false;
