@@ -48,7 +48,7 @@ EXPLAIN ANALYZE SELECT id,name,type FROM users ORDER BY id ASC,name ASC LIMIT (1
 EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE (('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) OR (NOT true AND NOT false)) AND name LIKE '%%' AND (true OR id = null) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
 
 EXPLAIN ANALYZE SELECT id,name,type FROM users WHERE ('user0.94651659117602724' < name) OR ('user0.94651659117602724' = name AND 'voter' < type) OR ('user0.94651659117602724' = name AND 'voter' = type AND '0655c7e4-cc6a-4013-a0a5-d18b7ff48e44' < id) ORDER BY name ASC,type ASC,id ASC LIMIT (10 + 1);
-
+i) Font - قلم (فونت) فارسی وزیر"
 TODO
 
 TODO FIXME THE ORDER OF THE UNIONS HERE IS WRONG AND MAY ALSO NEED TO BE ADJUSTED FOR BACKWARDS PAGINATION
